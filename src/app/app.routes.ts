@@ -7,6 +7,8 @@ import { FleetManageComponent } from './pages/fleet-manage/fleet-manage.componen
 import { CampManageComponent } from './pages/camp-manage/camp-manage.component';
 import { ReportsComponent } from './pages/reports/reports.component';
 import { UserManageComponent } from './pages/user-manage/user-manage.component';
+import { DriverManageComponent } from './pages/driver-manage/driver-manage.component';
+import { TimesheetManageComponent } from './pages/timesheet-manage/timesheet-manage.component';
 
 export const routes: Routes = [
   { path: 'login', component: LoginComponent },
@@ -19,6 +21,8 @@ export const routes: Routes = [
       { path: 'fleet-management', component: FleetManageComponent },
       { path: 'camps-management', component: CampManageComponent },
       { path: 'user-management', component: UserManageComponent },
+      { path: 'driver-management', component: DriverManageComponent },
+      { path: 'timesheet-management', component: TimesheetManageComponent },
       { path: 'reports', component: ReportsComponent },
       { path: '', redirectTo: '/dashboard', pathMatch: 'full' }
     ]

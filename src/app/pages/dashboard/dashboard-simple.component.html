@@ -1,0 +1,159 @@
+<!-- Simple Dashboard without ECharts - Fallback Version -->
+<div class="min-h-screen bg-gray-50">
+  <div class="w-full py-6 px-4 sm:px-6 lg:px-8">
+    
+    <!-- Page Header -->
+    <div class="px-4 py-6 sm:px-0">
+      <div class="mb-8">
+        <h1 class="text-3xl font-bold text-gray-900 mb-2">ERP Dashboard</h1>
+        <p class="text-lg text-gray-600">Al Farah Contracting & General Transport</p>
+        <div class="mt-2 text-sm text-gray-500">
+          Last Updated: {{ getCurrentDateTime() }}
+        </div>
+      </div>
+
+      <!-- A. Top Summary KPIs (Header Cards) -->
+      <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-6 mb-8">
+        <div *ngFor="let kpi of kpiData" class="bg-white p-6 rounded-lg shadow-md border border-gray-200 hover:shadow-lg transition-shadow">
+          <div class="flex items-center">
+            <div class="flex-shrink-0">
+              <div class="w-12 h-12 {{ kpi.bgColor }} rounded-lg flex items-center justify-center">
+                <span class="text-2xl">{{ kpi.icon }}</span>
+              </div>
+            </div>
+            <div class="ml-4 flex-1">
+              <p class="text-sm font-medium text-gray-500 mb-1">{{ kpi.title }}</p>
+              <p class="text-2xl font-bold {{ kpi.color }} mb-1">{{ kpi.primaryValue }}</p>
+              <p class="text-xs text-gray-600">{{ kpi.secondaryValue }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Simple Charts Section -->
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+        
+        <!-- Fleet Utilization Summary -->
+        <div class="bg-white p-6 rounded-lg shadow-md border border-gray-200">
+          <h3 class="text-lg font-semibold text-gray-900 mb-4">🚗 Fleet Utilization Summary</h3>
+          <div class="space-y-4">
+            <div class="flex items-center justify-between p-4 bg-green-50 rounded-lg">
+              <div class="flex items-center">
+                <div class="w-4 h-4 bg-green-500 rounded-full mr-3"></div>
+                <span class="font-medium">Active Vehicles</span>
+              </div>
+              <span class="text-2xl font-bold text-green-600">540</span>
+            </div>
+            <div class="flex items-center justify-between p-4 bg-red-50 rounded-lg">
+              <div class="flex items-center">
+                <div class="w-4 h-4 bg-red-500 rounded-full mr-3"></div>
+                <span class="font-medium">In Maintenance</span>
+              </div>
+              <span class="text-2xl font-bold text-red-600">35</span>
+            </div>
+            <div class="flex items-center justify-between p-4 bg-yellow-50 rounded-lg">
+              <div class="flex items-center">
+                <div class="w-4 h-4 bg-yellow-500 rounded-full mr-3"></div>
+                <span class="font-medium">Idle</span>
+              </div>
+              <span class="text-2xl font-bold text-yellow-600">25</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Fuel Consumption Summary -->
+        <div class="bg-white p-6 rounded-lg shadow-md border border-gray-200">
+          <h3 class="text-lg font-semibold text-gray-900 mb-4">⛽ Fuel Consumption (This Week)</h3>
+          <div class="space-y-3">
+            <div class="flex justify-between items-center">
+              <span class="text-gray-600">Monday</span>
+              <span class="font-medium">1,200 L</span>
+            </div>
+            <div class="flex justify-between items-center">
+              <span class="text-gray-600">Tuesday</span>
+              <span class="font-medium">1,350 L</span>
+            </div>
+            <div class="flex justify-between items-center">
+              <span class="text-gray-600">Wednesday</span>
+              <span class="font-medium">1,100 L</span>
+            </div>
+            <div class="flex justify-between items-center">
+              <span class="text-gray-600">Thursday</span>
+              <span class="font-medium">1,450 L</span>
+            </div>
+            <div class="flex justify-between items-center">
+              <span class="text-gray-600">Friday</span>
+              <span class="font-medium">1,300 L</span>
+            </div>
+            <div class="flex justify-between items-center">
+              <span class="text-gray-600">Weekend</span>
+              <span class="font-medium">1,400 L</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Data Tables Section -->
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+        
+        <!-- Vehicle Details Table -->
+        <div class="bg-white rounded-lg shadow-md border border-gray-200">
+          <div class="px-6 py-4 border-b border-gray-200">
+            <h3 class="text-lg font-semibold text-gray-900">🚗 Vehicle Details</h3>
+          </div>
+          <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+              <thead class="bg-gray-50">
+                <tr>
+                  <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Vehicle</th>
+                  <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
+                  <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                </tr>
+              </thead>
+              <tbody class="bg-white divide-y divide-gray-200">
+                <tr *ngFor="let vehicle of vehicleData">
+                  <td class="px-4 py-3 text-sm font-medium text-gray-900">{{ vehicle.vehicleNo }}</td>
+                  <td class="px-4 py-3 text-sm text-gray-600">{{ vehicle.type }}</td>
+                  <td class="px-4 py-3">
+                    <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full {{ getStatusColor(vehicle.status) }}">
+                      {{ vehicle.status }}
+                    </span>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Purchase Summary Table -->
+        <div class="bg-white rounded-lg shadow-md border border-gray-200">
+          <div class="px-6 py-4 border-b border-gray-200">
+            <h3 class="text-lg font-semibold text-gray-900">🧾 Purchase Summary</h3>
+          </div>
+          <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+              <thead class="bg-gray-50">
+                <tr>
+                  <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">PO #</th>
+                  <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Vendor</th>
+                  <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                </tr>
+              </thead>
+              <tbody class="bg-white divide-y divide-gray-200">
+                <tr *ngFor="let purchase of purchaseData">
+                  <td class="px-4 py-3 text-sm font-medium text-gray-900">{{ purchase.poNumber }}</td>
+                  <td class="px-4 py-3 text-sm text-gray-600">{{ purchase.vendor }}</td>
+                  <td class="px-4 py-3">
+                    <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full {{ getStatusColor(purchase.status) }}">
+                      {{ purchase.status }}
+                    </span>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

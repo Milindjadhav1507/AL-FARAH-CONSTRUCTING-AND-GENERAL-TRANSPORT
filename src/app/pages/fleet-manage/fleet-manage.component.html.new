@@ -351,16 +351,8 @@
                 <span class="font-medium">{{ vehicle.assignedDriver?.name || 'Unassigned' }}</span>
               </div>
               <div class="flex justify-between text-sm">
-                <span class="text-gray-500">Route:</span>
-                <span class="font-medium" *ngIf="vehicle.route">
-                  <i class="fas fa-route text-indigo-500 mr-1"></i>
-                  {{ vehicle.route.name }}
-                </span>
-                <span class="text-gray-400" *ngIf="!vehicle.route">No Route</span>
-              </div>
-              <div class="flex justify-between text-sm">
                 <span class="text-gray-500">Fuel Efficiency:</span>
-                <span class="font-medium">{{ vehicle.fuelEfficiency.toFixed(2) }} km/L</span>
+                <span class="font-medium">{{ vehicle.fuelEfficiency }} km/L</span>
               </div>
               <div class="flex justify-between text-sm">
                 <span class="text-gray-500">Total KM:</span>
@@ -396,18 +388,15 @@
               </div>
               <div class="flex space-x-2 mt-2">
                 <button (click)="openDriverAssignModal(vehicle)" class="flex-1 px-3 py-2 text-xs font-medium text-purple-600 bg-purple-50 rounded-md hover:bg-purple-100">
-                  <i class="fas fa-user-plus mr-1"></i> Driver
-                </button>
-                <button (click)="openRouteAssignModal(vehicle)" class="flex-1 px-3 py-2 text-xs font-medium text-indigo-600 bg-indigo-50 rounded-md hover:bg-indigo-100">
-                  <i class="fas fa-route mr-1"></i> Route
+                  Assign Driver
                 </button>
                 <button (click)="openServiceModal(vehicle)" class="flex-1 px-3 py-2 text-xs font-medium text-yellow-600 bg-yellow-50 rounded-md hover:bg-yellow-100">
-                  <i class="fas fa-wrench mr-1"></i> Service
+                  Schedule Service
                 </button>
               </div>
               <div class="flex space-x-2 mt-2">
                 <button (click)="removeDriver(vehicle)" *ngIf="vehicle.assignedDriver" class="flex-1 px-3 py-2 text-xs font-medium text-orange-600 bg-orange-50 rounded-md hover:bg-orange-100">
-                  <i class="fas fa-user-times mr-1"></i> Remove Driver
+                  Remove Driver
                 </button>
                 <button (click)="deleteVehicle(vehicle)" class="flex-1 px-3 py-2 text-xs font-medium text-red-600 bg-red-50 rounded-md hover:bg-red-100">
                   Delete Vehicle
@@ -515,7 +504,6 @@
                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Location</th>
                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Driver</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Route</th>
                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Fuel Efficiency</th>
                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total KM</th>
                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Next Service</th>
@@ -548,15 +536,8 @@
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                   {{ vehicle.assignedDriver?.name || 'Unassigned' }}
                 </td>
-                <td class="px-6 py-4 whitespace-nowrap">
-                  <div class="text-sm text-gray-900" *ngIf="vehicle.route">
-                    <i class="fas fa-route text-indigo-500 mr-1"></i>
-                    {{ vehicle.route.name }}
-                  </div>
-                  <span class="text-sm text-gray-400" *ngIf="!vehicle.route">No Route</span>
-                </td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                  {{ vehicle.fuelEfficiency.toFixed(2) }} km/L
+                  {{ vehicle.fuelEfficiency }} km/L
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                   {{ vehicle.totalKm.toLocaleString() }}
@@ -686,7 +667,6 @@
                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Cost</th>
                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Location</th>
                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Driver</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
               </tr>
             </thead>
             <tbody class="bg-white divide-y divide-gray-200">
@@ -715,13 +695,6 @@
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                   {{ getDriverNameForRecord(record.driverId) }}
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                  <button 
-                    (click)="openFuelDetailsModal(record)" 
-                    class="text-blue-600 hover:text-blue-900 px-3 py-1 rounded-md bg-blue-50 hover:bg-blue-100 transition-colors">
-                    <i class="fas fa-eye mr-1"></i> View
-                  </button>
                 </td>
               </tr>
             </tbody>
@@ -763,83 +736,38 @@
     <!-- Routes Tab -->
     <div *ngIf="selectedTab === 'routes'" class="space-y-6">
       
-      <!-- Routes Header with Add Button -->
-      <div class="flex justify-between items-center">
-        <div>
-          <h2 class="text-2xl font-bold text-gray-900">Route Management</h2>
-          <p class="text-gray-600 mt-1">Manage all transportation routes</p>
-        </div>
-        <button (click)="openAddRouteModal()" class="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition-colors">
-          <i class="fas fa-plus mr-2"></i> Add New Route
-        </button>
-      </div>
-
-      <!-- Routes Table -->
-      <div class="bg-white rounded-lg shadow-md border border-gray-200">
-        <div class="overflow-x-auto">
-          <table class="min-w-full divide-y divide-gray-200">
-            <thead class="bg-gray-50">
-              <tr>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Route Name</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">From → To</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Distance</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Est. Time</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Assigned Vehicles</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
-              </tr>
-            </thead>
-            <tbody class="bg-white divide-y divide-gray-200">
-              <tr *ngFor="let route of routes" class="hover:bg-gray-50">
-                <td class="px-6 py-4 whitespace-nowrap">
-                  <div class="flex items-center">
-                    <i class="fas fa-route text-indigo-600 mr-3"></i>
-                    <div class="text-sm font-medium text-gray-900">{{ route.name }}</div>
-                  </div>
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap">
-                  <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">
-                    {{ route.type }}
-                  </span>
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap">
-                  <div class="text-sm text-gray-900">
-                    <i class="fas fa-map-marker-alt text-green-500 mr-1"></i> {{ route.startLocation }}
-                  </div>
-                  <div class="text-sm text-gray-500 mt-1">
-                    <i class="fas fa-map-marker-alt text-red-500 mr-1"></i> {{ route.endLocation }}
-                  </div>
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                  {{ route.distance }} km
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                  {{ route.estimatedTime }} min
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap">
-                  <div class="flex items-center">
-                    <span class="text-sm font-bold text-indigo-600 mr-2">{{ getVehicleCountByRoute(route) }}</span>
-                    <button (click)="viewRouteVehicles(route)" class="text-xs text-blue-600 hover:text-blue-900 underline">
-                      View Vehicles
-                    </button>
-                  </div>
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                  <div class="flex space-x-2">
-                    <button (click)="openRouteDetailsModal(route)" class="text-blue-600 hover:text-blue-900 px-2 py-1 rounded bg-blue-50 hover:bg-blue-100">
-                      <i class="fas fa-eye"></i>
-                    </button>
-                    <button (click)="openEditRouteModal(route)" class="text-green-600 hover:text-green-900 px-2 py-1 rounded bg-green-50 hover:bg-green-100">
-                      <i class="fas fa-edit"></i>
-                    </button>
-                    <button (click)="deleteRoute(route)" class="text-red-600 hover:text-red-900 px-2 py-1 rounded bg-red-50 hover:bg-red-100">
-                      <i class="fas fa-trash"></i>
-                    </button>
-                  </div>
-                </td>
-              </tr>
-            </tbody>
-          </table>
+      <!-- Routes Overview -->
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div *ngFor="let route of routes" class="bg-white p-6 rounded-lg shadow-md border border-gray-200">
+          <div class="flex items-center justify-between mb-4">
+            <h3 class="text-lg font-semibold text-gray-900">{{ route.name }}</h3>
+            <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">
+              {{ route.type }}
+            </span>
+          </div>
+          <div class="space-y-2">
+            <div class="flex justify-between text-sm">
+              <span class="text-gray-500">From:</span>
+              <span class="font-medium">{{ route.startLocation }}</span>
+            </div>
+            <div class="flex justify-between text-sm">
+              <span class="text-gray-500">To:</span>
+              <span class="font-medium">{{ route.endLocation }}</span>
+            </div>
+            <div class="flex justify-between text-sm">
+              <span class="text-gray-500">Distance:</span>
+              <span class="font-medium">{{ route.distance }} km</span>
+            </div>
+            <div class="flex justify-between text-sm">
+              <span class="text-gray-500">Duration:</span>
+              <span class="font-medium">{{ route.estimatedTime }} min</span>
+            </div>
+          </div>
+          <div class="mt-4 pt-4 border-t border-gray-200">
+            <button (click)="showRouteDetails(route.name)" class="w-full px-3 py-2 text-sm font-medium text-blue-600 bg-blue-50 rounded-md hover:bg-blue-100">
+              View Details
+            </button>
+          </div>
         </div>
       </div>
     </div>
@@ -920,13 +848,6 @@
         <div>
           <label class="block text-sm font-medium text-gray-700">Registration Number</label>
           <input type="text" [(ngModel)]="newVehicle.registrationNumber" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md">
-        </div>
-        <div>
-          <label class="block text-sm font-medium text-gray-700">Route (Optional)</label>
-          <select [(ngModel)]="newVehicle.route" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md">
-            <option [ngValue]="undefined">No Route Assigned</option>
-            <option *ngFor="let route of routes" [ngValue]="route">{{ route.name }} ({{ route.startLocation }} → {{ route.endLocation }})</option>
-          </select>
         </div>
       </div>
       <div class="flex justify-end space-x-3 mt-6">
@@ -1089,534 +1010,234 @@
   </div>
 </div>
 
-<!-- Vehicle Details Modal -->
+<!-- Vehicle Details Modal - Enhanced -->
 <div *ngIf="showVehicleDetailsModal && selectedVehicle" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
-  <div class="relative top-10 mx-auto p-5 border w-4/5 max-w-4xl shadow-lg rounded-md bg-white">
-    <div class="mt-3">
-      <div class="flex justify-between items-center mb-4">
-        <h3 class="text-lg font-medium text-gray-900">Vehicle Details - {{ selectedVehicle.vehicleNumber }}</h3>
-        <button (click)="closeVehicleDetailsModal()" class="text-gray-400 hover:text-gray-600">
-          <i class="fas fa-times text-xl"></i>
-        </button>
-      </div>
-      
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div class="space-y-4">
-          <h4 class="font-medium text-gray-900">Basic Information</h4>
-          <div class="space-y-2">
-            <div class="flex justify-between">
-              <span class="text-gray-500">Vehicle Number:</span>
-              <span class="font-medium">{{ selectedVehicle.vehicleNumber }}</span>
-            </div>
-            <div class="flex justify-between">
-              <span class="text-gray-500">Type:</span>
-              <span class="font-medium">{{ selectedVehicle.vehicleType.name }}</span>
-            </div>
-            <div class="flex justify-between">
-              <span class="text-gray-500">Make/Model:</span>
-              <span class="font-medium">{{ selectedVehicle.make }} {{ selectedVehicle.model }}</span>
-            </div>
-            <div class="flex justify-between">
-              <span class="text-gray-500">Year:</span>
-              <span class="font-medium">{{ selectedVehicle.year }}</span>
-            </div>
-            <div class="flex justify-between">
-              <span class="text-gray-500">Capacity:</span>
-              <span class="font-medium">{{ selectedVehicle.capacity }}</span>
-            </div>
-            <div class="flex justify-between">
-              <span class="text-gray-500">Registration:</span>
-              <span class="font-medium">{{ selectedVehicle.registrationNumber }}</span>
-            </div>
-          </div>
+  <div class="relative top-5 mx-auto p-6 border w-full max-w-6xl shadow-2xl rounded-xl bg-white mb-10 max-h-[95vh] overflow-y-auto">
+    <!-- Header with Vehicle Icon -->
+    <div class="flex items-center justify-between mb-6 pb-4 border-b-2 border-gray-200">
+      <div class="flex items-center space-x-4">
+        <div class="w-20 h-20 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center shadow-lg">
+          <i class="{{ getVehicleTypeIcon(selectedVehicle.vehicleType.icon) }} text-4xl text-white"></i>
         </div>
-        
-        <div class="space-y-4">
-          <h4 class="font-medium text-gray-900">Status & Assignment</h4>
-          <div class="space-y-2">
-            <div class="flex justify-between">
-              <span class="text-gray-500">Current Status:</span>
-              <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full" [class]="selectedVehicle.currentStatus.bgColor + ' ' + selectedVehicle.currentStatus.color">
-                {{ selectedVehicle.currentStatus.name }}
-              </span>
-            </div>
-            <div class="flex justify-between">
-              <span class="text-gray-500">Location:</span>
-              <span class="font-medium">{{ selectedVehicle.location }}</span>
-            </div>
-            <div class="flex justify-between">
-              <span class="text-gray-500">Assigned Driver:</span>
-              <span class="font-medium">{{ selectedVehicle.assignedDriver?.name || 'Unassigned' }}</span>
-            </div>
-            <div class="flex justify-between">
-              <span class="text-gray-500">Assigned Route:</span>
-              <span class="font-medium">{{ selectedVehicle.route?.name || 'No Route' }}</span>
-            </div>
-            <div class="flex justify-between">
-              <span class="text-gray-500">Fuel Efficiency:</span>
-              <span class="font-medium">{{ selectedVehicle.fuelEfficiency }} km/L</span>
-            </div>
-            <div class="flex justify-between">
-              <span class="text-gray-500">Total KM:</span>
-              <span class="font-medium">{{ selectedVehicle.totalKm.toLocaleString() }}</span>
-            </div>
-            <div class="flex justify-between">
-              <span class="text-gray-500">Maintenance Status:</span>
-              <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full" [class]="getMaintenanceStatusColor(selectedVehicle.maintenanceStatus)">
-                {{ selectedVehicle.maintenanceStatus }}
-              </span>
-            </div>
-          </div>
+        <div>
+          <h3 class="text-3xl font-bold text-gray-900">{{ selectedVehicle.vehicleNumber }}</h3>
+          <p class="text-md text-gray-600">{{ selectedVehicle.make }} {{ selectedVehicle.model }} ({{ selectedVehicle.year }})</p>
+          <p class="text-sm text-gray-500">{{ selectedVehicle.vehicleType.name }} - {{ selectedVehicle.vehicleType.category }}</p>
         </div>
       </div>
-      
-      <div class="mt-6 pt-6 border-t border-gray-200">
-        <h4 class="font-medium text-gray-900 mb-4">Recent Fuel Records</h4>
-        <div class="space-y-2">
-          <div *ngFor="let record of getFuelRecordsForVehicle(selectedVehicle.id).slice(0, 5)" class="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
-            <div>
-              <p class="text-sm font-medium">{{ formatDate(record.date) }} at {{ record.time }}</p>
-              <p class="text-xs text-gray-500">{{ record.location }}</p>
-            </div>
-            <div class="text-right">
-              <p class="text-sm font-bold text-green-600">{{ record.fuelAmount }}L</p>
-              <p class="text-xs text-gray-500">AED {{ record.cost }}</p>
-            </div>
-          </div>
-        </div>
-      </div>
-      
-      <div class="flex justify-end space-x-3 mt-6">
-        <button (click)="closeVehicleDetailsModal()" class="px-4 py-2 bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400">
-          Close
-        </button>
-        <button (click)="openServiceModal(selectedVehicle)" class="px-4 py-2 bg-yellow-600 text-white rounded-md hover:bg-yellow-700">
-          <i class="fas fa-wrench mr-1"></i> Schedule Service
-        </button>
-        <button (click)="openRouteAssignModal(selectedVehicle)" class="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700">
-          <i class="fas fa-route mr-1"></i> Assign Route
-        </button>
-        <button (click)="openDriverAssignModal(selectedVehicle)" class="px-4 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700">
-          <i class="fas fa-user-plus mr-1"></i> Assign Driver
+      <div class="flex flex-col items-end space-y-2">
+        <span class="inline-flex px-4 py-2 text-sm font-bold rounded-lg shadow-md" [class]="selectedVehicle.currentStatus.bgColor + ' ' + selectedVehicle.currentStatus.color">
+          <i class="fas fa-circle mr-2"></i>{{ selectedVehicle.currentStatus.name }}
+        </span>
+        <button (click)="closeVehicleDetailsModal()" class="text-gray-400 hover:text-gray-700 text-2xl">
+          <i class="fas fa-times-circle"></i>
         </button>
       </div>
     </div>
-  </div>
-</div>
 
-<!-- Route Assign Modal -->
-<div *ngIf="showRouteAssignModal && selectedVehicle" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
-  <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
-    <div class="mt-3">
-      <div class="flex items-center mb-4">
-        <div class="w-12 h-12 bg-indigo-50 rounded-lg flex items-center justify-center mr-3">
-          <i class="fas fa-route text-indigo-600 text-xl"></i>
-        </div>
-        <div>
-          <h3 class="text-lg font-medium text-gray-900">Assign Route</h3>
-          <p class="text-sm text-gray-500">Vehicle: {{ selectedVehicle.vehicleNumber }}</p>
-        </div>
-      </div>
-      
-      <div class="space-y-4">
-        <div>
-          <label class="block text-sm font-medium text-gray-700 mb-2">Select Route</label>
-          <select [(ngModel)]="selectedRoute" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
-            <option [ngValue]="null">No Route (Remove Route)</option>
-            <option *ngFor="let route of routes" [ngValue]="route">
-              {{ route.name }} - {{ route.distance }}km ({{ route.type }})
-            </option>
-          </select>
-        </div>
-        
-        <div *ngIf="selectedRoute" class="bg-indigo-50 p-3 rounded-lg">
-          <h4 class="text-sm font-semibold text-indigo-900 mb-2">Route Details</h4>
-          <div class="space-y-1 text-sm text-indigo-700">
-            <div class="flex justify-between">
-              <span>From:</span>
-              <span class="font-medium">{{ selectedRoute.startLocation }}</span>
-            </div>
-            <div class="flex justify-between">
-              <span>To:</span>
-              <span class="font-medium">{{ selectedRoute.endLocation }}</span>
-            </div>
-            <div class="flex justify-between">
-              <span>Distance:</span>
-              <span class="font-medium">{{ selectedRoute.distance }} km</span>
-            </div>
-            <div class="flex justify-between">
-              <span>Est. Time:</span>
-              <span class="font-medium">{{ selectedRoute.estimatedTime }} min</span>
-            </div>
-          </div>
-        </div>
-
-        <div *ngIf="!selectedRoute" class="bg-gray-50 p-3 rounded-lg">
-          <p class="text-sm text-gray-600 text-center">
-            <i class="fas fa-info-circle mr-1"></i>
-            Route will be removed from this vehicle
-          </p>
-        </div>
-      </div>
-      
-      <div class="flex justify-end space-x-3 mt-6">
-        <button (click)="closeRouteAssignModal()" class="px-4 py-2 bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400">
-          Cancel
-        </button>
-        <button (click)="assignRoute()" class="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700">
-          <i class="fas fa-check mr-1"></i> Assign Route
-        </button>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- Fuel Details Modal -->
-<div *ngIf="showFuelDetailsModal && selectedFuelRecord" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
-  <div class="relative top-10 mx-auto p-5 border w-11/12 max-w-3xl shadow-lg rounded-md bg-white">
-    <div class="mt-3">
-      <!-- Header -->
-      <div class="flex justify-between items-center mb-6 pb-4 border-b">
-        <div class="flex items-center">
-          <div class="w-12 h-12 bg-orange-50 rounded-lg flex items-center justify-center mr-4">
-            <i class="fas fa-gas-pump text-orange-600 text-2xl"></i>
-          </div>
-          <div>
-            <h3 class="text-xl font-bold text-gray-900">Fuel Record Details</h3>
-            <p class="text-sm text-gray-500">Record ID: {{ selectedFuelRecord.id }}</p>
-          </div>
-        </div>
-        <button (click)="closeFuelDetailsModal()" class="text-gray-400 hover:text-gray-600 transition-colors">
-          <i class="fas fa-times text-2xl"></i>
-        </button>
-      </div>
-
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <!-- Left Column - Vehicle & Fuel Info -->
-        <div class="space-y-4">
-          <div class="bg-blue-50 p-4 rounded-lg">
-            <h4 class="text-sm font-semibold text-blue-900 mb-3 flex items-center">
-              <i class="fas fa-truck mr-2"></i> Vehicle Information
-            </h4>
-            <div class="space-y-2">
-              <div class="flex justify-between">
-                <span class="text-sm text-blue-700">Vehicle Number:</span>
-                <span class="text-sm font-bold text-blue-900">AF-{{ selectedFuelRecord.vehicleId.padStart(3, '0') }}</span>
-              </div>
-              <div class="flex justify-between">
-                <span class="text-sm text-blue-700">Vehicle Type:</span>
-                <span class="text-sm font-medium text-blue-900">
-                  <i class="{{ getVehicleTypeIconForRecord(selectedFuelRecord.vehicleId) }} mr-1"></i>
-                  {{ getVehicleById(selectedFuelRecord.vehicleId)?.vehicleType?.name || 'N/A' }}
-                </span>
-              </div>
-              <div class="flex justify-between">
-                <span class="text-sm text-blue-700">Make & Model:</span>
-                <span class="text-sm font-medium text-blue-900">
-                  {{ getVehicleById(selectedFuelRecord.vehicleId)?.make }} {{ getVehicleById(selectedFuelRecord.vehicleId)?.model }}
-                </span>
-              </div>
-            </div>
-          </div>
-
-          <div class="bg-orange-50 p-4 rounded-lg">
-            <h4 class="text-sm font-semibold text-orange-900 mb-3 flex items-center">
-              <i class="fas fa-gas-pump mr-2"></i> Fuel Details
-            </h4>
-            <div class="space-y-3">
-              <div class="flex justify-between items-center">
-                <span class="text-sm text-orange-700">Fuel Amount:</span>
-                <span class="text-lg font-bold text-orange-600">{{ selectedFuelRecord.fuelAmount }}L</span>
-              </div>
-              <div class="flex justify-between items-center">
-                <span class="text-sm text-orange-700">Cost:</span>
-                <span class="text-lg font-bold text-green-600">AED {{ selectedFuelRecord.cost }}</span>
-              </div>
-              <div class="flex justify-between">
-                <span class="text-sm text-orange-700">Price per Liter:</span>
-                <span class="text-sm font-medium text-orange-900">AED {{ (selectedFuelRecord.cost / selectedFuelRecord.fuelAmount).toFixed(2) }}</span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Right Column - Date, Location & Driver Info -->
-        <div class="space-y-4">
-          <div class="bg-purple-50 p-4 rounded-lg">
-            <h4 class="text-sm font-semibold text-purple-900 mb-3 flex items-center">
-              <i class="fas fa-calendar-alt mr-2"></i> Date & Time
-            </h4>
-            <div class="space-y-2">
-              <div class="flex justify-between">
-                <span class="text-sm text-purple-700">Date:</span>
-                <span class="text-sm font-bold text-purple-900">{{ formatDate(selectedFuelRecord.date) }}</span>
-              </div>
-              <div class="flex justify-between">
-                <span class="text-sm text-purple-700">Time:</span>
-                <span class="text-sm font-bold text-purple-900">{{ selectedFuelRecord.time }}</span>
-              </div>
-            </div>
-          </div>
-
-          <div class="bg-green-50 p-4 rounded-lg">
-            <h4 class="text-sm font-semibold text-green-900 mb-3 flex items-center">
-              <i class="fas fa-map-marker-alt mr-2"></i> Location & Distance
-            </h4>
-            <div class="space-y-2">
-              <div class="flex justify-between">
-                <span class="text-sm text-green-700">Fuel Station:</span>
-                <span class="text-sm font-medium text-green-900">{{ selectedFuelRecord.location }}</span>
-              </div>
-              <div class="flex justify-between">
-                <span class="text-sm text-green-700">KM Reading:</span>
-                <span class="text-sm font-bold text-green-900">{{ selectedFuelRecord.kmReading.toLocaleString() }} km</span>
-              </div>
-              <div class="flex justify-between">
-                <span class="text-sm text-green-700">Fuel Efficiency:</span>
-                <span class="text-sm font-medium text-green-900">
-                  {{ getVehicleById(selectedFuelRecord.vehicleId)?.fuelEfficiency?.toFixed(2) || 'N/A' }} km/L
-                </span>
-              </div>
-            </div>
-          </div>
-
-          <div class="bg-indigo-50 p-4 rounded-lg">
-            <h4 class="text-sm font-semibold text-indigo-900 mb-3 flex items-center">
-              <i class="fas fa-user mr-2"></i> Driver Information
-            </h4>
-            <div class="space-y-2">
-              <div class="flex justify-between">
-                <span class="text-sm text-indigo-700">Driver Name:</span>
-                <span class="text-sm font-bold text-indigo-900">{{ getDriverNameForRecord(selectedFuelRecord.driverId) }}</span>
-              </div>
-              <div class="flex justify-between">
-                <span class="text-sm text-indigo-700">License:</span>
-                <span class="text-sm font-medium text-indigo-900">{{ getDriverById(selectedFuelRecord.driverId)?.licenseNumber || 'N/A' }}</span>
-              </div>
-              <div class="flex justify-between">
-                <span class="text-sm text-indigo-700">Phone:</span>
-                <span class="text-sm font-medium text-indigo-900">{{ getDriverById(selectedFuelRecord.driverId)?.phone || 'N/A' }}</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Additional Stats -->
-      <div class="mt-6 bg-gradient-to-r from-blue-50 to-purple-50 p-4 rounded-lg">
-        <h4 class="text-sm font-semibold text-gray-900 mb-3">
-          <i class="fas fa-chart-line mr-2"></i> Fuel Efficiency Analysis
+    <!-- Main Content Grid - 4 Columns -->
+    <div class="grid grid-cols-4 gap-4 mb-6">
+      <!-- Column 1: Basic Information -->
+      <div class="bg-gradient-to-br from-blue-50 to-blue-100 p-5 rounded-xl shadow-md">
+        <h4 class="font-bold text-gray-900 flex items-center mb-4 text-lg">
+          <i class="fas fa-info-circle text-blue-600 mr-2"></i> Basic Info
         </h4>
-        <div class="grid grid-cols-3 gap-4">
-          <div class="text-center">
-            <p class="text-xs text-gray-600">Expected Distance</p>
-            <p class="text-lg font-bold text-blue-600">
-              {{ (selectedFuelRecord.fuelAmount * (getVehicleById(selectedFuelRecord.vehicleId)?.fuelEfficiency || 0)).toFixed(0) }} km
-            </p>
+        <div class="space-y-3">
+          <div>
+            <span class="text-xs text-gray-600 block">Capacity</span>
+            <span class="text-sm font-bold text-gray-900">{{ selectedVehicle.capacity }}</span>
           </div>
-          <div class="text-center">
-            <p class="text-xs text-gray-600">Cost per KM</p>
-            <p class="text-lg font-bold text-green-600">
-              AED {{ (selectedFuelRecord.cost / (selectedFuelRecord.fuelAmount * (getVehicleById(selectedFuelRecord.vehicleId)?.fuelEfficiency || 1))).toFixed(2) }}
-            </p>
+          <div>
+            <span class="text-xs text-gray-600 block">Fuel Type</span>
+            <span class="text-sm font-bold text-gray-900">{{ selectedVehicle.fuelType }}</span>
           </div>
-          <div class="text-center">
-            <p class="text-xs text-gray-600">Total Filled</p>
-            <p class="text-lg font-bold text-orange-600">{{ selectedFuelRecord.fuelAmount }}L</p>
+          <div>
+            <span class="text-xs text-gray-600 block">Registration</span>
+            <span class="text-sm font-bold text-gray-900">{{ selectedVehicle.registrationNumber }}</span>
+          </div>
+          <div>
+            <span class="text-xs text-gray-600 block">Category</span>
+            <span class="text-sm font-bold text-gray-900">{{ selectedVehicle.vehicleType.category }}</span>
           </div>
         </div>
       </div>
 
-      <!-- Actions -->
-      <div class="flex justify-end space-x-3 mt-6">
-        <button (click)="closeFuelDetailsModal()" class="px-6 py-2 bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400 transition-colors">
-          <i class="fas fa-times mr-2"></i> Close
-        </button>
-        <button (click)="openVehicleDetailsModal(getVehicleById(selectedFuelRecord.vehicleId)!); closeFuelDetailsModal()" class="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors">
-          <i class="fas fa-truck mr-2"></i> View Vehicle
-        </button>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- Add/Edit Route Modal -->
-<div *ngIf="showAddEditRouteModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
-  <div class="relative top-20 mx-auto p-5 border w-11/12 max-w-2xl shadow-lg rounded-md bg-white">
-    <div class="mt-3">
-      <div class="flex items-center justify-between mb-6 pb-4 border-b">
-        <div class="flex items-center">
-          <div class="w-12 h-12 bg-indigo-50 rounded-lg flex items-center justify-center mr-3">
-            <i class="fas fa-route text-indigo-600 text-xl"></i>
-          </div>
-          <h3 class="text-xl font-bold text-gray-900">{{ isEditMode ? 'Edit Route' : 'Add New Route' }}</h3>
-        </div>
-        <button (click)="closeAddEditRouteModal()" class="text-gray-400 hover:text-gray-600 transition-colors">
-          <i class="fas fa-times text-2xl"></i>
-        </button>
-      </div>
-
-      <div class="space-y-4">
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <!-- Column 2: Location & Status -->
+      <div class="bg-gradient-to-br from-green-50 to-green-100 p-5 rounded-xl shadow-md">
+        <h4 class="font-bold text-gray-900 flex items-center mb-4 text-lg">
+          <i class="fas fa-map-marker-alt text-green-600 mr-2"></i> Location
+        </h4>
+        <div class="space-y-3">
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2">Route Name *</label>
-            <input type="text" [(ngModel)]="newRoute.name" class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
+            <span class="text-xs text-gray-600 block">Current Location</span>
+            <span class="text-sm font-bold text-gray-900">{{ selectedVehicle.location }}</span>
           </div>
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2">Route Type *</label>
-            <select [(ngModel)]="newRoute.type" class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
-              <option value="Bus Route">Bus Route</option>
-              <option value="Material Transport">Material Transport</option>
-              <option value="Equipment Transport">Equipment Transport</option>
-              <option value="Supply Route">Supply Route</option>
-              <option value="Staff Transport">Staff Transport</option>
-            </select>
-          </div>
-        </div>
-
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2">Start Location *</label>
-            <input type="text" [(ngModel)]="newRoute.startLocation" class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500" placeholder="e.g., Al Farah Camp A">
+            <span class="text-xs text-gray-600 block">Assigned Route</span>
+            <span class="text-sm font-bold text-gray-900">{{ selectedVehicle.route?.name || 'No Route' }}</span>
           </div>
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2">End Location *</label>
-            <input type="text" [(ngModel)]="newRoute.endLocation" class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500" placeholder="e.g., Construction Site 1">
-          </div>
-        </div>
-
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2">Distance (km) *</label>
-            <input type="number" [(ngModel)]="newRoute.distance" class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500" placeholder="e.g., 45">
+            <span class="text-xs text-gray-600 block">Total Distance</span>
+            <span class="text-sm font-bold text-gray-900">{{ selectedVehicle.totalKm.toLocaleString() }} km</span>
           </div>
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2">Estimated Time (minutes) *</label>
-            <input type="number" [(ngModel)]="newRoute.estimatedTime" class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500" placeholder="e.g., 60">
-          </div>
-        </div>
-      </div>
-
-      <div class="flex justify-end space-x-3 mt-6">
-        <button (click)="closeAddEditRouteModal()" class="px-6 py-2 bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400 transition-colors">
-          Cancel
-        </button>
-        <button (click)="saveRoute()" class="px-6 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition-colors">
-          <i class="fas fa-save mr-2"></i> {{ isEditMode ? 'Update Route' : 'Add Route' }}
-        </button>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- Route Details Modal -->
-<div *ngIf="showRouteDetailsModal && selectedRouteForDetails" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
-  <div class="relative top-10 mx-auto p-5 border w-11/12 max-w-4xl shadow-lg rounded-md bg-white">
-    <div class="mt-3">
-      <div class="flex items-center justify-between mb-6 pb-4 border-b">
-        <div class="flex items-center">
-          <div class="w-12 h-12 bg-indigo-50 rounded-lg flex items-center justify-center mr-3">
-            <i class="fas fa-route text-indigo-600 text-2xl"></i>
-          </div>
-          <div>
-            <h3 class="text-xl font-bold text-gray-900">{{ selectedRouteForDetails.name }}</h3>
-            <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">
-              {{ selectedRouteForDetails.type }}
+            <span class="text-xs text-gray-600 block">Maintenance</span>
+            <span class="inline-flex px-2 py-1 text-xs font-bold rounded-full" [class]="getMaintenanceStatusColor(selectedVehicle.maintenanceStatus)">
+              {{ selectedVehicle.maintenanceStatus }}
             </span>
           </div>
         </div>
-        <button (click)="closeRouteDetailsModal()" class="text-gray-400 hover:text-gray-600 transition-colors">
-          <i class="fas fa-times text-2xl"></i>
-        </button>
       </div>
 
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <!-- Left Column - Route Info -->
-        <div class="space-y-4">
-          <div class="bg-gradient-to-r from-green-50 to-red-50 p-4 rounded-lg">
-            <h4 class="text-sm font-semibold text-gray-900 mb-3 flex items-center">
-              <i class="fas fa-map-marked-alt mr-2"></i> Route Information
-            </h4>
-            <div class="space-y-3">
-              <div class="flex items-center">
-                <i class="fas fa-map-marker-alt text-green-500 mr-2"></i>
-                <div>
-                  <p class="text-xs text-gray-600">Start Location</p>
-                  <p class="text-sm font-bold text-gray-900">{{ selectedRouteForDetails.startLocation }}</p>
-                </div>
-              </div>
-              <div class="flex items-center justify-center">
-                <i class="fas fa-arrow-down text-indigo-500 text-xl"></i>
-              </div>
-              <div class="flex items-center">
-                <i class="fas fa-map-marker-alt text-red-500 mr-2"></i>
-                <div>
-                  <p class="text-xs text-gray-600">End Location</p>
-                  <p class="text-sm font-bold text-gray-900">{{ selectedRouteForDetails.endLocation }}</p>
-                </div>
-              </div>
-            </div>
+      <!-- Column 3: Driver Information -->
+      <div class="bg-gradient-to-br from-purple-50 to-purple-100 p-5 rounded-xl shadow-md">
+        <h4 class="font-bold text-gray-900 flex items-center mb-4 text-lg">
+          <i class="fas fa-user text-purple-600 mr-2"></i> Driver
+        </h4>
+        <div *ngIf="selectedVehicle.assignedDriver" class="space-y-3">
+          <div>
+            <span class="text-xs text-gray-600 block">Driver Name</span>
+            <span class="text-sm font-bold text-gray-900">{{ selectedVehicle.assignedDriver.name }}</span>
           </div>
-
-          <div class="bg-blue-50 p-4 rounded-lg">
-            <h4 class="text-sm font-semibold text-blue-900 mb-3">Distance & Time</h4>
-            <div class="grid grid-cols-2 gap-4">
-              <div class="text-center">
-                <i class="fas fa-road text-blue-600 text-2xl mb-2"></i>
-                <p class="text-xs text-blue-700">Distance</p>
-                <p class="text-lg font-bold text-blue-900">{{ selectedRouteForDetails.distance }} km</p>
-              </div>
-              <div class="text-center">
-                <i class="fas fa-clock text-orange-600 text-2xl mb-2"></i>
-                <p class="text-xs text-orange-700">Est. Time</p>
-                <p class="text-lg font-bold text-orange-900">{{ selectedRouteForDetails.estimatedTime }} min</p>
-              </div>
-            </div>
+          <div>
+            <span class="text-xs text-gray-600 block">Phone</span>
+            <span class="text-sm font-bold text-gray-900">{{ selectedVehicle.assignedDriver.phone }}</span>
+          </div>
+          <div>
+            <span class="text-xs text-gray-600 block">License Number</span>
+            <span class="text-sm font-bold text-gray-900">{{ selectedVehicle.assignedDriver.licenseNumber }}</span>
+          </div>
+          <div>
+            <span class="text-xs text-gray-600 block">Status</span>
+            <span class="inline-flex px-2 py-1 text-xs font-bold rounded-full bg-green-100 text-green-800">
+              {{ selectedVehicle.assignedDriver.status }}
+            </span>
           </div>
         </div>
+        <div *ngIf="!selectedVehicle.assignedDriver" class="text-center py-8">
+          <i class="fas fa-user-slash text-4xl text-gray-300 mb-2"></i>
+          <p class="text-sm text-gray-500">No Driver Assigned</p>
+        </div>
+      </div>
 
-        <!-- Right Column - Assigned Vehicles -->
-        <div class="space-y-4">
-          <div class="bg-indigo-50 p-4 rounded-lg">
-            <h4 class="text-sm font-semibold text-indigo-900 mb-3 flex items-center justify-between">
-              <span><i class="fas fa-truck mr-2"></i> Assigned Vehicles</span>
-              <span class="bg-indigo-600 text-white px-2 py-1 rounded-full text-xs">{{ getVehiclesByRoute(selectedRouteForDetails).length }}</span>
-            </h4>
-            <div class="max-h-96 overflow-y-auto space-y-2">
-              <div *ngFor="let vehicle of getVehiclesByRoute(selectedRouteForDetails)" class="bg-white p-3 rounded-lg shadow-sm border border-indigo-100 hover:border-indigo-300 transition-colors">
-                <div class="flex items-center justify-between">
-                  <div class="flex items-center">
-                    <i class="{{ getVehicleTypeIcon(vehicle.vehicleType.icon) }} text-lg mr-2 text-indigo-600"></i>
-                    <div>
-                      <p class="text-sm font-bold text-gray-900">{{ vehicle.vehicleNumber }}</p>
-                      <p class="text-xs text-gray-600">{{ vehicle.vehicleType.name }}</p>
-                    </div>
-                  </div>
-                  <div class="text-right">
-                    <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full" [class]="vehicle.currentStatus.bgColor + ' ' + vehicle.currentStatus.color">
-                      {{ vehicle.currentStatus.name }}
-                    </span>
-                    <p class="text-xs text-gray-500 mt-1">{{ vehicle.assignedDriver?.name || 'No Driver' }}</p>
-                  </div>
-                </div>
-              </div>
-              <div *ngIf="getVehiclesByRoute(selectedRouteForDetails).length === 0" class="text-center py-8 text-gray-500">
-                <i class="fas fa-inbox text-4xl mb-2"></i>
-                <p>No vehicles assigned to this route</p>
-              </div>
-            </div>
+      <!-- Column 4: Fuel Efficiency -->
+      <div class="bg-gradient-to-br from-orange-50 to-orange-100 p-5 rounded-xl shadow-md">
+        <h4 class="font-bold text-gray-900 flex items-center mb-4 text-lg">
+          <i class="fas fa-gas-pump text-orange-600 mr-2"></i> Fuel Stats
+        </h4>
+        <div class="space-y-3">
+          <div>
+            <span class="text-xs text-gray-600 block">Efficiency</span>
+            <span class="text-2xl font-bold text-green-600">{{ selectedVehicle.fuelEfficiency.toFixed(1) }}</span>
+            <span class="text-xs text-gray-600"> km/L</span>
+          </div>
+          <div>
+            <span class="text-xs text-gray-600 block">Total Records</span>
+            <span class="text-sm font-bold text-gray-900">{{ getFuelRecordsForVehicle(selectedVehicle.id).length }}</span>
+          </div>
+          <div>
+            <span class="text-xs text-gray-600 block">Last Fuel Date</span>
+            <span class="text-sm font-bold text-gray-900">{{ selectedVehicle.lastFuelDate ? formatDate(selectedVehicle.lastFuelDate) : 'N/A' }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Service & Insurance Section -->
+    <div class="grid grid-cols-2 gap-4 mb-6">
+      <!-- Service Information -->
+      <div class="bg-gradient-to-r from-yellow-50 to-amber-50 p-5 rounded-xl border-2 border-yellow-200 shadow-md">
+        <h4 class="font-bold text-gray-900 flex items-center mb-4 text-lg">
+          <i class="fas fa-wrench text-yellow-600 mr-2"></i> Service Schedule
+        </h4>
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <span class="text-xs text-gray-600 block mb-1">Last Service</span>
+            <span class="text-sm font-bold text-gray-900 block">{{ formatDate(selectedVehicle.lastServiceDate) }}</span>
+            <span class="text-xs text-gray-500">{{ getDaysUntil(selectedVehicle.lastServiceDate) * -1 }} days ago</span>
+          </div>
+          <div>
+            <span class="text-xs text-gray-600 block mb-1">Next Service</span>
+            <span class="text-sm font-bold block" [class]="getDaysUntilService(selectedVehicle) <= 0 ? 'text-red-600' : 'text-gray-900'">
+              {{ formatDate(selectedVehicle.nextServiceDate) }}
+            </span>
+            <span class="text-xs font-bold px-2 py-1 rounded-full inline-block mt-1" [class]="getServiceStatusColor(selectedVehicle)">
+              {{ getDaysUntilService(selectedVehicle) }} days
+            </span>
           </div>
         </div>
       </div>
 
-      <div class="flex justify-end space-x-3 mt-6">
-        <button (click)="closeRouteDetailsModal()" class="px-6 py-2 bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400 transition-colors">
-          Close
+      <!-- Insurance Information -->
+      <div class="bg-gradient-to-r from-indigo-50 to-blue-50 p-5 rounded-xl border-2 border-indigo-200 shadow-md">
+        <h4 class="font-bold text-gray-900 flex items-center mb-4 text-lg">
+          <i class="fas fa-shield-alt text-indigo-600 mr-2"></i> Insurance
+        </h4>
+        <div>
+          <span class="text-xs text-gray-600 block mb-1">Insurance Expiry Date</span>
+          <span class="text-sm font-bold text-gray-900 block">{{ formatDate(selectedVehicle.insuranceExpiry) }}</span>
+          <span class="text-xs font-semibold px-3 py-1 rounded-full inline-block mt-2" 
+                [class]="getDaysUntil(selectedVehicle.insuranceExpiry) < 30 ? 'bg-red-100 text-red-700' : getDaysUntil(selectedVehicle.insuranceExpiry) < 90 ? 'bg-yellow-100 text-yellow-700' : 'bg-green-100 text-green-700'">
+            <i class="fas fa-clock mr-1"></i>{{ getDaysUntil(selectedVehicle.insuranceExpiry) }} days remaining
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Recent Fuel Records - Enhanced -->
+    <div class="bg-gradient-to-br from-gray-50 to-gray-100 p-6 rounded-xl border border-gray-200 shadow-md">
+      <h4 class="font-bold text-gray-900 mb-4 flex items-center justify-between text-lg">
+        <span><i class="fas fa-history text-blue-600 mr-2"></i> Recent Fuel Fill-ups (Last 5)</span>
+        <span class="text-sm text-gray-600">Total: {{ getFuelRecordsForVehicle(selectedVehicle.id).length }} records</span>
+      </h4>
+      <div class="grid grid-cols-1 gap-3">
+        <div *ngFor="let record of getFuelRecordsForVehicle(selectedVehicle.id).slice(0, 5)" 
+             class="flex justify-between items-center p-4 bg-white rounded-lg border-l-4 border-orange-500 hover:shadow-lg transition-all">
+          <div class="flex items-center space-x-4">
+            <div class="w-12 h-12 bg-gradient-to-br from-orange-400 to-orange-600 rounded-full flex items-center justify-center shadow-md">
+              <i class="fas fa-gas-pump text-white text-lg"></i>
+            </div>
+            <div>
+              <p class="text-sm font-bold text-gray-900">{{ formatDate(record.date) }} <span class="text-orange-600">@ {{ record.time }}</span></p>
+              <p class="text-xs text-gray-600 flex items-center mt-1">
+                <i class="fas fa-map-marker-alt mr-1 text-red-500"></i>{{ record.location }}
+              </p>
+              <p class="text-xs text-gray-600 flex items-center">
+                <i class="fas fa-user mr-1 text-blue-500"></i>{{ getDriverNameForRecord(record.driverId) }}
+              </p>
+            </div>
+          </div>
+          <div class="text-right">
+            <p class="text-2xl font-bold text-orange-600">{{ record.fuelAmount }}L</p>
+            <p class="text-md font-semibold text-green-600">AED {{ record.cost }}</p>
+            <p class="text-xs text-gray-500"><i class="fas fa-tachometer-alt mr-1"></i>{{ record.kmReading.toLocaleString() }} km</p>
+          </div>
+        </div>
+      </div>
+      <p *ngIf="getFuelRecordsForVehicle(selectedVehicle.id).length === 0" class="text-center text-gray-500 py-8">
+        <i class="fas fa-inbox text-4xl mb-2 text-gray-300"></i>
+        <br>No fuel records available for this vehicle
+      </p>
+    </div>
+
+    <!-- Action Buttons Footer -->
+    <div class="flex justify-between items-center mt-6 pt-4 border-t-2 border-gray-200">
+      <div class="flex space-x-3">
+        <button (click)="openFuelEntryModal(); closeVehicleDetailsModal()" class="px-5 py-3 bg-gradient-to-r from-orange-500 to-orange-600 text-white rounded-lg hover:from-orange-600 hover:to-orange-700 shadow-md font-semibold">
+          <i class="fas fa-gas-pump mr-2"></i>Add Fuel Entry
         </button>
-        <button (click)="openEditRouteModal(selectedRouteForDetails); closeRouteDetailsModal();" class="px-6 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors">
-          <i class="fas fa-edit mr-2"></i> Edit Route
+        <button (click)="openServiceModal(selectedVehicle)" class="px-5 py-3 bg-gradient-to-r from-yellow-500 to-yellow-600 text-white rounded-lg hover:from-yellow-600 hover:to-yellow-700 shadow-md font-semibold">
+          <i class="fas fa-wrench mr-2"></i>Schedule Service
+        </button>
+        <button (click)="openDriverAssignModal(selectedVehicle)" class="px-5 py-3 bg-gradient-to-r from-purple-500 to-purple-600 text-white rounded-lg hover:from-purple-600 hover:to-purple-700 shadow-md font-semibold">
+          <i class="fas fa-user-plus mr-2"></i>Assign Driver
         </button>
       </div>
+      <button (click)="closeVehicleDetailsModal()" class="px-6 py-3 bg-gray-600 text-white rounded-lg hover:bg-gray-700 shadow-md font-semibold">
+        <i class="fas fa-times mr-2"></i>Close
+      </button>
     </div>
   </div>
 </div>
+
+

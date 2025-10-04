@@ -1,58 +1,466 @@
-<!-- Dashboard Page -->
+<!-- ERP Dashboard - Al Farah Contracting & General Transport -->
 <div class="min-h-screen bg-gray-50">
-  <div class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+  <div class="w-full py-6 px-4 sm:px-6 lg:px-8">
+    
     <!-- Page Header -->
     <div class="px-4 py-6 sm:px-0">
-      <div class="border-4 border-dashed border-gray-200 rounded-lg h-96 flex items-center justify-center">
+      <div class="mb-8">
+        <h1 class="text-3xl font-bold text-gray-900 mb-2">ERP Dashboard</h1>
+        <p class="text-lg text-gray-600">Al Farah Contracting & General Transport</p>
+        <div class="mt-2 text-sm text-gray-500">
+          Last Updated: {{ getCurrentDateTime() }}
+        </div>
+      </div>
+
+      <!-- Debug Info -->
+      <!-- <div class="mb-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+        <div class="flex items-center">
+          <svg class="w-5 h-5 text-blue-600 mr-2" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path>
+          </svg>
+          <p class="text-sm text-blue-800">Dashboard Status: {{ kpiData.length }} KPIs loaded, Charts: {{ isChartReady() ? 'Ready' : 'Loading...' }}</p>
+        </div>
+      </div> -->
+
+      <!-- A. Top Summary KPIs (Header Cards) -->
+      <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-6 mb-8">
+        <div *ngFor="let kpi of kpiData" class="bg-white p-6 rounded-lg shadow-md border border-gray-200 hover:shadow-lg transition-shadow">
+              <div class="flex items-center">
+                <div class="flex-shrink-0">
+              <div class="w-12 h-12 {{ kpi.bgColor }} rounded-lg flex items-center justify-center">
+                <!-- Construction Truck Icon -->
+                <svg *ngIf="kpi.icon === 'truck'" class="w-6 h-6 {{ kpi.color }}" fill="currentColor" viewBox="0 0 20 20">
+                  <path d="M8 2a1 1 0 000 2h2a1 1 0 100-2H8z"/>
+                  <path d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/>
+                  <path d="M12 6.75a.75.75 0 01.75.75v8.5a.75.75 0 01-.75.75h-1.5a.75.75 0 01-.75-.75v-8.5a.75.75 0 01.75-.75h1.5z"/>
+                </svg>
+                <!-- Fuel Tank Icon -->
+                <svg *ngIf="kpi.icon === 'fuel-pump'" class="w-6 h-6 {{ kpi.color }}" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M3 3a1 1 0 000 2v8a2 2 0 002 2h2.586l-1.293 1.293a1 1 0 101.414 1.414L10 15.414l2.293 2.293a1 1 0 001.414-1.414L12.414 15H15a2 2 0 002-2V5a1 1 0 100-2H3zm11.707 4.707a1 1 0 00-1.414-1.414L10 9.586 8.707 8.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                  <path d="M8 2a1 1 0 000 2h4a1 1 0 100-2H8z"/>
+                </svg>
+                <!-- Construction Tools Icon -->
+                <svg *ngIf="kpi.icon === 'wrench-screwdriver'" class="w-6 h-6 {{ kpi.color }}" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z" clip-rule="evenodd"/>
+                  <path d="M8 2a1 1 0 000 2h4a1 1 0 100-2H8z"/>
+                </svg>
+                <!-- Construction Workers Icon -->
+                <svg *ngIf="kpi.icon === 'users'" class="w-6 h-6 {{ kpi.color }}" fill="currentColor" viewBox="0 0 20 20">
+                  <path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z"/>
+                  <path d="M8 2a1 1 0 000 2h4a1 1 0 100-2H8z"/>
+                </svg>
+                <!-- Time Tracking Icon -->
+                <svg *ngIf="kpi.icon === 'clock'" class="w-6 h-6 {{ kpi.color }}" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"/>
+                  <path d="M8 2a1 1 0 000 2h4a1 1 0 100-2H8z"/>
+                    </svg>
+                  </div>
+                </div>
+            <div class="ml-4 flex-1">
+              <p class="text-sm font-medium text-gray-500 mb-1">{{ kpi.title }}</p>
+              <p class="text-2xl font-bold {{ kpi.color }} mb-1">{{ kpi.primaryValue }}</p>
+              <p class="text-xs text-gray-600">{{ kpi.secondaryValue }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- B. Visual Charts & Graphs -->
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+        
+        <!-- 1. Fleet Utilization Chart -->
+        <div class="bg-white p-6 rounded-lg shadow-md border border-gray-200">
+          <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+            <svg class="w-5 h-5 text-blue-600 mr-2" fill="currentColor" viewBox="0 0 20 20">
+              <path d="M8 2a1 1 0 000 2h2a1 1 0 100-2H8z"/>
+              <path d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/>
+              <path d="M12 6.75a.75.75 0 01.75.75v8.5a.75.75 0 01-.75.75h-1.5a.75.75 0 01-.75-.75v-8.5a.75.75 0 01.75-.75h1.5z"/>
+            </svg>
+            Fleet Utilization
+          </h3>
+          <div *ngIf="!isChartReady()" class="flex items-center justify-center h-96 bg-gray-50 rounded-lg">
         <div class="text-center">
-          <h1 class="text-3xl font-bold text-gray-900 mb-4">Welcome to Dashboard</h1>
-          <p class="text-lg text-gray-600 mb-8">This is your project management dashboard</p>
-          <div class="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto">
-            <!-- Stats Cards -->
-            <div class="bg-white p-6 rounded-lg shadow-md border border-gray-200">
+              <svg class="w-12 h-12 text-gray-400 mb-2 animate-spin" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+              <p class="text-gray-600">Loading Fleet Utilization Chart...</p>
+            </div>
+          </div>
+          <div *ngIf="isChartReady()" class="space-y-4">
+            <div class="flex items-center justify-between p-4 bg-green-50 rounded-lg">
               <div class="flex items-center">
-                <div class="flex-shrink-0">
-                  <div class="w-8 h-8 bg-blue-500 rounded-md flex items-center justify-center">
-                    <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-                    </svg>
-                  </div>
-                </div>
-                <div class="ml-4">
-                  <p class="text-sm font-medium text-gray-500">Total Projects</p>
-                  <p class="text-2xl font-semibold text-gray-900">12</p>
+                <div class="w-4 h-4 bg-green-500 rounded-full mr-3"></div>
+                <span class="font-medium">Active Vehicles</span>
+              </div>
+              <span class="text-2xl font-bold text-green-600">540 (90%)</span>
+            </div>
+            <div class="flex items-center justify-between p-4 bg-red-50 rounded-lg">
+              <div class="flex items-center">
+                <div class="w-4 h-4 bg-red-500 rounded-full mr-3"></div>
+                <span class="font-medium">In Maintenance</span>
+              </div>
+              <span class="text-2xl font-bold text-red-600">35 (6%)</span>
+            </div>
+            <div class="flex items-center justify-between p-4 bg-yellow-50 rounded-lg">
+              <div class="flex items-center">
+                <div class="w-4 h-4 bg-yellow-500 rounded-full mr-3"></div>
+                <span class="font-medium">Idle</span>
+              </div>
+              <span class="text-2xl font-bold text-yellow-600">25 (4%)</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 2. Fuel Trend Chart -->
+        <div class="bg-white p-6 rounded-lg shadow-md border border-gray-200">
+          <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+            <svg class="w-5 h-5 text-orange-600 mr-2" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M3 3a1 1 0 000 2v8a2 2 0 002 2h2.586l-1.293 1.293a1 1 0 101.414 1.414L10 15.414l2.293 2.293a1 1 0 001.414-1.414L12.414 15H15a2 2 0 002-2V5a1 1 0 100-2H3zm11.707 4.707a1 1 0 00-1.414-1.414L10 9.586 8.707 8.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+              <path d="M8 2a1 1 0 000 2h4a1 1 0 100-2H8z"/>
+            </svg>
+            Fuel Trend (This Week)
+          </h3>
+          <div *ngIf="!isChartReady()" class="flex items-center justify-center h-96 bg-gray-50 rounded-lg">
+            <div class="text-center">
+              <svg class="w-12 h-12 text-gray-400 mb-2 animate-spin" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+              <p class="text-gray-600">Loading Fuel Trend Chart...</p>
+            </div>
+          </div>
+          <div *ngIf="isChartReady()" class="space-y-3">
+            <div class="flex justify-between items-center p-3 bg-blue-50 rounded-lg">
+              <span class="text-gray-600">Monday</span>
+              <span class="font-medium">1,200 L</span>
+            </div>
+            <div class="flex justify-between items-center p-3 bg-blue-50 rounded-lg">
+              <span class="text-gray-600">Tuesday</span>
+              <span class="font-medium">1,350 L</span>
+            </div>
+            <div class="flex justify-between items-center p-3 bg-blue-50 rounded-lg">
+              <span class="text-gray-600">Wednesday</span>
+              <span class="font-medium">1,100 L</span>
+            </div>
+            <div class="flex justify-between items-center p-3 bg-blue-50 rounded-lg">
+              <span class="text-gray-600">Thursday</span>
+              <span class="font-medium">1,450 L</span>
+            </div>
+            <div class="flex justify-between items-center p-3 bg-blue-50 rounded-lg">
+              <span class="text-gray-600">Friday</span>
+              <span class="font-medium">1,300 L</span>
+            </div>
+            <div class="flex justify-between items-center p-3 bg-blue-50 rounded-lg">
+              <span class="text-gray-600">Weekend</span>
+              <span class="font-medium">1,400 L</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 3. Maintenance vs Fuel Cost -->
+        <div class="bg-white p-6 rounded-lg shadow-md border border-gray-200">
+          <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+            <svg class="w-5 h-5 text-red-600 mr-2" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z" clip-rule="evenodd"/>
+              <path d="M8 2a1 1 0 000 2h4a1 1 0 100-2H8z"/>
+            </svg>
+            Maintenance vs Fuel Cost
+          </h3>
+          <div *ngIf="!isChartReady()" class="flex items-center justify-center h-96 bg-gray-50 rounded-lg">
+            <div class="text-center">
+              <svg class="w-12 h-12 text-gray-400 mb-2 animate-spin" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+              <p class="text-gray-600">Loading Cost Chart...</p>
+            </div>
+          </div>
+          <div *ngIf="isChartReady()" class="space-y-4">
+            <div class="flex items-center justify-between p-4 bg-orange-50 rounded-lg">
+              <span class="text-gray-600 font-medium">Fuel Cost</span>
+              <span class="text-2xl font-bold text-orange-600">AED 148k</span>
+            </div>
+            <div class="flex items-center justify-between p-4 bg-red-50 rounded-lg">
+              <span class="text-gray-600 font-medium">Maintenance Cost</span>
+              <span class="text-2xl font-bold text-red-600">AED 89k</span>
+            </div>
+            <div class="flex items-center justify-between p-4 bg-blue-50 rounded-lg">
+              <span class="text-gray-600 font-medium">Other Costs</span>
+              <span class="text-2xl font-bold text-blue-600">AED 59k</span>
                 </div>
               </div>
             </div>
 
+        <!-- 4. Vehicle Efficiency Leaderboard -->
             <div class="bg-white p-6 rounded-lg shadow-md border border-gray-200">
-              <div class="flex items-center">
-                <div class="flex-shrink-0">
-                  <div class="w-8 h-8 bg-green-500 rounded-md flex items-center justify-center">
-                    <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path>
+          <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+            <svg class="w-5 h-5 text-purple-600 mr-2" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M10 1.944A11.954 11.954 0 012.166 5C2.056 5.649 2 6.319 2 7c0 5.225 3.34 9.67 8 11.317C14.66 16.67 18 12.225 18 7c0-.682-.057-1.35-.166-2.001A11.954 11.954 0 0110 1.944zM11.166 8.5a.75.75 0 00-1.332 0l-2.5 4.5a.75.75 0 101.332.668l1.834-3.302 1.834 3.302a.75.75 0 001.332-.668l-2.5-4.5z" clip-rule="evenodd" />
+            </svg>
+            Vehicle Efficiency Leaderboard
+          </h3>
+          <div *ngIf="!isChartReady()" class="flex items-center justify-center h-96 bg-gray-50 rounded-lg">
+            <div class="text-center">
+              <svg class="w-12 h-12 text-gray-400 mb-2 animate-spin" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                     </svg>
+              <p class="text-gray-600">Loading Efficiency Chart...</p>
                   </div>
                 </div>
-                <div class="ml-4">
-                  <p class="text-sm font-medium text-gray-500">Completed Tasks</p>
-                  <p class="text-2xl font-semibold text-gray-900">48</p>
+          <div *ngIf="isChartReady()" class="space-y-3">
+            <div *ngFor="let vehicle of vehicleEfficiency" class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+              <div class="flex items-center">
+                <div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center mr-3">
+                  <span class="text-sm font-medium text-blue-700">{{ vehicle.vehicle.split('-')[1] }}</span>
+                </div>
+                <span class="text-sm font-medium text-gray-900">{{ vehicle.vehicle }}</span>
+              </div>
+              <div class="flex items-center">
+                <span class="text-sm font-medium {{ getEfficiencyStatus(vehicle.efficiency) }} mr-2">
+                  {{ vehicle.efficiency }} km/L
+                </span>
+                <span class="text-xs px-2 py-1 rounded-full"
+                      [class]="vehicle.status === 'poor' ? 'bg-red-100 text-red-800' : 
+                               vehicle.status === 'excellent' ? 'bg-green-100 text-green-800' : 
+                               'bg-yellow-100 text-yellow-800'">
+                  {{ vehicle.status }}
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- C. Mid-Level Tables / Grids -->
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+        
+        <!-- Vehicle Details Table -->
+        <div class="bg-white rounded-lg shadow-md border border-gray-200">
+          <div class="px-6 py-4 border-b border-gray-200">
+            <h3 class="text-lg font-semibold text-gray-900 flex items-center">
+              <svg class="w-5 h-5 text-blue-600 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                <path d="M8 2a1 1 0 000 2h2a1 1 0 100-2H8z"/>
+                <path d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/>
+              </svg>
+              Vehicle Details
+            </h3>
+          </div>
+          <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+              <thead class="bg-gray-50">
+                <tr>
+                  <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Vehicle</th>
+                  <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
+                  <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Project</th>
+                  <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Fuel (L)</th>
+                  <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Km/L</th>
+                  <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                </tr>
+              </thead>
+              <tbody class="bg-white divide-y divide-gray-200">
+                <tr *ngFor="let vehicle of vehicleData">
+                  <td class="px-4 py-3 text-sm font-medium text-gray-900">{{ vehicle.vehicleNo }}</td>
+                  <td class="px-4 py-3 text-sm text-gray-600">{{ vehicle.type }}</td>
+                  <td class="px-4 py-3 text-sm text-gray-600">{{ vehicle.project }}</td>
+                  <td class="px-4 py-3 text-sm text-gray-600">{{ vehicle.fuelThisMonth }}L</td>
+                  <td class="px-4 py-3 text-sm text-gray-600">{{ vehicle.kmPerLiter }}</td>
+                  <td class="px-4 py-3">
+                    <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full {{ getStatusColor(vehicle.status) }}">
+                      {{ vehicle.status }}
+                    </span>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Purchase Summary Table -->
+        <div class="bg-white rounded-lg shadow-md border border-gray-200">
+          <div class="px-6 py-4 border-b border-gray-200">
+            <h3 class="text-lg font-semibold text-gray-900 flex items-center">
+              <svg class="w-5 h-5 text-green-600 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 01-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z" clip-rule="evenodd" />
+              </svg>
+              Purchase Summary
+            </h3>
+          </div>
+          <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+              <thead class="bg-gray-50">
+                <tr>
+                  <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">PO #</th>
+                  <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Vendor</th>
+                  <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Value</th>
+                  <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                </tr>
+              </thead>
+              <tbody class="bg-white divide-y divide-gray-200">
+                <tr *ngFor="let purchase of purchaseData">
+                  <td class="px-4 py-3 text-sm font-medium text-gray-900">{{ purchase.poNumber }}</td>
+                  <td class="px-4 py-3 text-sm text-gray-600">{{ purchase.vendor }}</td>
+                  <td class="px-4 py-3 text-sm text-gray-600">AED {{ (purchase.value / 1000).toFixed(0) }}k</td>
+                  <td class="px-4 py-3">
+                    <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full {{ getStatusColor(purchase.status) }}">
+                      {{ purchase.status }}
+                    </span>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Stock Movement Table -->
+        <div class="bg-white rounded-lg shadow-md border border-gray-200">
+          <div class="px-6 py-4 border-b border-gray-200">
+            <h3 class="text-lg font-semibold text-gray-900 flex items-center">
+              <svg class="w-5 h-5 text-indigo-600 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M9.293 2.293a1 1 0 011.414 0l7 7A1 1 0 0117 11h-1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-3a1 1 0 00-1-1H9a1 1 0 00-1 1v3a1 1 0 01-1 1H5a1 1 0 01-1-1v-6H3a1 1 0 01-.707-1.707l7-7z" clip-rule="evenodd"/>
+                    </svg>
+              Stock Movement
+            </h3>
+          </div>
+          <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+              <thead class="bg-gray-50">
+                <tr>
+                  <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Item</th>
+                  <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Inward</th>
+                  <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Outward</th>
+                  <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Balance</th>
+                </tr>
+              </thead>
+              <tbody class="bg-white divide-y divide-gray-200">
+                <tr *ngFor="let stock of stockData">
+                  <td class="px-4 py-3 text-sm font-medium text-gray-900">{{ stock.item }}</td>
+                  <td class="px-4 py-3 text-sm text-green-600">{{ stock.inward }}</td>
+                  <td class="px-4 py-3 text-sm text-red-600">{{ stock.outward }}</td>
+                  <td class="px-4 py-3 text-sm font-medium text-gray-900">{{ stock.balance }}</td>
+                </tr>
+              </tbody>
+            </table>
+                  </div>
+                </div>
+
+        <!-- Camp Occupant List -->
+        <div class="bg-white rounded-lg shadow-md border border-gray-200">
+          <div class="px-6 py-4 border-b border-gray-200">
+            <h3 class="text-lg font-semibold text-gray-900 flex items-center">
+              <svg class="w-5 h-5 text-teal-600 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                <path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z"/>
+              </svg>
+              Camp Occupant List
+            </h3>
+          </div>
+          <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+              <thead class="bg-gray-50">
+                <tr>
+                  <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Room #</th>
+                  <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Employee Name</th>
+                  <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Check-in Date</th>
+                </tr>
+              </thead>
+              <tbody class="bg-white divide-y divide-gray-200">
+                <tr *ngFor="let camp of campData">
+                  <td class="px-4 py-3 text-sm font-medium text-gray-900">{{ camp.roomNo }}</td>
+                  <td class="px-4 py-3 text-sm text-gray-600">{{ camp.employeeName }}</td>
+                  <td class="px-4 py-3 text-sm text-gray-600">{{ camp.checkInDate }}</td>
+                </tr>
+              </tbody>
+            </table>
                 </div>
               </div>
             </div>
 
+      <!-- Additional Mini Charts Row -->
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        
+        <!-- Camp Occupancy Trend -->
             <div class="bg-white p-6 rounded-lg shadow-md border border-gray-200">
+          <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+            <svg class="w-5 h-5 text-teal-600 mr-2" fill="currentColor" viewBox="0 0 20 20">
+              <path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z"/>
+            </svg>
+            Camp Occupancy Trend
+          </h3>
+          <div *ngIf="!isChartReady()" class="flex items-center justify-center h-64 bg-gray-50 rounded-lg">
+            <div class="text-center">
+              <svg class="w-12 h-12 text-gray-400 mb-2 animate-spin" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+              <p class="text-gray-600">Loading Camp Data...</p>
+            </div>
+          </div>
+          <div *ngIf="isChartReady()" class="space-y-4">
+            <div class="flex items-center justify-between p-4 bg-green-50 rounded-lg">
+              <span class="text-gray-600">Camp A</span>
               <div class="flex items-center">
-                <div class="flex-shrink-0">
-                  <div class="w-8 h-8 bg-yellow-500 rounded-md flex items-center justify-center">
-                    <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                <span class="text-sm font-medium mr-2">184/200</span>
+                <span class="text-lg font-bold text-green-600">92%</span>
+              </div>
+            </div>
+            <div class="flex items-center justify-between p-4 bg-blue-50 rounded-lg">
+              <span class="text-gray-600">Camp B</span>
+              <div class="flex items-center">
+                <span class="text-sm font-medium mr-2">156/200</span>
+                <span class="text-lg font-bold text-blue-600">78%</span>
+              </div>
+            </div>
+            <div class="flex items-center justify-between p-4 bg-yellow-50 rounded-lg">
+              <span class="text-gray-600">Camp C</span>
+              <div class="flex items-center">
+                <span class="text-sm font-medium mr-2">130/200</span>
+                <span class="text-lg font-bold text-yellow-600">65%</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Purchase / Sales Overview -->
+        <div class="bg-white p-6 rounded-lg shadow-md border border-gray-200">
+          <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+            <svg class="w-5 h-5 text-green-600 mr-2" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 01-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z" clip-rule="evenodd" />
                     </svg>
+            Purchase / Sales Overview
+          </h3>
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <h4 class="text-sm font-medium text-gray-700 mb-2">Purchase Orders</h4>
+              <div class="space-y-2">
+                <div class="flex justify-between text-sm">
+                  <span class="text-gray-600">Raised</span>
+                  <span class="font-medium">45</span>
+                  </div>
+                <div class="flex justify-between text-sm">
+                  <span class="text-gray-600">Approved</span>
+                  <span class="font-medium text-green-600">32</span>
+                </div>
+                <div class="flex justify-between text-sm">
+                  <span class="text-gray-600">Pending</span>
+                  <span class="font-medium text-yellow-600">13</span>
+                </div>
                   </div>
                 </div>
-                <div class="ml-4">
-                  <p class="text-sm font-medium text-gray-500">Pending Tasks</p>
-                  <p class="text-2xl font-semibold text-gray-900">15</p>
+            <div>
+              <h4 class="text-sm font-medium text-gray-700 mb-2">Sales</h4>
+              <div class="space-y-2">
+                <div class="flex justify-between text-sm">
+                  <span class="text-gray-600">Quotations</span>
+                  <span class="font-medium">18</span>
+                  </div>
+                <div class="flex justify-between text-sm">
+                  <span class="text-gray-600">Converted</span>
+                  <span class="font-medium text-green-600">12</span>
+                </div>
+                <div class="flex justify-between text-sm">
+                  <span class="text-gray-600">Pending</span>
+                  <span class="font-medium text-yellow-600">6</span>
                 </div>
               </div>
             </div>
