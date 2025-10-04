@@ -1,0 +1,26 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* You can add global styles to this file, and also import other style files */
+
+/* Global font family */
+body {
+  font-family: 'Roboto', sans-serif;
+}
+
+/* Custom primary color for buttons */
+.btn-primary {
+  background-color: #41299b;
+  color: white;
+}
+
+.btn-primary:hover {
+  background-color: #351f7d;
+}
+
+/* Custom CSS variables for primary color */
+:root {
+  --primary-color: #41299b;
+  --primary-hover: #351f7d;
+}

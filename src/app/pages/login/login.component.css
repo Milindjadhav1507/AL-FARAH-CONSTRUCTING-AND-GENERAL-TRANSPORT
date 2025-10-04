@@ -1,0 +1,78 @@
+/* Login page specific styles */
+
+/* Custom focus styles */
+.focus\:ring-blue-500:focus {
+  --tw-ring-color: rgb(59 130 246 / 0.5);
+}
+
+/* Smooth transitions for all interactive elements */
+input, button, a {
+  transition: all 0.2s ease-in-out;
+}
+
+/* Loading spinner animation */
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-spin {
+  animation: spin 1s linear infinite;
+}
+
+/* Enhanced hover effects */
+button:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* Social button hover effects */
+.social-btn {
+  transition: all 0.2s ease;
+}
+
+.social-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+}
+
+/* Form input focus effects */
+input:focus {
+  transform: scale(1.01);
+}
+
+/* Password visibility button */
+.password-toggle {
+  transition: color 0.2s ease;
+}
+
+.password-toggle:hover {
+  color: #4F46E5;
+}
+
+/* Error message animation */
+.error-message {
+  animation: slideDown 0.3s ease-out;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Responsive adjustments */
+@media (max-width: 640px) {
+  .login-container {
+    padding: 1rem;
+  }
+}
