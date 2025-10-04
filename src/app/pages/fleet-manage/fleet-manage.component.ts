@@ -219,6 +219,11 @@ export class FleetManageComponent implements OnInit {
   fuelItemsPerPage: number = 10;
   fuelItemsPerPageOptions: number[] = [10, 25, 50, 100];
 
+  // Maintenance Pagination
+  maintenanceCurrentPage: number = 1;
+  maintenanceItemsPerPage: number = 10;
+  maintenanceItemsPerPageOptions: number[] = [10, 25, 50, 100];
+
   // Modal and Form Properties
   showAddVehicleModal: boolean = false;
   showFuelEntryModal: boolean = false;
@@ -505,6 +510,57 @@ export class FleetManageComponent implements OnInit {
   changeFuelItemsPerPage(value: string): void {
     this.fuelItemsPerPage = parseInt(value);
     this.fuelCurrentPage = 1; // Reset to first page
+  }
+
+  // Maintenance Pagination Methods
+  get paginatedMaintenanceVehicles(): Vehicle[] {
+    const maintenanceVehicles = this.getVehiclesDueForService();
+    const startIndex = (this.maintenanceCurrentPage - 1) * this.maintenanceItemsPerPage;
+    const endIndex = startIndex + this.maintenanceItemsPerPage;
+    return maintenanceVehicles.slice(startIndex, endIndex);
+  }
+
+  get totalMaintenancePages(): number {
+    return Math.ceil(this.getVehiclesDueForService().length / this.maintenanceItemsPerPage);
+  }
+
+  goToMaintenancePage(page: number): void {
+    if (page >= 1 && page <= this.totalMaintenancePages) {
+      this.maintenanceCurrentPage = page;
+    }
+  }
+
+  nextMaintenancePage(): void {
+    if (this.maintenanceCurrentPage < this.totalMaintenancePages) {
+      this.maintenanceCurrentPage++;
+    }
+  }
+
+  previousMaintenancePage(): void {
+    if (this.maintenanceCurrentPage > 1) {
+      this.maintenanceCurrentPage--;
+    }
+  }
+
+  getMaintenancePageNumbers(): number[] {
+    const pages: number[] = [];
+    const maxPagesToShow = 5;
+    let startPage = Math.max(1, this.maintenanceCurrentPage - Math.floor(maxPagesToShow / 2));
+    let endPage = Math.min(this.totalMaintenancePages, startPage + maxPagesToShow - 1);
+    
+    if (endPage - startPage + 1 < maxPagesToShow) {
+      startPage = Math.max(1, endPage - maxPagesToShow + 1);
+    }
+    
+    for (let i = startPage; i <= endPage; i++) {
+      pages.push(i);
+    }
+    return pages;
+  }
+
+  changeMaintenanceItemsPerPage(value: string): void {
+    this.maintenanceItemsPerPage = parseInt(value);
+    this.maintenanceCurrentPage = 1; // Reset to first page
   }
 
   // Get vehicles by status
