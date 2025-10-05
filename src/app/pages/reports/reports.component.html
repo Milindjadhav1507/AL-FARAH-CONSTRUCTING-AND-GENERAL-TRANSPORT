@@ -1,1 +1,2678 @@
-<p>reports works!</p>
+<!-- Reports Component -->
+<div class="flex h-screen bg-gray-50">
+  
+  <!-- Sidebar -->
+  <div [class]="showSidebar ? 'w-80' : 'w-0'" class="bg-white border-r border-gray-200 overflow-hidden transition-all duration-300">
+    <div class="h-full overflow-y-auto">
+      <!-- Sidebar Header -->
+      <div class="p-4 border-b border-gray-200 bg-gradient-to-r from-indigo-600 to-indigo-700">
+        <div class="flex items-center justify-between text-white">
+          <div>
+            <h2 class="text-xl font-bold">Fleet Reports</h2>
+            <p class="text-xs text-indigo-100 mt-1">Al Farah Contracting & Transport</p>
+          </div>
+          <i class="fas fa-file-alt text-2xl"></i>
+        </div>
+      </div>
+
+      <!-- Report Categories -->
+      <div class="p-2">
+        <div *ngFor="let category of reportCategories" class="mb-2">
+          <!-- Category Header -->
+          <button (click)="selectCategory(category.id)"
+                  [class]="selectedCategory === category.id ? 'bg-indigo-50 text-indigo-700 border-l-4 border-indigo-600' : 'text-gray-700 hover:bg-gray-50'"
+                  class="w-full text-left px-3 py-2.5 rounded-md transition-all flex items-center justify-between group">
+            <div class="flex items-center">
+              <i [class]="'fas ' + category.icon + ' mr-3 text-base'" 
+                 [class.text-indigo-600]="selectedCategory === category.id"
+                 [class.text-gray-500]="selectedCategory !== category.id"></i>
+              <span class="font-medium text-sm">{{ category.name }}</span>
+            </div>
+            <span class="text-xs bg-gray-200 text-gray-700 px-2 py-0.5 rounded-full">{{ category.reports.length }}</span>
+          </button>
+
+          <!-- Reports List -->
+          <div *ngIf="selectedCategory === category.id" class="ml-4 mt-1 space-y-1">
+            <button *ngFor="let report of category.reports"
+                    (click)="selectReport(report)"
+                    [class]="selectedReport?.id === report.id ? 'bg-indigo-100 text-indigo-700 border-l-2 border-indigo-600' : 'text-gray-600 hover:bg-gray-50'"
+                    class="w-full text-left px-3 py-2 rounded-md transition-all text-sm flex items-start">
+              <i [class]="'fas ' + report.icon + ' mr-2 mt-0.5 text-xs'"></i>
+              <span>{{ report.name }}</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="flex-1 flex flex-col overflow-hidden">
+    
+    <!-- Top Bar -->
+    <div class="bg-white border-b border-gray-200 px-6 py-4">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center space-x-4">
+          <button (click)="toggleSidebar()" class="text-gray-600 hover:text-gray-900 transition-colors">
+            <i class="fas fa-bars text-xl"></i>
+          </button>
+          <div *ngIf="selectedReport">
+            <h1 class="text-2xl font-bold text-gray-900 flex items-center">
+              <i [class]="'fas ' + selectedReport.icon + ' mr-3 text-indigo-600'"></i>
+              {{ selectedReport.name }}
+            </h1>
+            <p class="text-sm text-gray-600 mt-1">{{ selectedReport.description }}</p>
+          </div>
+        </div>
+        
+        <!-- Export Actions -->
+        <div class="flex items-center space-x-2">
+          <button (click)="exportToExcel()" 
+                  class="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors flex items-center text-sm">
+            <i class="fas fa-file-excel mr-2"></i>Excel
+          </button>
+          <button (click)="exportToPDF()" 
+                  class="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors flex items-center text-sm">
+            <i class="fas fa-file-pdf mr-2"></i>PDF
+          </button>
+          <button (click)="exportToCSV()" 
+                  class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors flex items-center text-sm">
+            <i class="fas fa-file-csv mr-2"></i>CSV
+          </button>
+          <button (click)="scheduleReport()" 
+                  class="px-4 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700 transition-colors flex items-center text-sm">
+            <i class="fas fa-clock mr-2"></i>Schedule
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Filters Section -->
+    <div class="bg-white border-b border-gray-200 px-6 py-4">
+      <div class="grid grid-cols-1 md:grid-cols-6 gap-4">
+        <div>
+          <label class="block text-xs font-medium text-gray-700 mb-1">Date From</label>
+          <input type="date" [(ngModel)]="filters.dateFrom" 
+                 class="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500">
+        </div>
+        <div>
+          <label class="block text-xs font-medium text-gray-700 mb-1">Date To</label>
+          <input type="date" [(ngModel)]="filters.dateTo" 
+                 class="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500">
+        </div>
+        <div>
+          <label class="block text-xs font-medium text-gray-700 mb-1">Vehicle Type</label>
+          <select [(ngModel)]="filters.vehicleType" 
+                  class="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500">
+            <option value="">All Types</option>
+            <option *ngFor="let type of vehicleTypes" [value]="type">{{ type }}</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-xs font-medium text-gray-700 mb-1">Project/Site</label>
+          <select [(ngModel)]="filters.project" 
+                  class="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500">
+            <option value="">All Projects</option>
+            <option *ngFor="let project of projects" [value]="project">{{ project }}</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-xs font-medium text-gray-700 mb-1">Status</label>
+          <select [(ngModel)]="filters.status" 
+                  class="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500">
+            <option value="">All Status</option>
+            <option *ngFor="let status of statuses" [value]="status">{{ status }}</option>
+          </select>
+        </div>
+        <div class="flex items-end space-x-2">
+          <button (click)="generateReport()" 
+                  class="flex-1 px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition-colors text-sm font-medium">
+            <i class="fas fa-search mr-2"></i>Generate
+          </button>
+          <button (click)="resetFilters()" 
+                  class="px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 transition-colors text-sm">
+            <i class="fas fa-redo"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Report Content -->
+    <div class="flex-1 overflow-y-auto p-6">
+      <div *ngIf="selectedReport" class="bg-white rounded-lg shadow-md border border-gray-200 p-6">
+        
+        <!-- Report Content Based on Selected Report -->
+        <div [ngSwitch]="selectedReport.id">
+          
+          <!-- Vehicle Master List Report -->
+          <div *ngSwitchCase="'vehicle-master-list'">
+            <div class="mb-4">
+              <div>
+                <h3 class="text-lg font-semibold text-gray-900 mb-1">Vehicle Master List</h3>
+                <p class="text-sm text-gray-600">Complete list of all 600 vehicles with full details</p>
+              </div>
+            </div>
+
+            <!-- Summary KPI Cards -->
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-3 mb-4">
+              <div class="bg-white border border-gray-200 rounded-lg p-4">
+                <div class="flex items-center justify-between">
+                  <div>
+                    <p class="text-xs uppercase text-gray-500">Total Vehicles</p>
+                    <h3 class="text-xl font-bold text-gray-900 mt-1">600</h3>
+                  </div>
+                  <i class="fas fa-truck text-gray-300 text-3xl"></i>
+                </div>
+              </div>
+              <div class="bg-white border border-gray-200 rounded-lg p-4">
+                <div class="flex items-center justify-between">
+                  <div>
+                    <p class="text-xs uppercase text-gray-500">Active</p>
+                    <h3 class="text-xl font-bold text-green-600 mt-1">540</h3>
+                  </div>
+                  <i class="fas fa-check-circle text-green-200 text-3xl"></i>
+                </div>
+              </div>
+              <div class="bg-white border border-gray-200 rounded-lg p-4">
+                <div class="flex items-center justify-between">
+                  <div>
+                    <p class="text-xs uppercase text-gray-500">Maintenance</p>
+                    <h3 class="text-xl font-bold text-yellow-600 mt-1">35</h3>
+                  </div>
+                  <i class="fas fa-wrench text-yellow-200 text-3xl"></i>
+                </div>
+              </div>
+              <div class="bg-white border border-gray-200 rounded-lg p-4">
+                <div class="flex items-center justify-between">
+                  <div>
+                    <p class="text-xs uppercase text-gray-500">Idle</p>
+                    <h3 class="text-xl font-bold text-gray-700 mt-1">25</h3>
+                  </div>
+                  <i class="fas fa-pause-circle text-gray-300 text-3xl"></i>
+                </div>
+              </div>
+            </div>
+
+            <!-- Search Bar -->
+            <div class="mb-4">
+              <div class="relative">
+                <input type="text" placeholder="Search by Vehicle No, Type, Model, Driver..." class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+                <i class="fas fa-search absolute left-3 top-3 text-gray-400"></i>
+              </div>
+            </div>
+
+            <div class="bg-white rounded-lg border border-gray-200 shadow-sm">
+              <div class="px-4 py-3 border-b border-gray-200 bg-gray-50">
+                <h4 class="text-sm font-semibold text-gray-900">Complete Vehicle Master Data</h4>
+              </div>
+              <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">
+                  <thead class="bg-gray-50">
+                    <tr>
+                      <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Vehicle No</th>
+                      <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Type</th>
+                      <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Make & Model</th>
+                      <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Year</th>
+                      <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Registration</th>
+                      <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Assigned Driver</th>
+                      <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Project</th>
+                      <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Odometer</th>
+                      <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
+                      <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Insurance Expiry</th>
+                      <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Last Service</th>
+                      <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody class="bg-white divide-y divide-gray-200">
+                    <tr class="hover:bg-gray-50">
+                      <td class="px-4 py-3 text-sm font-medium text-indigo-600">AF-001</td>
+                      <td class="px-4 py-3 text-sm text-gray-900">Double Cabin Pickup</td>
+                      <td class="px-4 py-3 text-sm text-gray-900">Toyota Hilux</td>
+                      <td class="px-4 py-3 text-sm text-gray-900">2023</td>
+                      <td class="px-4 py-3 text-sm text-gray-900">DXB-T-12345</td>
+                      <td class="px-4 py-3 text-sm text-gray-900">Ahmed Ali</td>
+                      <td class="px-4 py-3 text-sm text-gray-900">Shah Field</td>
+                      <td class="px-4 py-3 text-sm font-semibold text-blue-600">45,230 km</td>
+                      <td class="px-4 py-3"><span class="px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">Active</span></td>
+                      <td class="px-4 py-3 text-sm text-green-600">15-Mar-2026</td>
+                      <td class="px-4 py-3 text-sm text-gray-900">15-Sep-2024</td>
+                      <td class="px-4 py-3 text-sm">
+                        <button (click)="openDetailsModal({vehicleNo: 'AF-001', type: 'Double Cabin Pickup', make: 'Toyota Hilux 2023', year: '2023', registrationNo: 'DXB-T-12345', driver: 'Ahmed Ali', project: 'Shah Field', status: 'Active', lastService: '15-Sep-2024', nextService: '15-Dec-2024', insuranceExpiry: '15-Mar-2026', registrationExpiry: '10-Apr-2026', fuelType: 'Diesel', odometer: '45,230 km', capacity: '1 Ton', engineNo: 'TH-45789', chassisNo: 'CH-TH-2023-001', purchaseDate: '10-Jan-2023', purchaseCost: 'AED 120,000', monthlyFuel: '450 L', monthlyCost: 'AED 5,400', avgKmL: '4.2'}, 'vehicle-master')" class="text-indigo-600 hover:text-indigo-900 px-3 py-1 rounded-md bg-indigo-50 hover:bg-indigo-100">
+                          <i class="fas fa-eye mr-1"></i>View
+                        </button>
+                      </td>
+                    </tr>
+                  <tr class="hover:bg-gray-50">
+                      <td class="px-4 py-3 text-sm font-medium text-indigo-600">AF-002</td>
+                      <td class="px-4 py-3 text-sm text-gray-900">Dumper</td>
+                      <td class="px-4 py-3 text-sm text-gray-900">Volvo FMX</td>
+                      <td class="px-4 py-3 text-sm text-gray-900">2022</td>
+                      <td class="px-4 py-3 text-sm text-gray-900">DXB-T-23456</td>
+                      <td class="px-4 py-3 text-sm text-gray-900">Mohammed Hassan</td>
+                      <td class="px-4 py-3 text-sm text-gray-900">Asab Field</td>
+                      <td class="px-4 py-3 text-sm font-semibold text-blue-600">78,450 km</td>
+                      <td class="px-4 py-3"><span class="px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">Active</span></td>
+                      <td class="px-4 py-3 text-sm text-green-600">20-Apr-2026</td>
+                      <td class="px-4 py-3 text-sm text-gray-900">20-Sep-2024</td>
+                      <td class="px-4 py-3 text-sm">
+                        <button (click)="openDetailsModal({vehicleNo: 'AF-002', type: 'Dumper', make: 'Volvo FMX 2022', year: '2022', registrationNo: 'DXB-T-23456', driver: 'Mohammed Hassan', project: 'Asab Field', status: 'Active', lastService: '20-Sep-2024', nextService: '20-Dec-2024', insuranceExpiry: '20-Apr-2026', registrationExpiry: '15-May-2026', fuelType: 'Diesel', odometer: '78,450 km', capacity: '15 Ton', engineNo: 'VF-89234', chassisNo: 'CH-VF-2022-002', purchaseDate: '05-Mar-2022', purchaseCost: 'AED 450,000', monthlyFuel: '1,200 L', monthlyCost: 'AED 14,400', avgKmL: '2.1'}, 'vehicle-master')" class="text-indigo-600 hover:text-indigo-900 px-3 py-1 rounded-md bg-indigo-50 hover:bg-indigo-100">
+                          <i class="fas fa-eye mr-1"></i>View
+                        </button>
+                      </td>
+                    </tr>
+                    <tr class="hover:bg-gray-50">
+                      <td class="px-4 py-3 text-sm font-medium text-indigo-600">AF-003</td>
+                      <td class="px-4 py-3 text-sm text-gray-900">Excavator</td>
+                      <td class="px-4 py-3 text-sm text-gray-900">CAT 320D</td>
+                      <td class="px-4 py-3 text-sm text-gray-900">2021</td>
+                      <td class="px-4 py-3 text-sm text-gray-900">DXB-T-34567</td>
+                      <td class="px-4 py-3 text-sm text-gray-900">Khalid Ibrahim</td>
+                      <td class="px-4 py-3 text-sm text-gray-900">Beda Zayed</td>
+                      <td class="px-4 py-3 text-sm font-semibold text-blue-600">12,890 hrs</td>
+                      <td class="px-4 py-3"><span class="px-2 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800">Maintenance</span></td>
+                      <td class="px-4 py-3 text-sm text-green-600">05-Jun-2026</td>
+                      <td class="px-4 py-3 text-sm text-gray-900">10-Sep-2024</td>
+                      <td class="px-4 py-3 text-sm">
+                        <button (click)="openDetailsModal({vehicleNo: 'AF-003', type: 'Excavator', make: 'CAT 320D 2021', year: '2021', registrationNo: 'DXB-T-34567', driver: 'Khalid Ibrahim', project: 'Beda Zayed', status: 'Maintenance', lastService: '10-Sep-2024', nextService: '10-Dec-2024', insuranceExpiry: '05-Jun-2026', registrationExpiry: '20-Jul-2026', fuelType: 'Diesel', odometer: '12,890 hrs', capacity: '20 Ton', engineNo: 'CAT-56789', chassisNo: 'CH-CAT-2021-003', purchaseDate: '15-Feb-2021', purchaseCost: 'AED 850,000', monthlyFuel: '800 L', monthlyCost: 'AED 9,600', avgKmL: 'N/A (Hours based)', maintenanceIssue: 'Hydraulic system repair', estimatedCompletion: '15-Oct-2024'}, 'vehicle-master')" class="text-indigo-600 hover:text-indigo-900 px-3 py-1 rounded-md bg-indigo-50 hover:bg-indigo-100">
+                          <i class="fas fa-eye mr-1"></i>View
+                        </button>
+                      </td>
+                    </tr>
+                    <tr class="hover:bg-gray-50">
+                      <td class="px-4 py-3 text-sm font-medium text-indigo-600">AF-004</td>
+                      <td class="px-4 py-3 text-sm text-gray-900">60 Seater Bus</td>
+                      <td class="px-4 py-3 text-sm text-gray-900">Yutong ZK6122H</td>
+                      <td class="px-4 py-3 text-sm text-gray-900">2023</td>
+                      <td class="px-4 py-3 text-sm text-gray-900">DXB-T-45678</td>
+                      <td class="px-4 py-3 text-sm text-gray-900">Rashid Salem</td>
+                      <td class="px-4 py-3 text-sm text-gray-900">Camp Transport</td>
+                      <td class="px-4 py-3 text-sm font-semibold text-blue-600">92,340 km</td>
+                      <td class="px-4 py-3"><span class="px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">Active</span></td>
+                      <td class="px-4 py-3 text-sm text-green-600">10-Jan-2026</td>
+                      <td class="px-4 py-3 text-sm text-gray-900">25-Sep-2024</td>
+                      <td class="px-4 py-3 text-sm">
+                        <button (click)="openDetailsModal({vehicleNo: 'AF-004', type: '60 Seater Bus', make: 'Yutong ZK6122H 2023', year: '2023', registrationNo: 'DXB-T-45678', driver: 'Rashid Salem', project: 'Camp Transport', status: 'Active', lastService: '25-Sep-2024', nextService: '25-Dec-2024', insuranceExpiry: '10-Jan-2026', registrationExpiry: '05-Feb-2026', fuelType: 'Diesel', odometer: '92,340 km', capacity: '60 Seats', engineNo: 'YT-67890', chassisNo: 'CH-YT-2023-004', purchaseDate: '20-Jan-2023', purchaseCost: 'AED 380,000', monthlyFuel: '680 L', monthlyCost: 'AED 8,160', avgKmL: '2.9', route: 'Camp to Site Daily'}, 'vehicle-master')" class="text-indigo-600 hover:text-indigo-900 px-3 py-1 rounded-md bg-indigo-50 hover:bg-indigo-100">
+                          <i class="fas fa-eye mr-1"></i>View
+                        </button>
+                      </td>
+                    </tr>
+                    <tr class="hover:bg-gray-50">
+                      <td class="px-4 py-3 text-sm font-medium text-indigo-600">AF-005</td>
+                      <td class="px-4 py-3 text-sm text-gray-900">Mobile Crane</td>
+                      <td class="px-4 py-3 text-sm text-gray-900">Liebherr LTM</td>
+                      <td class="px-4 py-3 text-sm text-gray-900">2023</td>
+                      <td class="px-4 py-3 text-sm text-gray-900">DXB-T-56789</td>
+                      <td class="px-4 py-3 text-sm text-gray-500 italic">Unassigned</td>
+                      <td class="px-4 py-3 text-sm text-gray-500">-</td>
+                      <td class="px-4 py-3 text-sm font-semibold text-blue-600">8,750 hrs</td>
+                      <td class="px-4 py-3"><span class="px-2 py-1 text-xs font-semibold rounded-full bg-gray-100 text-gray-800">Idle</span></td>
+                      <td class="px-4 py-3 text-sm text-green-600">18-Apr-2027</td>
+                      <td class="px-4 py-3 text-sm text-gray-900">05-Sep-2024</td>
+                      <td class="px-4 py-3 text-sm">
+                        <button (click)="openDetailsModal({vehicleNo: 'AF-005', type: 'Mobile Crane', make: 'Liebherr LTM 2023', year: '2023', registrationNo: 'DXB-T-56789', driver: 'Unassigned', project: '-', status: 'Idle', lastService: '05-Sep-2024', nextService: '05-Dec-2024', insuranceExpiry: '18-Apr-2027', registrationExpiry: '25-May-2027', fuelType: 'Diesel', odometer: '8,750 hrs', capacity: '100 Ton', engineNo: 'LH-78901', chassisNo: 'CH-LH-2023-005', purchaseDate: '10-Apr-2023', purchaseCost: 'AED 2,500,000', monthlyFuel: '0 L', monthlyCost: 'AED 0', avgKmL: 'N/A', remarks: 'Available for assignment'}, 'vehicle-master')" class="text-indigo-600 hover:text-indigo-900 px-3 py-1 rounded-md bg-indigo-50 hover:bg-indigo-100">
+                          <i class="fas fa-eye mr-1"></i>View
+                        </button>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+              <div class="px-4 py-3 bg-gray-50 border-t border-gray-200">
+                <p class="text-sm text-gray-600">Showing 5 of 600 vehicles. Use filters to refine results or search above.</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Fuel Consumption Summary Report -->
+          <div *ngSwitchCase="'fuel-consumption-summary'">
+            <div class="mb-4">
+              <div class="flex items-center justify-between">
+                <div>
+                  <h3 class="text-lg font-semibold text-gray-900 mb-1">Fuel Consumption Summary</h3>
+                  <p class="text-sm text-gray-600">Total fuel consumption and cost analysis per vehicle</p>
+                </div>
+                <!-- Quick filters -->
+                <div class="hidden md:flex items-end space-x-3">
+                  <div>
+                    <label class="block text-xs text-gray-600 mb-1">Vehicle Type</label>
+                    <select [(ngModel)]="filters.vehicleType" class="rounded-md border-gray-300 text-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
+                      <option value="">All</option>
+                      <option *ngFor="let t of vehicleTypes" [value]="t">{{ t }}</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label class="block text-xs text-gray-600 mb-1">Project</label>
+                    <select [(ngModel)]="filters.project" class="rounded-md border-gray-300 text-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
+                      <option value="">All</option>
+                      <option *ngFor="let p of projects" [value]="p">{{ p }}</option>
+                    </select>
+                  </div>
+                  <button (click)="applyFilters()" class="h-9 px-3 bg-indigo-600 text-white rounded-md text-sm hover:bg-indigo-700"><i class="fas fa-filter mr-1"></i>Filter</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Summary Cards -->
+            <div class="grid grid-cols-1 md:grid-cols-5 gap-3 mb-4">
+              <div class="bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg p-4 text-white shadow-md">
+                <div class="flex items-center justify-between">
+                  <div>
+                    <p class="text-blue-100 text-xs font-medium uppercase">Total Fuel</p>
+                    <h3 class="text-2xl font-bold mt-1">12,400 L</h3>
+                    <p class="text-xs text-blue-100 mt-1">This Month</p>
+                  </div>
+                  <i class="fas fa-gas-pump text-3xl opacity-20"></i>
+                </div>
+              </div>
+              <div class="bg-gradient-to-br from-green-500 to-green-600 rounded-lg p-4 text-white shadow-md">
+                <div class="flex items-center justify-between">
+                  <div>
+                    <p class="text-green-100 text-xs font-medium uppercase">Total Cost</p>
+                    <h3 class="text-2xl font-bold mt-1">AED 148k</h3>
+                    <p class="text-xs text-green-100 mt-1">+12% vs Last Month</p>
+                  </div>
+                  <i class="fas fa-dollar-sign text-3xl opacity-20"></i>
+                </div>
+              </div>
+              <div class="bg-gradient-to-br from-purple-500 to-purple-600 rounded-lg p-4 text-white shadow-md">
+                <div class="flex items-center justify-between">
+                  <div>
+                    <p class="text-purple-100 text-xs font-medium uppercase">Avg Km/L</p>
+                    <h3 class="text-2xl font-bold mt-1">3.8</h3>
+                    <p class="text-xs text-purple-100 mt-1">Fleet Average</p>
+                  </div>
+                  <i class="fas fa-tachometer-alt text-3xl opacity-20"></i>
+                </div>
+              </div>
+              <div class="bg-gradient-to-br from-orange-500 to-orange-600 rounded-lg p-4 text-white shadow-md">
+                <div class="flex items-center justify-between">
+                  <div>
+                    <p class="text-orange-100 text-xs font-medium uppercase">Active Vehicles</p>
+                    <h3 class="text-2xl font-bold mt-1">540</h3>
+                    <p class="text-xs text-orange-100 mt-1">Consuming Fuel</p>
+                  </div>
+                  <i class="fas fa-truck text-3xl opacity-20"></i>
+                </div>
+              </div>
+              <div class="bg-gradient-to-br from-red-500 to-red-600 rounded-lg p-4 text-white shadow-md">
+                <div class="flex items-center justify-between">
+                  <div>
+                    <p class="text-red-100 text-xs font-medium uppercase">Cost per Km</p>
+                    <h3 class="text-2xl font-bold mt-1">AED 3.2</h3>
+                    <p class="text-xs text-red-100 mt-1">Average Rate</p>
+                  </div>
+                  <i class="fas fa-road text-3xl opacity-20"></i>
+                </div>
+              </div>
+            </div>
+
+            <!-- Chart Placeholder -->
+            <div class="bg-white rounded-lg p-4 mb-4 border border-gray-200 shadow-sm">
+              <div class="flex items-center justify-between mb-3">
+                <h4 class="text-base font-semibold text-gray-900">Monthly Fuel Consumption Trend</h4>
+                <div class="flex space-x-2">
+                  <button class="px-3 py-1 text-xs bg-indigo-100 text-indigo-700 rounded-md hover:bg-indigo-200">Litres</button>
+                  <button class="px-3 py-1 text-xs bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200">Cost</button>
+                </div>
+              </div>
+              <div class="h-48 flex items-center justify-center bg-gray-50 rounded border border-gray-200">
+                <div class="text-center text-gray-400">
+                  <i class="fas fa-chart-line text-4xl mb-2"></i>
+                  <p class="text-xs">Chart visualization will be displayed here</p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Detailed Table -->
+            <div class="bg-white rounded-lg border border-gray-200 shadow-sm">
+              <div class="px-4 py-3 border-b border-gray-200 bg-gray-50">
+                <h4 class="text-sm font-semibold text-gray-900">Vehicle-wise Fuel Consumption Details</h4>
+              </div>
+              <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">
+                  <thead class="bg-gray-50">
+                    <tr>
+                      <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Vehicle No</th>
+                      <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Type</th>
+                      <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Project</th>
+                      <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Total Litres</th>
+                      <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Total Cost (AED)</th>
+                      <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Avg Km/L</th>
+                      <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Fill-ups</th>
+                      <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Variance</th>
+                      <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody class="bg-white divide-y divide-gray-200">
+                    <tr class="hover:bg-gray-50">
+                      <td class="px-4 py-3 text-sm font-medium text-gray-900">AF-001</td>
+                      <td class="px-4 py-3 text-sm text-gray-900">Double Cabin Pickup</td>
+                      <td class="px-4 py-3 text-sm text-gray-900">Shah Field</td>
+                      <td class="px-4 py-3 text-sm font-semibold text-blue-600">450 L</td>
+                      <td class="px-4 py-3 text-sm font-semibold text-green-600">5,400</td>
+                      <td class="px-4 py-3 text-sm text-gray-900">4.2</td>
+                      <td class="px-4 py-3 text-sm text-gray-900">8</td>
+                      <td class="px-4 py-3"><span class="px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">+8%</span></td>
+                      <td class="px-4 py-3 text-sm">
+                        <button (click)="openDetailsModal({vehicleNo: 'AF-001', type: 'Double Cabin Pickup', project: 'Shah Field', totalFuel: '450 L', totalCost: 'AED 5,400', avgKmL: '4.2', fillUps: '8', variance: '+8%', driver: 'Ahmed Ali', make: 'Toyota Hilux 2023', lastFillUp: '03-Oct-2025', totalDistance: '1,890 km', costPerKm: 'AED 2.86'}, 'fuel-consumption')" class="text-indigo-600 hover:text-indigo-900 px-3 py-1 rounded-md bg-indigo-50 hover:bg-indigo-100">
+                          <i class="fas fa-eye mr-1"></i>View
+                        </button>
+                      </td>
+                    </tr>
+                    <tr class="hover:bg-gray-50">
+                      <td class="px-4 py-3 text-sm font-medium text-gray-900">AF-015</td>
+                      <td class="px-4 py-3 text-sm text-gray-900">Dumper</td>
+                      <td class="px-4 py-3 text-sm text-gray-900">Asab Field</td>
+                      <td class="px-4 py-3 text-sm font-semibold text-blue-600">1,200 L</td>
+                      <td class="px-4 py-3 text-sm font-semibold text-green-600">14,400</td>
+                      <td class="px-4 py-3 text-sm text-gray-900">2.1</td>
+                      <td class="px-4 py-3 text-sm text-gray-900">12</td>
+                      <td class="px-4 py-3"><span class="px-2 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800">-5%</span></td>
+                      <td class="px-4 py-3 text-sm">
+                        <button (click)="openDetailsModal({vehicleNo: 'AF-015', type: 'Dumper', project: 'Asab Field', totalFuel: '1,200 L', totalCost: 'AED 14,400', avgKmL: '2.1', fillUps: '12', variance: '-5%', driver: 'Mohammed Hassan', make: 'Volvo FMX 2022', lastFillUp: '04-Oct-2025', totalDistance: '2,520 km', costPerKm: 'AED 5.71'}, 'fuel-consumption')" class="text-indigo-600 hover:text-indigo-900 px-3 py-1 rounded-md bg-indigo-50 hover:bg-indigo-100">
+                          <i class="fas fa-eye mr-1"></i>View
+                        </button>
+                      </td>
+                    </tr>
+                    <tr class="hover:bg-gray-50">
+                      <td class="px-4 py-3 text-sm font-medium text-gray-900">AF-028</td>
+                      <td class="px-4 py-3 text-sm text-gray-900">Excavator</td>
+                      <td class="px-4 py-3 text-sm text-gray-900">Beda Zayed</td>
+                      <td class="px-4 py-3 text-sm font-semibold text-blue-600">800 L</td>
+                      <td class="px-4 py-3 text-sm font-semibold text-green-600">9,600</td>
+                      <td class="px-4 py-3 text-sm text-gray-900">N/A</td>
+                      <td class="px-4 py-3 text-sm text-gray-900">10</td>
+                      <td class="px-4 py-3"><span class="px-2 py-1 text-xs font-semibold rounded-full bg-gray-100 text-gray-800">-</span></td>
+                      <td class="px-4 py-3 text-sm">
+                        <button (click)="openDetailsModal({vehicleNo: 'AF-028', type: 'Excavator', project: 'Beda Zayed', totalFuel: '800 L', totalCost: 'AED 9,600', avgKmL: 'N/A (Hours based)', fillUps: '10', variance: '-', driver: 'Khalid Ibrahim', make: 'CAT 320D 2021', lastFillUp: '02-Oct-2025', totalDistance: '320 hrs', costPerKm: 'AED 30/hr'}, 'fuel-consumption')" class="text-indigo-600 hover:text-indigo-900 px-3 py-1 rounded-md bg-indigo-50 hover:bg-indigo-100">
+                          <i class="fas fa-eye mr-1"></i>View
+                        </button>
+                      </td>
+                    </tr>
+                    <tr class="hover:bg-gray-50">
+                      <td class="px-4 py-3 text-sm font-medium text-gray-900">AF-042</td>
+                      <td class="px-4 py-3 text-sm text-gray-900">60 Seater Bus</td>
+                      <td class="px-4 py-3 text-sm text-gray-900">Camp Transport</td>
+                      <td class="px-4 py-3 text-sm font-semibold text-blue-600">680 L</td>
+                      <td class="px-4 py-3 text-sm font-semibold text-green-600">8,160</td>
+                      <td class="px-4 py-3 text-sm text-gray-900">2.9</td>
+                      <td class="px-4 py-3 text-sm text-gray-900">9</td>
+                      <td class="px-4 py-3"><span class="px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">+3%</span></td>
+                      <td class="px-4 py-3 text-sm">
+                        <button (click)="openDetailsModal({vehicleNo: 'AF-042', type: '60 Seater Bus', project: 'Camp Transport', totalFuel: '680 L', totalCost: 'AED 8,160', avgKmL: '2.9', fillUps: '9', variance: '+3%', driver: 'Rashid Salem', make: 'Yutong ZK6122H 2023', lastFillUp: '04-Oct-2025', totalDistance: '1,972 km', costPerKm: 'AED 4.14'}, 'fuel-consumption')" class="text-indigo-600 hover:text-indigo-900 px-3 py-1 rounded-md bg-indigo-50 hover:bg-indigo-100">
+                          <i class="fas fa-eye mr-1"></i>View
+                        </button>
+                      </td>
+                    </tr>
+                    <tr class="hover:bg-gray-50">
+                      <td class="px-4 py-3 text-sm font-medium text-gray-900">AF-056</td>
+                      <td class="px-4 py-3 text-sm text-gray-900">Mobile Crane</td>
+                      <td class="px-4 py-3 text-sm text-gray-900">Qusaweira</td>
+                      <td class="px-4 py-3 text-sm font-semibold text-blue-600">950 L</td>
+                      <td class="px-4 py-3 text-sm font-semibold text-green-600">11,400</td>
+                      <td class="px-4 py-3 text-sm text-gray-900">N/A</td>
+                      <td class="px-4 py-3 text-sm text-gray-900">11</td>
+                      <td class="px-4 py-3"><span class="px-2 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-800">-12%</span></td>
+                      <td class="px-4 py-3 text-sm">
+                        <button (click)="openDetailsModal({vehicleNo: 'AF-056', type: 'Mobile Crane', project: 'Qusaweira', totalFuel: '950 L', totalCost: 'AED 11,400', avgKmL: 'N/A (Hours based)', fillUps: '11', variance: '-12%', driver: 'Sultan Al Hameli', make: 'Liebherr LTM 2023', lastFillUp: '03-Oct-2025', totalDistance: '285 hrs', costPerKm: 'AED 40/hr'}, 'fuel-consumption')" class="text-indigo-600 hover:text-indigo-900 px-3 py-1 rounded-md bg-indigo-50 hover:bg-indigo-100">
+                          <i class="fas fa-eye mr-1"></i>View
+                        </button>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+              <div class="px-4 py-3 bg-gray-50 border-t border-gray-200">
+                <p class="text-sm text-gray-600">Showing 5 of 540 active vehicles. Use filters to refine results.</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Maintenance Cost Summary Report -->
+          <div *ngSwitchCase="'maintenance-cost-summary'">
+            <div class="mb-6">
+              <h3 class="text-lg font-semibold text-gray-900 mb-2">Maintenance Cost Summary</h3>
+              <p class="text-sm text-gray-600">Total maintenance cost by vehicle, project, and month</p>
+            </div>
+
+            <!-- Summary Cards -->
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+              <div class="bg-gradient-to-br from-red-500 to-red-600 rounded-lg p-4 text-white">
+                <div class="flex items-center justify-between">
+                  <div>
+                    <p class="text-red-100 text-xs font-medium uppercase">Total Cost</p>
+                    <h3 class="text-2xl font-bold mt-1">AED 85k</h3>
+                  </div>
+                  <i class="fas fa-wrench text-3xl opacity-20"></i>
+                </div>
+              </div>
+              <div class="bg-gradient-to-br from-yellow-500 to-yellow-600 rounded-lg p-4 text-white">
+                <div class="flex items-center justify-between">
+                  <div>
+                    <p class="text-yellow-100 text-xs font-medium uppercase">Job Cards</p>
+                    <h3 class="text-2xl font-bold mt-1">22</h3>
+                  </div>
+                  <i class="fas fa-clipboard-list text-3xl opacity-20"></i>
+                </div>
+              </div>
+              <div class="bg-gradient-to-br from-indigo-500 to-indigo-600 rounded-lg p-4 text-white">
+                <div class="flex items-center justify-between">
+                  <div>
+                    <p class="text-indigo-100 text-xs font-medium uppercase">Avg Downtime</p>
+                    <h3 class="text-2xl font-bold mt-1">2.4 days</h3>
+                  </div>
+                  <i class="fas fa-clock text-3xl opacity-20"></i>
+                </div>
+              </div>
+              <div class="bg-gradient-to-br from-pink-500 to-pink-600 rounded-lg p-4 text-white">
+                <div class="flex items-center justify-between">
+                  <div>
+                    <p class="text-pink-100 text-xs font-medium uppercase">In Garage</p>
+                    <h3 class="text-2xl font-bold mt-1">35</h3>
+                  </div>
+                  <i class="fas fa-tools text-3xl opacity-20"></i>
+                </div>
+              </div>
+            </div>
+
+            <!-- Chart Placeholder -->
+            <div class="bg-gray-50 rounded-lg p-6 mb-6 border border-gray-200">
+              <h4 class="text-base font-semibold text-gray-900 mb-4">Monthly Maintenance Cost Trend</h4>
+              <div class="h-64 flex items-center justify-center text-gray-400">
+                <div class="text-center">
+                  <i class="fas fa-chart-bar text-6xl mb-4"></i>
+                  <p class="text-sm">Chart visualization will be displayed here</p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Detailed Table -->
+            <div class="overflow-x-auto">
+              <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                  <tr>
+                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Vehicle No</th>
+                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Type</th>
+                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Labour Cost</th>
+                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Parts Cost</th>
+                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Total Cost</th>
+                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Downtime</th>
+                  </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                  <tr class="hover:bg-gray-50">
+                    <td class="px-4 py-3 text-sm font-medium text-gray-900">AF-003</td>
+                    <td class="px-4 py-3 text-sm text-gray-900">Excavator</td>
+                    <td class="px-4 py-3 text-sm text-gray-900">AED 2,500</td>
+                    <td class="px-4 py-3 text-sm text-gray-900">AED 8,500</td>
+                    <td class="px-4 py-3 text-sm font-bold text-gray-900">AED 11,000</td>
+                    <td class="px-4 py-3 text-sm text-gray-900">5 days</td>
+                  </tr>
+                  <tr class="hover:bg-gray-50">
+                    <td class="px-4 py-3 text-sm font-medium text-gray-900">AF-012</td>
+                    <td class="px-4 py-3 text-sm text-gray-900">Dumper</td>
+                    <td class="px-4 py-3 text-sm text-gray-900">AED 1,800</td>
+                    <td class="px-4 py-3 text-sm text-gray-900">AED 4,200</td>
+                    <td class="px-4 py-3 text-sm font-bold text-gray-900">AED 6,000</td>
+                    <td class="px-4 py-3 text-sm text-gray-900">3 days</td>
+                  </tr>
+                  <tr class="hover:bg-gray-50">
+                    <td class="px-4 py-3 text-sm font-medium text-gray-900">AF-025</td>
+                    <td class="px-4 py-3 text-sm text-gray-900">Mobile Crane</td>
+                    <td class="px-4 py-3 text-sm text-gray-900">AED 3,500</td>
+                    <td class="px-4 py-3 text-sm text-gray-900">AED 12,500</td>
+                    <td class="px-4 py-3 text-sm font-bold text-gray-900">AED 16,000</td>
+                    <td class="px-4 py-3 text-sm text-gray-900">7 days</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Fleet Utilization Report -->
+          <div *ngSwitchCase="'fleet-utilization'">
+            <div class="mb-6">
+              <h3 class="text-lg font-semibold text-gray-900 mb-2">Fleet Utilization Report</h3>
+              <p class="text-sm text-gray-600">Active vs Idle vs Garage vehicles by percentage</p>
+            </div>
+
+            <!-- Summary Cards -->
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+              <div class="bg-gradient-to-br from-green-500 to-green-600 rounded-lg p-4 text-white">
+                <div class="flex items-center justify-between">
+                  <div>
+                    <p class="text-green-100 text-xs font-medium uppercase">Active</p>
+                    <h3 class="text-2xl font-bold mt-1">540 (90%)</h3>
+                  </div>
+                  <i class="fas fa-check-circle text-3xl opacity-20"></i>
+                </div>
+              </div>
+              <div class="bg-gradient-to-br from-yellow-500 to-yellow-600 rounded-lg p-4 text-white">
+                <div class="flex items-center justify-between">
+                  <div>
+                    <p class="text-yellow-100 text-xs font-medium uppercase">Maintenance</p>
+                    <h3 class="text-2xl font-bold mt-1">35 (6%)</h3>
+                  </div>
+                  <i class="fas fa-wrench text-3xl opacity-20"></i>
+                </div>
+              </div>
+              <div class="bg-gradient-to-br from-gray-500 to-gray-600 rounded-lg p-4 text-white">
+                <div class="flex items-center justify-between">
+                  <div>
+                    <p class="text-gray-100 text-xs font-medium uppercase">Idle</p>
+                    <h3 class="text-2xl font-bold mt-1">25 (4%)</h3>
+                  </div>
+                  <i class="fas fa-pause-circle text-3xl opacity-20"></i>
+                </div>
+              </div>
+              <div class="bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg p-4 text-white">
+                <div class="flex items-center justify-between">
+                  <div>
+                    <p class="text-blue-100 text-xs font-medium uppercase">Total Fleet</p>
+                    <h3 class="text-2xl font-bold mt-1">600</h3>
+                  </div>
+                  <i class="fas fa-truck text-3xl opacity-20"></i>
+                </div>
+              </div>
+            </div>
+
+            <!-- Chart Placeholder -->
+            <div class="bg-gray-50 rounded-lg p-6 mb-6 border border-gray-200">
+              <h4 class="text-base font-semibold text-gray-900 mb-4">Fleet Utilization Distribution</h4>
+              <div class="h-64 flex items-center justify-center text-gray-400">
+                <div class="text-center">
+                  <i class="fas fa-chart-pie text-6xl mb-4"></i>
+                  <p class="text-sm">Pie chart visualization will be displayed here</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Vehicle Allocation Report -->
+          <div *ngSwitchCase="'vehicle-allocation'">
+            <div class="mb-6">
+              <h3 class="text-lg font-semibold text-gray-900 mb-2">Vehicle Allocation Report</h3>
+              <p class="text-sm text-gray-600">Comprehensive vehicle assignment details across all projects and sites</p>
+            </div>
+
+            <!-- Enhanced KPI Cards -->
+            <div class="grid grid-cols-1 md:grid-cols-5 gap-4 mb-6">
+              <div class="bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg p-4 text-white shadow-lg">
+                <div class="flex items-center justify-between">
+                  <div>
+                    <p class="text-blue-100 text-xs font-medium uppercase">Total Allocated</p>
+                    <h3 class="text-2xl font-bold mt-1">540</h3>
+                    <p class="text-xs text-blue-100 mt-1">90% of fleet</p>
+                  </div>
+                  <i class="fas fa-project-diagram text-3xl opacity-20"></i>
+                </div>
+              </div>
+              <div class="bg-gradient-to-br from-green-500 to-green-600 rounded-lg p-4 text-white shadow-lg">
+                <div class="flex items-center justify-between">
+                  <div>
+                    <p class="text-green-100 text-xs font-medium uppercase">Active Projects</p>
+                    <h3 class="text-2xl font-bold mt-1">7</h3>
+                    <p class="text-xs text-green-100 mt-1">Ongoing sites</p>
+                  </div>
+                  <i class="fas fa-briefcase text-3xl opacity-20"></i>
+                </div>
+              </div>
+              <div class="bg-gradient-to-br from-purple-500 to-purple-600 rounded-lg p-4 text-white shadow-lg">
+                <div class="flex items-center justify-between">
+                  <div>
+                    <p class="text-purple-100 text-xs font-medium uppercase">Unallocated</p>
+                    <h3 class="text-2xl font-bold mt-1">60</h3>
+                    <p class="text-xs text-purple-100 mt-1">Available now</p>
+                  </div>
+                  <i class="fas fa-exclamation-circle text-3xl opacity-20"></i>
+                </div>
+              </div>
+              <div class="bg-gradient-to-br from-orange-500 to-orange-600 rounded-lg p-4 text-white shadow-lg">
+                <div class="flex items-center justify-between">
+                  <div>
+                    <p class="text-orange-100 text-xs font-medium uppercase">Utilization</p>
+                    <h3 class="text-2xl font-bold mt-1">90%</h3>
+                    <p class="text-xs text-orange-100 mt-1">Fleet efficiency</p>
+                  </div>
+                  <i class="fas fa-chart-pie text-3xl opacity-20"></i>
+                </div>
+              </div>
+              <div class="bg-gradient-to-br from-teal-500 to-teal-600 rounded-lg p-4 text-white shadow-lg">
+                <div class="flex items-center justify-between">
+                  <div>
+                    <p class="text-teal-100 text-xs font-medium uppercase">Avg Duration</p>
+                    <h3 class="text-2xl font-bold mt-1">4.2</h3>
+                    <p class="text-xs text-teal-100 mt-1">Months/project</p>
+                  </div>
+                  <i class="fas fa-calendar-alt text-3xl opacity-20"></i>
+                </div>
+              </div>
+            </div>
+
+            <!-- Project-wise Summary -->
+            <div class="bg-white rounded-lg border border-gray-200 p-4 mb-6">
+              <h4 class="text-md font-semibold text-gray-900 mb-4">Project-wise Vehicle Distribution</h4>
+              <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div class="border-l-4 border-blue-500 pl-3">
+                  <p class="text-xs text-gray-600">Shah Field</p>
+                  <p class="text-lg font-bold text-gray-900">145 vehicles</p>
+                </div>
+                <div class="border-l-4 border-green-500 pl-3">
+                  <p class="text-xs text-gray-600">Asab Field</p>
+                  <p class="text-lg font-bold text-gray-900">178 vehicles</p>
+                </div>
+                <div class="border-l-4 border-purple-500 pl-3">
+                  <p class="text-xs text-gray-600">Beda Zayed</p>
+                  <p class="text-lg font-bold text-gray-900">98 vehicles</p>
+                </div>
+                <div class="border-l-4 border-orange-500 pl-3">
+                  <p class="text-xs text-gray-600">Other Sites</p>
+                  <p class="text-lg font-bold text-gray-900">119 vehicles</p>
+                </div>
+              </div>
+            </div>
+
+            <div class="bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden">
+              <div class="px-4 py-3 bg-gray-50 border-b border-gray-200">
+                <h4 class="text-sm font-semibold text-gray-900">Detailed Vehicle Allocation Data</h4>
+              </div>
+              <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">
+                  <thead class="bg-gray-50">
+                    <tr>
+                      <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Vehicle No</th>
+                      <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Type</th>
+                      <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Make & Model</th>
+                      <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Driver</th>
+                      <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Project/Site</th>
+                      <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Start Date</th>
+                      <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Expected Return</th>
+                      <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Duration</th>
+                      <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
+                      <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody class="bg-white divide-y divide-gray-200">
+                    <tr class="hover:bg-gray-50">
+                      <td class="px-4 py-3 text-sm font-bold text-indigo-600">AF-001</td>
+                      <td class="px-4 py-3 text-sm text-gray-900">Double Cabin Pickup</td>
+                      <td class="px-4 py-3 text-sm font-semibold text-gray-900">Toyota Hilux 2023</td>
+                      <td class="px-4 py-3 text-sm text-gray-900">Ahmed Ali Hassan</td>
+                      <td class="px-4 py-3 text-sm font-semibold text-blue-600">Shah Field</td>
+                      <td class="px-4 py-3 text-sm text-gray-900">01-Sep-2025</td>
+                      <td class="px-4 py-3 text-sm text-gray-900">31-Dec-2025</td>
+                      <td class="px-4 py-3 text-sm font-semibold text-gray-900">4 months</td>
+                      <td class="px-4 py-3"><span class="px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">Active</span></td>
+                      <td class="px-4 py-3 text-sm">
+                        <button (click)="openDetailsModal({vehicleNo: 'AF-001', type: 'Double Cabin Pickup', project: 'Shah Field', startDate: '01-Sep-2025', expectedReturn: '31-Dec-2025', duration: '4 months', driver: 'Ahmed Ali Hassan', make: 'Toyota Hilux 2023', registrationNo: 'DXB-T-12345', insuranceExpiry: '15-Mar-2026', lastService: '15-Sep-2025', odometer: '45,230 km', fuelType: 'Diesel', status: 'Active'}, 'vehicle-allocation')" 
+                                class="text-indigo-600 hover:text-indigo-900 px-3 py-1 rounded-md bg-indigo-50 hover:bg-indigo-100 transition-colors">
+                          <i class="fas fa-eye mr-1"></i>View
+                        </button>
+                      </td>
+                    </tr>
+                    <tr class="hover:bg-gray-50">
+                      <td class="px-4 py-3 text-sm font-bold text-indigo-600">AF-015</td>
+                      <td class="px-4 py-3 text-sm text-gray-900">Dumper</td>
+                      <td class="px-4 py-3 text-sm font-semibold text-gray-900">Volvo FMX 2022</td>
+                      <td class="px-4 py-3 text-sm text-gray-900">Mohammed Hassan</td>
+                      <td class="px-4 py-3 text-sm font-semibold text-green-600">Asab Field</td>
+                      <td class="px-4 py-3 text-sm text-gray-900">15-Aug-2025</td>
+                      <td class="px-4 py-3 text-sm text-gray-900">15-Nov-2025</td>
+                      <td class="px-4 py-3 text-sm font-semibold text-gray-900">3 months</td>
+                      <td class="px-4 py-3"><span class="px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">Active</span></td>
+                      <td class="px-4 py-3 text-sm">
+                        <button (click)="openDetailsModal({vehicleNo: 'AF-015', type: 'Dumper', project: 'Asab Field', startDate: '15-Aug-2025', expectedReturn: '15-Nov-2025', duration: '3 months', driver: 'Mohammed Hassan', make: 'Volvo FMX 2022', registrationNo: 'DXB-T-23456', insuranceExpiry: '20-Apr-2026', lastService: '10-Aug-2025', odometer: '78,450 km', fuelType: 'Diesel', status: 'Active', totalFuel: '1,980 L', totalCost: 'AED 23,760', avgKmL: '2.1'}, 'vehicle-allocation')" 
+                                class="text-indigo-600 hover:text-indigo-900 px-3 py-1 rounded-md bg-indigo-50 hover:bg-indigo-100 transition-colors">
+                          <i class="fas fa-eye mr-1"></i>View
+                        </button>
+                      </td>
+                    </tr>
+                    <tr class="hover:bg-gray-50">
+                      <td class="px-4 py-3 text-sm font-bold text-indigo-600">AF-028</td>
+                      <td class="px-4 py-3 text-sm text-gray-900">Excavator</td>
+                      <td class="px-4 py-3 text-sm font-semibold text-gray-900">CAT 320D 2021</td>
+                      <td class="px-4 py-3 text-sm text-gray-900">Khalid Ibrahim</td>
+                      <td class="px-4 py-3 text-sm font-semibold text-purple-600">Beda Zayed</td>
+                      <td class="px-4 py-3 text-sm text-gray-900">10-Jul-2025</td>
+                      <td class="px-4 py-3 text-sm text-gray-900">10-Jan-2026</td>
+                      <td class="px-4 py-3 text-sm font-semibold text-gray-900">6 months</td>
+                      <td class="px-4 py-3"><span class="px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">Active</span></td>
+                      <td class="px-4 py-3 text-sm">
+                        <button (click)="openDetailsModal({vehicleNo: 'AF-028', type: 'Excavator', project: 'Beda Zayed', startDate: '10-Jul-2025', expectedReturn: '10-Jan-2026', duration: '6 months', driver: 'Khalid Ibrahim', make: 'CAT 320D 2021', registrationNo: 'DXB-T-34567', insuranceExpiry: '05-Jun-2026', lastService: '01-Jul-2025', odometer: '12,890 hrs', fuelType: 'Diesel', status: 'Active', totalFuel: '2,150 L', totalCost: 'AED 25,800'}, 'vehicle-allocation')" 
+                                class="text-indigo-600 hover:text-indigo-900 px-3 py-1 rounded-md bg-indigo-50 hover:bg-indigo-100 transition-colors">
+                          <i class="fas fa-eye mr-1"></i>View
+                        </button>
+                      </td>
+                    </tr>
+                    <tr class="hover:bg-gray-50">
+                      <td class="px-4 py-3 text-sm font-bold text-indigo-600">AF-042</td>
+                      <td class="px-4 py-3 text-sm text-gray-900">60 Seater Bus</td>
+                      <td class="px-4 py-3 text-sm font-semibold text-gray-900">Yutong ZK6122H 2024</td>
+                      <td class="px-4 py-3 text-sm text-gray-900">Rashid Salem</td>
+                      <td class="px-4 py-3 text-sm font-semibold text-orange-600">Camp Transport</td>
+                      <td class="px-4 py-3 text-sm text-gray-900">01-Jan-2025</td>
+                      <td class="px-4 py-3 text-sm font-semibold text-green-600">Permanent</td>
+                      <td class="px-4 py-3 text-sm font-semibold text-gray-900">Ongoing</td>
+                      <td class="px-4 py-3"><span class="px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">Active</span></td>
+                      <td class="px-4 py-3 text-sm">
+                        <button (click)="openDetailsModal({vehicleNo: 'AF-042', type: '60 Seater Bus', project: 'Camp Transport', startDate: '01-Jan-2025', expectedReturn: 'Permanent', duration: 'Ongoing', driver: 'Rashid Salem', make: 'Yutong ZK6122H 2024', registrationNo: 'DXB-T-45678', insuranceExpiry: '10-Jan-2026', lastService: '20-Sep-2025', odometer: '92,340 km', fuelType: 'Diesel', status: 'Active', totalFuel: '1,650 L', totalCost: 'AED 19,800', avgKmL: '2.9'}, 'vehicle-allocation')" 
+                                class="text-indigo-600 hover:text-indigo-900 px-3 py-1 rounded-md bg-indigo-50 hover:bg-indigo-100 transition-colors">
+                          <i class="fas fa-eye mr-1"></i>View
+                        </button>
+                      </td>
+                    </tr>
+                    <tr class="hover:bg-gray-50">
+                      <td class="px-4 py-3 text-sm font-bold text-indigo-600">AF-056</td>
+                      <td class="px-4 py-3 text-sm text-gray-900">Mobile Crane</td>
+                      <td class="px-4 py-3 text-sm font-semibold text-gray-900">Liebherr LTM 2023</td>
+                      <td class="px-4 py-3 text-sm text-gray-900">Sultan Al Hameli</td>
+                      <td class="px-4 py-3 text-sm font-semibold text-teal-600">Qusaweira</td>
+                      <td class="px-4 py-3 text-sm text-gray-900">20-Sep-2025</td>
+                      <td class="px-4 py-3 text-sm text-gray-900">20-Dec-2025</td>
+                      <td class="px-4 py-3 text-sm font-semibold text-gray-900">3 months</td>
+                      <td class="px-4 py-3"><span class="px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">Active</span></td>
+                      <td class="px-4 py-3 text-sm">
+                        <button (click)="openDetailsModal({vehicleNo: 'AF-056', type: 'Mobile Crane', project: 'Qusaweira', startDate: '20-Sep-2025', expectedReturn: '20-Dec-2025', duration: '3 months', driver: 'Sultan Al Hameli', make: 'Liebherr LTM 2023', registrationNo: 'DXB-T-56789', insuranceExpiry: '15-Feb-2026', lastService: '10-Sep-2025', odometer: '8,750 hrs', fuelType: 'Diesel', status: 'Active', totalFuel: '2,280 L', totalCost: 'AED 27,360'}, 'vehicle-allocation')" 
+                                class="text-indigo-600 hover:text-indigo-900 px-3 py-1 rounded-md bg-indigo-50 hover:bg-indigo-100 transition-colors">
+                          <i class="fas fa-eye mr-1"></i>View
+                        </button>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <!-- Vehicle Expiry Report -->
+          <div *ngSwitchCase="'vehicle-expiry'">
+            <div class="mb-6">
+              <h3 class="text-lg font-semibold text-gray-900 mb-2">Vehicle Expiry Report</h3>
+              <p class="text-sm text-gray-600">Comprehensive tracking of Insurance, Registration, Fitness Certificate and License expiry dates</p>
+            </div>
+
+            <!-- Enhanced KPI Cards -->
+            <div class="grid grid-cols-1 md:grid-cols-5 gap-4 mb-6">
+              <div class="bg-gradient-to-br from-red-500 to-red-600 rounded-lg p-4 text-white shadow-lg">
+                <div class="flex items-center justify-between">
+                  <div>
+                    <p class="text-red-100 text-xs font-medium uppercase">Expired</p>
+                    <h3 class="text-2xl font-bold mt-1">8</h3>
+                    <p class="text-xs text-red-100 mt-1">Immediate action</p>
+                  </div>
+                  <i class="fas fa-times-circle text-3xl opacity-20"></i>
+                </div>
+              </div>
+              <div class="bg-gradient-to-br from-yellow-500 to-yellow-600 rounded-lg p-4 text-white shadow-lg">
+                <div class="flex items-center justify-between">
+                  <div>
+                    <p class="text-yellow-100 text-xs font-medium uppercase">Expiring Soon</p>
+                    <h3 class="text-2xl font-bold mt-1">25</h3>
+                    <p class="text-xs text-yellow-100 mt-1">Within 30 days</p>
+                  </div>
+                  <i class="fas fa-exclamation-triangle text-3xl opacity-20"></i>
+                </div>
+              </div>
+              <div class="bg-gradient-to-br from-orange-500 to-orange-600 rounded-lg p-4 text-white shadow-lg">
+                <div class="flex items-center justify-between">
+                  <div>
+                    <p class="text-orange-100 text-xs font-medium uppercase">Expiring (60 days)</p>
+                    <h3 class="text-2xl font-bold mt-1">42</h3>
+                    <p class="text-xs text-orange-100 mt-1">Plan renewal</p>
+                  </div>
+                  <i class="fas fa-clock text-3xl opacity-20"></i>
+                </div>
+              </div>
+              <div class="bg-gradient-to-br from-green-500 to-green-600 rounded-lg p-4 text-white shadow-lg">
+                <div class="flex items-center justify-between">
+                  <div>
+                    <p class="text-green-100 text-xs font-medium uppercase">Valid</p>
+                    <h3 class="text-2xl font-bold mt-1">525</h3>
+                    <p class="text-xs text-green-100 mt-1">All documents OK</p>
+                  </div>
+                  <i class="fas fa-check-circle text-3xl opacity-20"></i>
+                </div>
+              </div>
+              <div class="bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg p-4 text-white shadow-lg">
+                <div class="flex items-center justify-between">
+                  <div>
+                    <p class="text-blue-100 text-xs font-medium uppercase">Total Vehicles</p>
+                    <h3 class="text-2xl font-bold mt-1">600</h3>
+                    <p class="text-xs text-blue-100 mt-1">Fleet size</p>
+                  </div>
+                  <i class="fas fa-truck text-3xl opacity-20"></i>
+                </div>
+              </div>
+            </div>
+
+            <!-- Document Type Summary -->
+            <div class="bg-white rounded-lg border border-gray-200 p-4 mb-6">
+              <h4 class="text-md font-semibold text-gray-900 mb-4">Document-wise Expiry Summary</h4>
+              <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div class="border-l-4 border-red-500 pl-3">
+                  <p class="text-xs text-gray-600">Insurance Expiry</p>
+                  <p class="text-lg font-bold text-gray-900">12 vehicles</p>
+                  <p class="text-xs text-red-600 mt-1">5 expired, 7 expiring soon</p>
+                </div>
+                <div class="border-l-4 border-yellow-500 pl-3">
+                  <p class="text-xs text-gray-600">Registration Expiry</p>
+                  <p class="text-lg font-bold text-gray-900">8 vehicles</p>
+                  <p class="text-xs text-yellow-600 mt-1">2 expired, 6 expiring soon</p>
+                </div>
+                <div class="border-l-4 border-orange-500 pl-3">
+                  <p class="text-xs text-gray-600">Fitness Certificate</p>
+                  <p class="text-lg font-bold text-gray-900">10 vehicles</p>
+                  <p class="text-xs text-orange-600 mt-1">1 expired, 9 expiring soon</p>
+                </div>
+                <div class="border-l-4 border-purple-500 pl-3">
+                  <p class="text-xs text-gray-600">Driver License</p>
+                  <p class="text-lg font-bold text-gray-900">3 vehicles</p>
+                  <p class="text-xs text-purple-600 mt-1">All expiring soon</p>
+                </div>
+              </div>
+            </div>
+
+            <div class="bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden">
+              <div class="px-4 py-3 bg-gray-50 border-b border-gray-200">
+                <h4 class="text-sm font-semibold text-gray-900">Critical & Upcoming Document Expiries</h4>
+              </div>
+              <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">
+                  <thead class="bg-gray-50">
+                    <tr>
+                      <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Vehicle No</th>
+                      <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Type</th>
+                      <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Make & Model</th>
+                      <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Document Type</th>
+                      <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Issue Date</th>
+                      <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Expiry Date</th>
+                      <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Days Remaining</th>
+                      <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Renewal Cost</th>
+                      <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
+                      <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody class="bg-white divide-y divide-gray-200">
+                    <tr class="hover:bg-red-50 bg-red-25">
+                      <td class="px-4 py-3 text-sm font-bold text-indigo-600">AF-025</td>
+                      <td class="px-4 py-3 text-sm text-gray-900">Mobile Crane</td>
+                      <td class="px-4 py-3 text-sm font-semibold text-gray-900">Liebherr LTM 2020</td>
+                      <td class="px-4 py-3 text-sm font-semibold text-gray-900">Registration</td>
+                      <td class="px-4 py-3 text-sm text-gray-900">02-Oct-2024</td>
+                      <td class="px-4 py-3 text-sm font-bold text-red-600">02-Oct-2025</td>
+                      <td class="px-4 py-3 text-sm font-bold text-red-600">-2 days</td>
+                      <td class="px-4 py-3 text-sm font-bold text-gray-900">AED 420</td>
+                      <td class="px-4 py-3"><span class="px-2 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-800">Expired</span></td>
+                      <td class="px-4 py-3 text-sm">
+                        <button (click)="openDetailsModal({vehicleNo: 'AF-025', type: 'Mobile Crane', make: 'Liebherr LTM 2020', documentType: 'Registration', issueDate: '02-Oct-2024', expiryDate: '02-Oct-2025', daysRemaining: '-2 days', renewalCost: 'AED 420', status: 'Expired', registrationNo: 'DXB-T-56789', project: 'Qusaweira', driver: 'Sultan Al Hameli', lastRenewal: '02-Oct-2024', authority: 'RTA Dubai', contactPerson: 'Ahmed Al Mansoori', contactPhone: '+971-4-6065555'}, 'vehicle-expiry')" 
+                                class="text-red-600 hover:text-red-900 px-3 py-1 rounded-md bg-red-50 hover:bg-red-100 transition-colors">
+                          <i class="fas fa-exclamation-circle mr-1"></i>Renew Now
+                        </button>
+                      </td>
+                    </tr>
+                    <tr class="hover:bg-red-50 bg-red-25">
+                      <td class="px-4 py-3 text-sm font-bold text-indigo-600">AF-089</td>
+                      <td class="px-4 py-3 text-sm text-gray-900">Grader</td>
+                      <td class="px-4 py-3 text-sm font-semibold text-gray-900">CAT 140M 2019</td>
+                      <td class="px-4 py-3 text-sm font-semibold text-gray-900">Registration</td>
+                      <td class="px-4 py-3 text-sm text-gray-900">01-Oct-2024</td>
+                      <td class="px-4 py-3 text-sm font-bold text-red-600">01-Oct-2025</td>
+                      <td class="px-4 py-3 text-sm font-bold text-red-600">-3 days</td>
+                      <td class="px-4 py-3 text-sm font-bold text-gray-900">AED 420</td>
+                      <td class="px-4 py-3"><span class="px-2 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-800">Expired</span></td>
+                      <td class="px-4 py-3 text-sm">
+                        <button (click)="openDetailsModal({vehicleNo: 'AF-089', type: 'Grader', make: 'CAT 140M 2019', documentType: 'Registration', issueDate: '01-Oct-2024', expiryDate: '01-Oct-2025', daysRemaining: '-3 days', renewalCost: 'AED 420', status: 'Expired', registrationNo: 'DXB-T-78901', project: 'Beda Zayed', driver: 'Khalid Mohammed', lastRenewal: '01-Oct-2024', authority: 'RTA Dubai', contactPerson: 'Ahmed Al Mansoori', contactPhone: '+971-4-6065555'}, 'vehicle-expiry')" 
+                                class="text-red-600 hover:text-red-900 px-3 py-1 rounded-md bg-red-50 hover:bg-red-100 transition-colors">
+                          <i class="fas fa-exclamation-circle mr-1"></i>Renew Now
+                        </button>
+                      </td>
+                    </tr>
+                    <tr class="hover:bg-yellow-50">
+                      <td class="px-4 py-3 text-sm font-bold text-indigo-600">AF-012</td>
+                      <td class="px-4 py-3 text-sm text-gray-900">Dumper</td>
+                      <td class="px-4 py-3 text-sm font-semibold text-gray-900">Volvo FMX 2021</td>
+                      <td class="px-4 py-3 text-sm font-semibold text-gray-900">Insurance</td>
+                      <td class="px-4 py-3 text-sm text-gray-900">15-Oct-2024</td>
+                      <td class="px-4 py-3 text-sm font-bold text-yellow-600">15-Oct-2025</td>
+                      <td class="px-4 py-3 text-sm font-bold text-yellow-600">11 days</td>
+                      <td class="px-4 py-3 text-sm font-bold text-gray-900">AED 6,500</td>
+                      <td class="px-4 py-3"><span class="px-2 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800">Expiring Soon</span></td>
+                      <td class="px-4 py-3 text-sm">
+                        <button (click)="openDetailsModal({vehicleNo: 'AF-012', type: 'Dumper', make: 'Volvo FMX 2021', documentType: 'Insurance', issueDate: '15-Oct-2024', expiryDate: '15-Oct-2025', daysRemaining: '11 days', renewalCost: 'AED 6,500', status: 'Expiring Soon', registrationNo: 'DXB-T-23456', project: 'Asab Field', driver: 'Mohammed Hassan', lastRenewal: '15-Oct-2024', authority: 'Abu Dhabi National Insurance', contactPerson: 'Sara Al Zaabi', contactPhone: '+971-2-6767777', insuranceType: 'Comprehensive', policyNumber: 'INS-2024-AF-012'}, 'vehicle-expiry')" 
+                                class="text-yellow-600 hover:text-yellow-900 px-3 py-1 rounded-md bg-yellow-50 hover:bg-yellow-100 transition-colors">
+                          <i class="fas fa-bell mr-1"></i>Remind
+                        </button>
+                      </td>
+                    </tr>
+                    <tr class="hover:bg-yellow-50">
+                      <td class="px-4 py-3 text-sm font-bold text-indigo-600">AF-038</td>
+                      <td class="px-4 py-3 text-sm text-gray-900">Excavator</td>
+                      <td class="px-4 py-3 text-sm font-semibold text-gray-900">CAT 320D 2022</td>
+                      <td class="px-4 py-3 text-sm font-semibold text-gray-900">Insurance</td>
+                      <td class="px-4 py-3 text-sm text-gray-900">20-Oct-2024</td>
+                      <td class="px-4 py-3 text-sm font-bold text-yellow-600">20-Oct-2025</td>
+                      <td class="px-4 py-3 text-sm font-bold text-yellow-600">16 days</td>
+                      <td class="px-4 py-3 text-sm font-bold text-gray-900">AED 8,200</td>
+                      <td class="px-4 py-3"><span class="px-2 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800">Expiring Soon</span></td>
+                      <td class="px-4 py-3 text-sm">
+                        <button (click)="openDetailsModal({vehicleNo: 'AF-038', type: 'Excavator', make: 'CAT 320D 2022', documentType: 'Insurance', issueDate: '20-Oct-2024', expiryDate: '20-Oct-2025', daysRemaining: '16 days', renewalCost: 'AED 8,200', status: 'Expiring Soon', registrationNo: 'DXB-T-34567', project: 'Beda Zayed', driver: 'Khalid Ibrahim', lastRenewal: '20-Oct-2024', authority: 'Abu Dhabi National Insurance', contactPerson: 'Sara Al Zaabi', contactPhone: '+971-2-6767777', insuranceType: 'Comprehensive', policyNumber: 'INS-2024-AF-038'}, 'vehicle-expiry')" 
+                                class="text-yellow-600 hover:text-yellow-900 px-3 py-1 rounded-md bg-yellow-50 hover:bg-yellow-100 transition-colors">
+                          <i class="fas fa-bell mr-1"></i>Remind
+                        </button>
+                      </td>
+                    </tr>
+                    <tr class="hover:bg-yellow-50">
+                      <td class="px-4 py-3 text-sm font-bold text-indigo-600">AF-047</td>
+                      <td class="px-4 py-3 text-sm text-gray-900">60 Seater Bus</td>
+                      <td class="px-4 py-3 text-sm font-semibold text-gray-900">Yutong ZK6122H 2023</td>
+                      <td class="px-4 py-3 text-sm font-semibold text-gray-900">Fitness Certificate</td>
+                      <td class="px-4 py-3 text-sm text-gray-900">28-Oct-2024</td>
+                      <td class="px-4 py-3 text-sm font-bold text-yellow-600">28-Oct-2025</td>
+                      <td class="px-4 py-3 text-sm font-bold text-yellow-600">24 days</td>
+                      <td class="px-4 py-3 text-sm font-bold text-gray-900">AED 350</td>
+                      <td class="px-4 py-3"><span class="px-2 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800">Expiring Soon</span></td>
+                      <td class="px-4 py-3 text-sm">
+                        <button (click)="openDetailsModal({vehicleNo: 'AF-047', type: '60 Seater Bus', make: 'Yutong ZK6122H 2023', documentType: 'Fitness Certificate', issueDate: '28-Oct-2024', expiryDate: '28-Oct-2025', daysRemaining: '24 days', renewalCost: 'AED 350', status: 'Expiring Soon', registrationNo: 'DXB-T-45678', project: 'Camp Transport', driver: 'Rashid Salem', lastRenewal: '28-Oct-2024', authority: 'RTA Dubai - Testing Center', contactPerson: 'Ali Al Hammadi', contactPhone: '+971-4-6065555', testCenter: 'Al Qusais Testing Center'}, 'vehicle-expiry')" 
+                                class="text-yellow-600 hover:text-yellow-900 px-3 py-1 rounded-md bg-yellow-50 hover:bg-yellow-100 transition-colors">
+                          <i class="fas fa-bell mr-1"></i>Remind
+                        </button>
+                      </td>
+                    </tr>
+                    <tr class="hover:bg-yellow-50">
+                      <td class="px-4 py-3 text-sm font-bold text-indigo-600">AF-073</td>
+                      <td class="px-4 py-3 text-sm text-gray-900">Double Cabin</td>
+                      <td class="px-4 py-3 text-sm font-semibold text-gray-900">Toyota Hilux 2024</td>
+                      <td class="px-4 py-3 text-sm font-semibold text-gray-900">Insurance</td>
+                      <td class="px-4 py-3 text-sm text-gray-900">05-Nov-2024</td>
+                      <td class="px-4 py-3 text-sm font-bold text-yellow-600">05-Nov-2025</td>
+                      <td class="px-4 py-3 text-sm font-bold text-yellow-600">27 days</td>
+                      <td class="px-4 py-3 text-sm font-bold text-gray-900">AED 4,500</td>
+                      <td class="px-4 py-3"><span class="px-2 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800">Expiring Soon</span></td>
+                      <td class="px-4 py-3 text-sm">
+                        <button (click)="openDetailsModal({vehicleNo: 'AF-073', type: 'Double Cabin', make: 'Toyota Hilux 2024', documentType: 'Insurance', issueDate: '05-Nov-2024', expiryDate: '05-Nov-2025', daysRemaining: '27 days', renewalCost: 'AED 4,500', status: 'Expiring Soon', registrationNo: 'DXB-T-67890', project: 'Shah Field', driver: 'Ahmed Ali', lastRenewal: '05-Nov-2024', authority: 'Abu Dhabi National Insurance', contactPerson: 'Sara Al Zaabi', contactPhone: '+971-2-6767777', insuranceType: 'Comprehensive', policyNumber: 'INS-2024-AF-073'}, 'vehicle-expiry')" 
+                                class="text-yellow-600 hover:text-yellow-900 px-3 py-1 rounded-md bg-yellow-50 hover:bg-yellow-100 transition-colors">
+                          <i class="fas fa-bell mr-1"></i>Remind
+                        </button>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <!-- Fuel Issue Register -->
+          <div *ngSwitchCase="'fuel-issue-register'">
+            <div class="mb-6">
+              <h3 class="text-lg font-semibold text-gray-900 mb-2">Fuel Issue Register</h3>
+              <p class="text-sm text-gray-600">All daily fuel issues with cost and vehicle linkage</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+              <div class="bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg p-4 text-white">
+                <div class="flex items-center justify-between">
+                  <div>
+                    <p class="text-blue-100 text-xs font-medium uppercase">Today's Issues</p>
+                    <h3 class="text-2xl font-bold mt-1">42</h3>
+                  </div>
+                  <i class="fas fa-gas-pump text-3xl opacity-20"></i>
+                </div>
+              </div>
+              <div class="bg-gradient-to-br from-green-500 to-green-600 rounded-lg p-4 text-white">
+                <div class="flex items-center justify-between">
+                  <div>
+                    <p class="text-green-100 text-xs font-medium uppercase">Total Litres</p>
+                    <h3 class="text-2xl font-bold mt-1">1,850 L</h3>
+                  </div>
+                  <i class="fas fa-tint text-3xl opacity-20"></i>
+                </div>
+              </div>
+              <div class="bg-gradient-to-br from-purple-500 to-purple-600 rounded-lg p-4 text-white">
+                <div class="flex items-center justify-between">
+                  <div>
+                    <p class="text-purple-100 text-xs font-medium uppercase">Total Cost</p>
+                    <h3 class="text-2xl font-bold mt-1">AED 22,200</h3>
+                  </div>
+                  <i class="fas fa-dollar-sign text-3xl opacity-20"></i>
+                </div>
+              </div>
+              <div class="bg-gradient-to-br from-orange-500 to-orange-600 rounded-lg p-4 text-white">
+                <div class="flex items-center justify-between">
+                  <div>
+                    <p class="text-orange-100 text-xs font-medium uppercase">Avg per Vehicle</p>
+                    <h3 class="text-2xl font-bold mt-1">44 L</h3>
+                  </div>
+                  <i class="fas fa-chart-bar text-3xl opacity-20"></i>
+                </div>
+              </div>
+            </div>
+
+            <div class="overflow-x-auto">
+              <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                  <tr>
+                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date/Time</th>
+                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Vehicle No</th>
+                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Fuel Type</th>
+                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Quantity (L)</th>
+                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Cost (AED)</th>
+                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Odometer</th>
+                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Vendor</th>
+                  </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                  <tr class="hover:bg-gray-50">
+                    <td class="px-4 py-3 text-sm text-gray-900">04-Oct-2025 08:15</td>
+                    <td class="px-4 py-3 text-sm font-medium text-gray-900">AF-001</td>
+                    <td class="px-4 py-3 text-sm text-gray-900">Diesel</td>
+                    <td class="px-4 py-3 text-sm text-gray-900">65 L</td>
+                    <td class="px-4 py-3 text-sm text-gray-900">780</td>
+                    <td class="px-4 py-3 text-sm text-gray-900">45,230 km</td>
+                    <td class="px-4 py-3 text-sm text-gray-900">ADNOC</td>
+                  </tr>
+                  <tr class="hover:bg-gray-50">
+                    <td class="px-4 py-3 text-sm text-gray-900">04-Oct-2025 09:30</td>
+                    <td class="px-4 py-3 text-sm font-medium text-gray-900">AF-015</td>
+                    <td class="px-4 py-3 text-sm text-gray-900">Diesel</td>
+                    <td class="px-4 py-3 text-sm text-gray-900">120 L</td>
+                    <td class="px-4 py-3 text-sm text-gray-900">1,440</td>
+                    <td class="px-4 py-3 text-sm text-gray-900">78,450 km</td>
+                    <td class="px-4 py-3 text-sm text-gray-900">ENOC</td>
+                  </tr>
+                  <tr class="hover:bg-gray-50">
+                    <td class="px-4 py-3 text-sm text-gray-900">04-Oct-2025 10:45</td>
+                    <td class="px-4 py-3 text-sm font-medium text-gray-900">AF-028</td>
+                    <td class="px-4 py-3 text-sm text-gray-900">Diesel</td>
+                    <td class="px-4 py-3 text-sm text-gray-900">95 L</td>
+                    <td class="px-4 py-3 text-sm text-gray-900">1,140</td>
+                    <td class="px-4 py-3 text-sm text-gray-900">12,890 hrs</td>
+                    <td class="px-4 py-3 text-sm text-gray-900">ADNOC</td>
+                  </tr>
+                  <tr class="hover:bg-gray-50">
+                    <td class="px-4 py-3 text-sm text-gray-900">04-Oct-2025 11:20</td>
+                    <td class="px-4 py-3 text-sm font-medium text-gray-900">AF-042</td>
+                    <td class="px-4 py-3 text-sm text-gray-900">Diesel</td>
+                    <td class="px-4 py-3 text-sm text-gray-900">85 L</td>
+                    <td class="px-4 py-3 text-sm text-gray-900">1,020</td>
+                    <td class="px-4 py-3 text-sm text-gray-900">92,340 km</td>
+                    <td class="px-4 py-3 text-sm text-gray-900">ENOC</td>
+                  </tr>
+                  <tr class="hover:bg-gray-50">
+                    <td class="px-4 py-3 text-sm text-gray-900">04-Oct-2025 13:00</td>
+                    <td class="px-4 py-3 text-sm font-medium text-gray-900">AF-056</td>
+                    <td class="px-4 py-3 text-sm text-gray-900">Diesel</td>
+                    <td class="px-4 py-3 text-sm text-gray-900">150 L</td>
+                    <td class="px-4 py-3 text-sm text-gray-900">1,800</td>
+                    <td class="px-4 py-3 text-sm text-gray-900">8,750 hrs</td>
+                    <td class="px-4 py-3 text-sm text-gray-900">ADNOC</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Top 10 Fuel Consumers -->
+          <div *ngSwitchCase="'top-fuel-consumers'">
+            <div class="mb-6">
+              <h3 class="text-lg font-semibold text-gray-900 mb-2">Top 10 Fuel Consumers</h3>
+              <p class="text-sm text-gray-600">Identify highest fuel users</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+              <div class="bg-gradient-to-br from-red-500 to-red-600 rounded-lg p-4 text-white">
+                <div class="flex items-center justify-between">
+                  <div>
+                    <p class="text-red-100 text-xs font-medium uppercase">Top Consumer</p>
+                    <h3 class="text-xl font-bold mt-1">AF-089</h3>
+                    <p class="text-xs text-red-100 mt-1">2,450 L/month</p>
+                  </div>
+                  <i class="fas fa-fire text-3xl opacity-20"></i>
+                </div>
+              </div>
+              <div class="bg-gradient-to-br from-orange-500 to-orange-600 rounded-lg p-4 text-white">
+                <div class="flex items-center justify-between">
+                  <div>
+                    <p class="text-orange-100 text-xs font-medium uppercase">Total Consumption</p>
+                    <h3 class="text-2xl font-bold mt-1">18,500 L</h3>
+                  </div>
+                  <i class="fas fa-gas-pump text-3xl opacity-20"></i>
+                </div>
+              </div>
+              <div class="bg-gradient-to-br from-yellow-500 to-yellow-600 rounded-lg p-4 text-white">
+                <div class="flex items-center justify-between">
+                  <div>
+                    <p class="text-yellow-100 text-xs font-medium uppercase">Total Cost</p>
+                    <h3 class="text-2xl font-bold mt-1">AED 222k</h3>
+                  </div>
+                  <i class="fas fa-dollar-sign text-3xl opacity-20"></i>
+                </div>
+              </div>
+              <div class="bg-gradient-to-br from-purple-500 to-purple-600 rounded-lg p-4 text-white">
+                <div class="flex items-center justify-between">
+                  <div>
+                    <p class="text-purple-100 text-xs font-medium uppercase">Avg per Vehicle</p>
+                    <h3 class="text-2xl font-bold mt-1">1,850 L</h3>
+                  </div>
+                  <i class="fas fa-chart-bar text-3xl opacity-20"></i>
+                </div>
+              </div>
+            </div>
+
+            <div class="overflow-x-auto">
+              <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                  <tr>
+                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Rank</th>
+                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Vehicle No</th>
+                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Type</th>
+                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Total Fuel (L)</th>
+                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Total Cost (AED)</th>
+                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Avg Km/L</th>
+                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Project</th>
+                  </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                  <tr class="hover:bg-gray-50 bg-red-50">
+                    <td class="px-4 py-3 text-sm font-bold text-red-600">1</td>
+                    <td class="px-4 py-3 text-sm font-medium text-gray-900">AF-089</td>
+                    <td class="px-4 py-3 text-sm text-gray-900">Grader</td>
+                    <td class="px-4 py-3 text-sm font-bold text-gray-900">2,450 L</td>
+                    <td class="px-4 py-3 text-sm text-gray-900">29,400</td>
+                    <td class="px-4 py-3 text-sm text-gray-900">N/A</td>
+                    <td class="px-4 py-3 text-sm text-gray-900">Beda Zayed</td>
+                  </tr>
+                  <tr class="hover:bg-gray-50 bg-orange-50">
+                    <td class="px-4 py-3 text-sm font-bold text-orange-600">2</td>
+                    <td class="px-4 py-3 text-sm font-medium text-gray-900">AF-056</td>
+                    <td class="px-4 py-3 text-sm text-gray-900">Mobile Crane</td>
+                    <td class="px-4 py-3 text-sm font-bold text-gray-900">2,280 L</td>
+                    <td class="px-4 py-3 text-sm text-gray-900">27,360</td>
+                    <td class="px-4 py-3 text-sm text-gray-900">N/A</td>
+                    <td class="px-4 py-3 text-sm text-gray-900">Qusaweira</td>
+                  </tr>
+                  <tr class="hover:bg-gray-50 bg-yellow-50">
+                    <td class="px-4 py-3 text-sm font-bold text-yellow-600">3</td>
+                    <td class="px-4 py-3 text-sm font-medium text-gray-900">AF-028</td>
+                    <td class="px-4 py-3 text-sm text-gray-900">Excavator</td>
+                    <td class="px-4 py-3 text-sm font-bold text-gray-900">2,150 L</td>
+                    <td class="px-4 py-3 text-sm text-gray-900">25,800</td>
+                    <td class="px-4 py-3 text-sm text-gray-900">N/A</td>
+                    <td class="px-4 py-3 text-sm text-gray-900">Shah Field</td>
+                  </tr>
+                  <tr class="hover:bg-gray-50">
+                    <td class="px-4 py-3 text-sm font-bold text-gray-600">4</td>
+                    <td class="px-4 py-3 text-sm font-medium text-gray-900">AF-015</td>
+                    <td class="px-4 py-3 text-sm text-gray-900">Dumper</td>
+                    <td class="px-4 py-3 text-sm font-bold text-gray-900">1,980 L</td>
+                    <td class="px-4 py-3 text-sm text-gray-900">23,760</td>
+                    <td class="px-4 py-3 text-sm text-gray-900">2.1</td>
+                    <td class="px-4 py-3 text-sm text-gray-900">Asab Field</td>
+                  </tr>
+                  <tr class="hover:bg-gray-50">
+                    <td class="px-4 py-3 text-sm font-bold text-gray-600">5</td>
+                    <td class="px-4 py-3 text-sm font-medium text-gray-900">AF-073</td>
+                    <td class="px-4 py-3 text-sm text-gray-900">Tipper</td>
+                    <td class="px-4 py-3 text-sm font-bold text-gray-900">1,850 L</td>
+                    <td class="px-4 py-3 text-sm text-gray-900">22,200</td>
+                    <td class="px-4 py-3 text-sm text-gray-900">2.8</td>
+                    <td class="px-4 py-3 text-sm text-gray-900">Shah Field</td>
+                  </tr>
+                  <tr class="hover:bg-gray-50">
+                    <td class="px-4 py-3 text-sm font-bold text-gray-600">6</td>
+                    <td class="px-4 py-3 text-sm font-medium text-gray-900">AF-102</td>
+                    <td class="px-4 py-3 text-sm text-gray-900">Water Tanker</td>
+                    <td class="px-4 py-3 text-sm font-bold text-gray-900">1,720 L</td>
+                    <td class="px-4 py-3 text-sm text-gray-900">20,640</td>
+                    <td class="px-4 py-3 text-sm text-gray-900">3.2</td>
+                    <td class="px-4 py-3 text-sm text-gray-900">Camp Transport</td>
+                  </tr>
+                  <tr class="hover:bg-gray-50">
+                    <td class="px-4 py-3 text-sm font-bold text-gray-600">7</td>
+                    <td class="px-4 py-3 text-sm font-medium text-gray-900">AF-042</td>
+                    <td class="px-4 py-3 text-sm text-gray-900">60 Seater Bus</td>
+                    <td class="px-4 py-3 text-sm font-bold text-gray-900">1,650 L</td>
+                    <td class="px-4 py-3 text-sm text-gray-900">19,800</td>
+                    <td class="px-4 py-3 text-sm text-gray-900">2.9</td>
+                    <td class="px-4 py-3 text-sm text-gray-900">Camp Transport</td>
+                  </tr>
+                  <tr class="hover:bg-gray-50">
+                    <td class="px-4 py-3 text-sm font-bold text-gray-600">8</td>
+                    <td class="px-4 py-3 text-sm font-medium text-gray-900">AF-118</td>
+                    <td class="px-4 py-3 text-sm text-gray-900">Bull Dozer</td>
+                    <td class="px-4 py-3 text-sm font-bold text-gray-900">1,590 L</td>
+                    <td class="px-4 py-3 text-sm text-gray-900">19,080</td>
+                    <td class="px-4 py-3 text-sm text-gray-900">N/A</td>
+                    <td class="px-4 py-3 text-sm text-gray-900">Beda Zayed</td>
+                  </tr>
+                  <tr class="hover:bg-gray-50">
+                    <td class="px-4 py-3 text-sm font-bold text-gray-600">9</td>
+                    <td class="px-4 py-3 text-sm font-medium text-gray-900">AF-145</td>
+                    <td class="px-4 py-3 text-sm text-gray-900">Low Bed Trailor</td>
+                    <td class="px-4 py-3 text-sm font-bold text-gray-900">1,480 L</td>
+                    <td class="px-4 py-3 text-sm text-gray-900">17,760</td>
+                    <td class="px-4 py-3 text-sm text-gray-900">1.8</td>
+                    <td class="px-4 py-3 text-sm text-gray-900">Asab Field</td>
+                  </tr>
+                  <tr class="hover:bg-gray-50">
+                    <td class="px-4 py-3 text-sm font-bold text-gray-600">10</td>
+                    <td class="px-4 py-3 text-sm font-medium text-gray-900">AF-167</td>
+                    <td class="px-4 py-3 text-sm text-gray-900">Diesel Tanker</td>
+                    <td class="px-4 py-3 text-sm font-bold text-gray-900">1,380 L</td>
+                    <td class="px-4 py-3 text-sm text-gray-900">16,560</td>
+                    <td class="px-4 py-3 text-sm text-gray-900">2.5</td>
+                    <td class="px-4 py-3 text-sm text-gray-900">Qusaweira</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Driver Allocation Report -->
+          <div *ngSwitchCase="'driver-allocation'">
+            <div class="mb-6">
+              <h3 class="text-lg font-semibold text-gray-900 mb-2">Driver Allocation Report</h3>
+              <p class="text-sm text-gray-600">Driver → Vehicle mapping with date/time</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+              <div class="bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg p-4 text-white">
+                <div class="flex items-center justify-between">
+                  <div>
+                    <p class="text-blue-100 text-xs font-medium uppercase">Total Drivers</p>
+                    <h3 class="text-2xl font-bold mt-1">485</h3>
+                  </div>
+                  <i class="fas fa-user-tag text-3xl opacity-20"></i>
+                </div>
+              </div>
+              <div class="bg-gradient-to-br from-green-500 to-green-600 rounded-lg p-4 text-white">
+                <div class="flex items-center justify-between">
+                  <div>
+                    <p class="text-green-100 text-xs font-medium uppercase">On Duty</p>
+                    <h3 class="text-2xl font-bold mt-1">420</h3>
+                  </div>
+                  <i class="fas fa-check-circle text-3xl opacity-20"></i>
+                </div>
+              </div>
+              <div class="bg-gradient-to-br from-yellow-500 to-yellow-600 rounded-lg p-4 text-white">
+                <div class="flex items-center justify-between">
+                  <div>
+                    <p class="text-yellow-100 text-xs font-medium uppercase">On Leave</p>
+                    <h3 class="text-2xl font-bold mt-1">45</h3>
+                  </div>
+                  <i class="fas fa-calendar-times text-3xl opacity-20"></i>
+                </div>
+              </div>
+              <div class="bg-gradient-to-br from-purple-500 to-purple-600 rounded-lg p-4 text-white">
+                <div class="flex items-center justify-between">
+                  <div>
+                    <p class="text-purple-100 text-xs font-medium uppercase">Available</p>
+                    <h3 class="text-2xl font-bold mt-1">20</h3>
+                  </div>
+                  <i class="fas fa-user-check text-3xl opacity-20"></i>
+                </div>
+              </div>
+            </div>
+
+            <div class="overflow-x-auto">
+              <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                  <tr>
+                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Driver Name</th>
+                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">License No</th>
+                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Vehicle Assigned</th>
+                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Assignment Date</th>
+                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Project</th>
+                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
+                  </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                  <tr class="hover:bg-gray-50">
+                    <td class="px-4 py-3 text-sm font-medium text-gray-900">Ahmed Ali Hassan</td>
+                    <td class="px-4 py-3 text-sm text-gray-900">DXB-4521789</td>
+                    <td class="px-4 py-3 text-sm text-gray-900">AF-001 (Double Cabin Pickup)</td>
+                    <td class="px-4 py-3 text-sm text-gray-900">01-Sep-2025</td>
+                    <td class="px-4 py-3 text-sm text-gray-900">Shah Field</td>
+                    <td class="px-4 py-3"><span class="px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">On Duty</span></td>
+                  </tr>
+                  <tr class="hover:bg-gray-50">
+                    <td class="px-4 py-3 text-sm font-medium text-gray-900">Mohammed Hassan</td>
+                    <td class="px-4 py-3 text-sm text-gray-900">DXB-3456789</td>
+                    <td class="px-4 py-3 text-sm text-gray-900">AF-015 (Dumper)</td>
+                    <td class="px-4 py-3 text-sm text-gray-900">15-Aug-2025</td>
+                    <td class="px-4 py-3 text-sm text-gray-900">Asab Field</td>
+                    <td class="px-4 py-3"><span class="px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">On Duty</span></td>
+                  </tr>
+                  <tr class="hover:bg-gray-50">
+                    <td class="px-4 py-3 text-sm font-medium text-gray-900">Khalid Ibrahim</td>
+                    <td class="px-4 py-3 text-sm text-gray-900">DXB-5678901</td>
+                    <td class="px-4 py-3 text-sm text-gray-900">AF-028 (Excavator)</td>
+                    <td class="px-4 py-3 text-sm text-gray-900">10-Jul-2025</td>
+                    <td class="px-4 py-3 text-sm text-gray-900">Beda Zayed</td>
+                    <td class="px-4 py-3"><span class="px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">On Duty</span></td>
+                  </tr>
+                  <tr class="hover:bg-gray-50">
+                    <td class="px-4 py-3 text-sm font-medium text-gray-900">Rashid Salem</td>
+                    <td class="px-4 py-3 text-sm text-gray-900">DXB-6789012</td>
+                    <td class="px-4 py-3 text-sm text-gray-900">AF-042 (60 Seater Bus)</td>
+                    <td class="px-4 py-3 text-sm text-gray-900">01-Jan-2025</td>
+                    <td class="px-4 py-3 text-sm text-gray-900">Camp Transport</td>
+                    <td class="px-4 py-3"><span class="px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">On Duty</span></td>
+                  </tr>
+                  <tr class="hover:bg-gray-50">
+                    <td class="px-4 py-3 text-sm font-medium text-gray-900">Omar Abdullah</td>
+                    <td class="px-4 py-3 text-sm text-gray-900">DXB-7890123</td>
+                    <td class="px-4 py-3 text-sm text-gray-900">Unassigned</td>
+                    <td class="px-4 py-3 text-sm text-gray-900">-</td>
+                    <td class="px-4 py-3 text-sm text-gray-900">-</td>
+                    <td class="px-4 py-3"><span class="px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">Available</span></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Default Report View with Sample Data -->
+          <div *ngSwitchDefault>
+            <div class="mb-6">
+              <h3 class="text-lg font-semibold text-gray-900 mb-2">{{ selectedReport.name }}</h3>
+              <p class="text-sm text-gray-600">{{ selectedReport.description }}</p>
+            </div>
+
+            <!-- Generic Summary Cards -->
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+              <div class="bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg p-4 text-white">
+                <div class="flex items-center justify-between">
+                  <div>
+                    <p class="text-blue-100 text-xs font-medium uppercase">Total Records</p>
+                    <h3 class="text-2xl font-bold mt-1">245</h3>
+                  </div>
+                  <i [class]="'fas ' + selectedReport.icon + ' text-3xl opacity-20'"></i>
+                </div>
+              </div>
+              <div class="bg-gradient-to-br from-green-500 to-green-600 rounded-lg p-4 text-white">
+                <div class="flex items-center justify-between">
+                  <div>
+                    <p class="text-green-100 text-xs font-medium uppercase">This Month</p>
+                    <h3 class="text-2xl font-bold mt-1">87</h3>
+                  </div>
+                  <i class="fas fa-calendar text-3xl opacity-20"></i>
+                </div>
+              </div>
+              <div class="bg-gradient-to-br from-purple-500 to-purple-600 rounded-lg p-4 text-white">
+                <div class="flex items-center justify-between">
+                  <div>
+                    <p class="text-purple-100 text-xs font-medium uppercase">Pending</p>
+                    <h3 class="text-2xl font-bold mt-1">12</h3>
+                  </div>
+                  <i class="fas fa-clock text-3xl opacity-20"></i>
+                </div>
+              </div>
+              <div class="bg-gradient-to-br from-orange-500 to-orange-600 rounded-lg p-4 text-white">
+                <div class="flex items-center justify-between">
+                  <div>
+                    <p class="text-orange-100 text-xs font-medium uppercase">Completed</p>
+                    <h3 class="text-2xl font-bold mt-1">233</h3>
+                  </div>
+                  <i class="fas fa-check-circle text-3xl opacity-20"></i>
+                </div>
+              </div>
+            </div>
+
+            <!-- Sample Data Table -->
+            <div class="overflow-x-auto mb-6">
+              <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                  <tr>
+                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">ID</th>
+                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Vehicle No</th>
+                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date</th>
+                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Description</th>
+                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Value</th>
+                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
+                  </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                  <tr class="hover:bg-gray-50">
+                    <td class="px-4 py-3 text-sm text-gray-900">#001</td>
+                    <td class="px-4 py-3 text-sm font-medium text-gray-900">AF-001</td>
+                    <td class="px-4 py-3 text-sm text-gray-900">04-Oct-2025</td>
+                    <td class="px-4 py-3 text-sm text-gray-900">Double Cabin Pickup - Toyota Hilux</td>
+                    <td class="px-4 py-3 text-sm text-gray-900">AED 2,500</td>
+                    <td class="px-4 py-3"><span class="px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">Completed</span></td>
+                  </tr>
+                  <tr class="hover:bg-gray-50">
+                    <td class="px-4 py-3 text-sm text-gray-900">#002</td>
+                    <td class="px-4 py-3 text-sm font-medium text-gray-900">AF-015</td>
+                    <td class="px-4 py-3 text-sm text-gray-900">03-Oct-2025</td>
+                    <td class="px-4 py-3 text-sm text-gray-900">Dumper - Volvo FMX</td>
+                    <td class="px-4 py-3 text-sm text-gray-900">AED 8,750</td>
+                    <td class="px-4 py-3"><span class="px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">Completed</span></td>
+                  </tr>
+                  <tr class="hover:bg-gray-50">
+                    <td class="px-4 py-3 text-sm text-gray-900">#003</td>
+                    <td class="px-4 py-3 text-sm font-medium text-gray-900">AF-028</td>
+                    <td class="px-4 py-3 text-sm text-gray-900">02-Oct-2025</td>
+                    <td class="px-4 py-3 text-sm text-gray-900">Excavator - CAT 320D</td>
+                    <td class="px-4 py-3 text-sm text-gray-900">AED 15,200</td>
+                    <td class="px-4 py-3"><span class="px-2 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800">Pending</span></td>
+                  </tr>
+                  <tr class="hover:bg-gray-50">
+                    <td class="px-4 py-3 text-sm text-gray-900">#004</td>
+                    <td class="px-4 py-3 text-sm font-medium text-gray-900">AF-042</td>
+                    <td class="px-4 py-3 text-sm text-gray-900">01-Oct-2025</td>
+                    <td class="px-4 py-3 text-sm text-gray-900">60 Seater Bus - Yutong ZK6122H</td>
+                    <td class="px-4 py-3 text-sm text-gray-900">AED 4,100</td>
+                    <td class="px-4 py-3"><span class="px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">Completed</span></td>
+                  </tr>
+                  <tr class="hover:bg-gray-50">
+                    <td class="px-4 py-3 text-sm text-gray-900">#005</td>
+                    <td class="px-4 py-3 text-sm font-medium text-gray-900">AF-056</td>
+                    <td class="px-4 py-3 text-sm text-gray-900">30-Sep-2025</td>
+                    <td class="px-4 py-3 text-sm text-gray-900">Mobile Crane - Liebherr LTM</td>
+                    <td class="px-4 py-3 text-sm text-gray-900">AED 22,500</td>
+                    <td class="px-4 py-3"><span class="px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">Completed</span></td>
+                  </tr>
+                  <tr class="hover:bg-gray-50">
+                    <td class="px-4 py-3 text-sm text-gray-900">#006</td>
+                    <td class="px-4 py-3 text-sm font-medium text-gray-900">AF-073</td>
+                    <td class="px-4 py-3 text-sm text-gray-900">29-Sep-2025</td>
+                    <td class="px-4 py-3 text-sm text-gray-900">Tipper - Mercedes Actros</td>
+                    <td class="px-4 py-3 text-sm text-gray-900">AED 6,800</td>
+                    <td class="px-4 py-3"><span class="px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">Completed</span></td>
+                  </tr>
+                  <tr class="hover:bg-gray-50">
+                    <td class="px-4 py-3 text-sm text-gray-900">#007</td>
+                    <td class="px-4 py-3 text-sm font-medium text-gray-900">AF-089</td>
+                    <td class="px-4 py-3 text-sm text-gray-900">28-Sep-2025</td>
+                    <td class="px-4 py-3 text-sm text-gray-900">Grader - CAT 140M</td>
+                    <td class="px-4 py-3 text-sm text-gray-900">AED 18,900</td>
+                    <td class="px-4 py-3"><span class="px-2 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800">Pending</span></td>
+                  </tr>
+                  <tr class="hover:bg-gray-50">
+                    <td class="px-4 py-3 text-sm text-gray-900">#008</td>
+                    <td class="px-4 py-3 text-sm font-medium text-gray-900">AF-102</td>
+                    <td class="px-4 py-3 text-sm text-gray-900">27-Sep-2025</td>
+                    <td class="px-4 py-3 text-sm text-gray-900">Water Tanker - Isuzu FVZ</td>
+                    <td class="px-4 py-3 text-sm text-gray-900">AED 3,200</td>
+                    <td class="px-4 py-3"><span class="px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">Completed</span></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <!-- Summary Footer -->
+            <div class="bg-gray-50 rounded-lg p-4 border border-gray-200">
+              <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-center">
+                <div>
+                  <p class="text-sm text-gray-600 mb-1">Total Value</p>
+                  <p class="text-xl font-bold text-gray-900">AED 81,950</p>
+                </div>
+                <div>
+                  <p class="text-sm text-gray-600 mb-1">Average per Record</p>
+                  <p class="text-xl font-bold text-gray-900">AED 10,244</p>
+                </div>
+                <div>
+                  <p class="text-sm text-gray-600 mb-1">Success Rate</p>
+                  <p class="text-xl font-bold text-green-600">95.1%</p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Note -->
+            <div class="mt-6 bg-blue-50 border-l-4 border-blue-500 p-4 rounded">
+              <div class="flex items-start">
+                <i class="fas fa-info-circle text-blue-500 mr-3 mt-0.5"></i>
+                <div>
+                  <p class="text-sm text-blue-900 font-medium">Sample Report Data</p>
+                  <p class="text-xs text-blue-700 mt-1">This is sample data for demonstration purposes. Use the filters above to generate actual reports based on your fleet data.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+
+      <!-- No Report Selected -->
+      <div *ngIf="!selectedReport" class="bg-white rounded-lg shadow-md border border-gray-200 p-12 text-center">
+        <i class="fas fa-chart-bar text-6xl text-gray-300 mb-4"></i>
+        <h3 class="text-xl font-semibold text-gray-900 mb-2">Select a Report</h3>
+        <p class="text-gray-600">Choose a report from the sidebar to view details and generate data</p>
+      </div>
+    </div>
+
+  </div>
+
+</div>
+
+<!-- Enhanced Details Modal -->
+<div *ngIf="showDetailsModal && selectedRecordDetails" class="fixed inset-0 bg-gray-900 bg-opacity-60 overflow-y-auto h-full w-full z-50 flex items-center justify-center p-4">
+  <div class="relative w-full max-w-6xl bg-white rounded-xl shadow-2xl max-h-[90vh] overflow-y-auto">
+    <!-- Modal Header -->
+    <div class="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 rounded-t-xl z-10">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center space-x-4">
+          <div class="bg-indigo-100 rounded-lg p-3">
+            <i class="fas fa-truck text-indigo-600 text-2xl"></i>
+          </div>
+          <div>
+            <h3 class="text-2xl font-bold text-gray-900">{{ selectedRecordDetails.vehicleNo || 'Vehicle Details' }}</h3>
+            <p class="text-sm text-gray-600 mt-1">{{ selectedRecordDetails.type }} - {{ selectedRecordDetails.make }}</p>
+          </div>
+        </div>
+        <button (click)="closeDetailsModal()" class="text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full p-2 transition-all">
+          <i class="fas fa-times text-2xl"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- Modal Body -->
+    <div class="p-6">
+
+      <!-- Quick Stats Cards - Document Expiry Specific -->
+      <div *ngIf="selectedRecordDetails.reportType === 'vehicle-expiry'" class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+        <div [class]="selectedRecordDetails.status === 'Expired' ? 'bg-gradient-to-br from-red-500 to-red-600 rounded-lg p-4 text-white shadow-lg' : 'bg-gradient-to-br from-yellow-500 to-yellow-600 rounded-lg p-4 text-white shadow-lg'">
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="text-xs uppercase text-white text-opacity-80 font-medium">Document Status</p>
+              <h4 class="text-xl font-bold mt-1">{{ selectedRecordDetails.status || 'N/A' }}</h4>
+            </div>
+            <i [class]="selectedRecordDetails.status === 'Expired' ? 'fas fa-times-circle text-3xl opacity-30' : 'fas fa-exclamation-triangle text-3xl opacity-30'"></i>
+          </div>
+        </div>
+        <div class="bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg p-4 text-white shadow-lg">
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="text-xs uppercase text-blue-100 font-medium">Days Remaining</p>
+              <h4 class="text-xl font-bold mt-1">{{ selectedRecordDetails.daysRemaining || 'N/A' }}</h4>
+            </div>
+            <i class="fas fa-calendar-alt text-3xl opacity-30"></i>
+          </div>
+        </div>
+        <div class="bg-gradient-to-br from-green-500 to-green-600 rounded-lg p-4 text-white shadow-lg">
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="text-xs uppercase text-green-100 font-medium">Expiry Date</p>
+              <h4 class="text-xl font-bold mt-1">{{ selectedRecordDetails.expiryDate || 'N/A' }}</h4>
+            </div>
+            <i class="fas fa-calendar-times text-3xl opacity-30"></i>
+          </div>
+        </div>
+        <div class="bg-gradient-to-br from-orange-500 to-orange-600 rounded-lg p-4 text-white shadow-lg">
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="text-xs uppercase text-orange-100 font-medium">Renewal Cost</p>
+              <h4 class="text-xl font-bold mt-1">{{ selectedRecordDetails.renewalCost || 'N/A' }}</h4>
+            </div>
+            <i class="fas fa-dollar-sign text-3xl opacity-30"></i>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick Stats Cards - Default for other reports -->
+      <div *ngIf="selectedRecordDetails.reportType !== 'vehicle-expiry'" class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+        <div class="bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg p-4 text-white shadow-lg">
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="text-xs uppercase text-blue-100 font-medium">Status</p>
+              <h4 class="text-xl font-bold mt-1">{{ selectedRecordDetails.status || 'N/A' }}</h4>
+            </div>
+            <i class="fas fa-check-circle text-3xl opacity-30"></i>
+          </div>
+        </div>
+        <div class="bg-gradient-to-br from-green-500 to-green-600 rounded-lg p-4 text-white shadow-lg">
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="text-xs uppercase text-green-100 font-medium">Odometer</p>
+              <h4 class="text-xl font-bold mt-1">{{ selectedRecordDetails.odometer || 'N/A' }}</h4>
+            </div>
+            <i class="fas fa-tachometer-alt text-3xl opacity-30"></i>
+          </div>
+        </div>
+        <div class="bg-gradient-to-br from-purple-500 to-purple-600 rounded-lg p-4 text-white shadow-lg">
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="text-xs uppercase text-purple-100 font-medium">Fuel Efficiency</p>
+              <h4 class="text-xl font-bold mt-1">{{ selectedRecordDetails.avgKmL || 'N/A' }}</h4>
+            </div>
+            <i class="fas fa-gas-pump text-3xl opacity-30"></i>
+          </div>
+        </div>
+        <div class="bg-gradient-to-br from-orange-500 to-orange-600 rounded-lg p-4 text-white shadow-lg">
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="text-xs uppercase text-orange-100 font-medium">Monthly Cost</p>
+              <h4 class="text-xl font-bold mt-1">{{ selectedRecordDetails.monthlyCost || 'N/A' }}</h4>
+            </div>
+            <i class="fas fa-dollar-sign text-3xl opacity-30"></i>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tabbed Content -->
+      <div class="mb-6">
+        <div class="border-b border-gray-200">
+          <nav class="-mb-px flex space-x-8">
+            <!-- Vehicle Info Tab - Always Show -->
+            <button (click)="setActiveModalTab('vehicle-info')" 
+                    [class]="activeModalTab === 'vehicle-info' ? 'border-b-2 border-indigo-500 py-4 px-1 text-sm font-medium text-indigo-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 border-b-2 py-4 px-1 text-sm font-medium'">
+              <i class="fas fa-info-circle mr-2"></i>Vehicle Info
+            </button>
+            
+            <!-- Documents Tab - Always Show -->
+            <button (click)="setActiveModalTab('documents')"
+                    [class]="activeModalTab === 'documents' ? 'border-b-2 border-indigo-500 py-4 px-1 text-sm font-medium text-indigo-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 border-b-2 py-4 px-1 text-sm font-medium'">
+              <i class="fas fa-file-alt mr-2"></i>Documents
+            </button>
+            
+            <!-- Performance Tab - Hide for vehicle-expiry report -->
+            <button *ngIf="selectedRecordDetails.reportType !== 'vehicle-expiry'" 
+                    (click)="setActiveModalTab('performance')"
+                    [class]="activeModalTab === 'performance' ? 'border-b-2 border-indigo-500 py-4 px-1 text-sm font-medium text-indigo-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 border-b-2 py-4 px-1 text-sm font-medium'">
+              <i class="fas fa-chart-bar mr-2"></i>Performance
+            </button>
+            
+            <!-- Maintenance Tab - Hide for vehicle-expiry report -->
+            <button *ngIf="selectedRecordDetails.reportType !== 'vehicle-expiry'" 
+                    (click)="setActiveModalTab('maintenance')"
+                    [class]="activeModalTab === 'maintenance' ? 'border-b-2 border-indigo-500 py-4 px-1 text-sm font-medium text-indigo-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 border-b-2 py-4 px-1 text-sm font-medium'">
+              <i class="fas fa-wrench mr-2"></i>Maintenance
+            </button>
+          </nav>
+        </div>
+      </div>
+
+      <!-- Tab Content: Vehicle Info -->
+      <div *ngIf="activeModalTab === 'vehicle-info'" class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+        <!-- Column 1: Basic Info -->
+        <div class="bg-white border border-gray-200 rounded-lg p-5 shadow-sm">
+          <h4 class="text-lg font-bold text-gray-900 mb-4 pb-2 border-b flex items-center">
+            <i class="fas fa-truck text-indigo-600 mr-2"></i>Basic Information
+          </h4>
+          <div class="space-y-3">
+            <div *ngIf="selectedRecordDetails.vehicleNo">
+              <p class="text-xs text-gray-500 uppercase">Vehicle Number</p>
+              <p class="text-sm font-bold text-gray-900">{{ selectedRecordDetails.vehicleNo }}</p>
+            </div>
+            <div *ngIf="selectedRecordDetails.type">
+              <p class="text-xs text-gray-500 uppercase">Vehicle Type</p>
+              <p class="text-sm font-semibold text-gray-900">{{ selectedRecordDetails.type }}</p>
+            </div>
+            <div *ngIf="selectedRecordDetails.make">
+              <p class="text-xs text-gray-500 uppercase">Make & Model</p>
+              <p class="text-sm font-semibold text-gray-900">{{ selectedRecordDetails.make }}</p>
+            </div>
+            <div *ngIf="selectedRecordDetails.year">
+              <p class="text-xs text-gray-500 uppercase">Year</p>
+              <p class="text-sm font-semibold text-gray-900">{{ selectedRecordDetails.year }}</p>
+            </div>
+            <div *ngIf="selectedRecordDetails.capacity">
+              <p class="text-xs text-gray-500 uppercase">Capacity</p>
+              <p class="text-sm font-semibold text-gray-900">{{ selectedRecordDetails.capacity }}</p>
+            </div>
+            <div *ngIf="selectedRecordDetails.fuelType">
+              <p class="text-xs text-gray-500 uppercase">Fuel Type</p>
+              <p class="text-sm font-semibold text-gray-900">{{ selectedRecordDetails.fuelType }}</p>
+            </div>
+            <div *ngIf="selectedRecordDetails.registrationNo">
+              <p class="text-xs text-gray-500 uppercase">Registration No</p>
+              <p class="text-sm font-semibold text-indigo-600">{{ selectedRecordDetails.registrationNo }}</p>
+            </div>
+            <div *ngIf="selectedRecordDetails.engineNo">
+              <p class="text-xs text-gray-500 uppercase">Engine No</p>
+              <p class="text-sm font-mono text-gray-700">{{ selectedRecordDetails.engineNo }}</p>
+            </div>
+            <div *ngIf="selectedRecordDetails.chassisNo">
+              <p class="text-xs text-gray-500 uppercase">Chassis No</p>
+              <p class="text-sm font-mono text-gray-700">{{ selectedRecordDetails.chassisNo }}</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Column 2: Assignment & Documents -->
+        <div class="space-y-6">
+          <div class="bg-white border border-gray-200 rounded-lg p-5 shadow-sm">
+            <h4 class="text-lg font-bold text-gray-900 mb-4 pb-2 border-b flex items-center">
+              <i class="fas fa-user-tie text-green-600 mr-2"></i>Assignment
+            </h4>
+            <div class="space-y-3">
+              <div *ngIf="selectedRecordDetails.driver">
+                <p class="text-xs text-gray-500 uppercase">Assigned Driver</p>
+                <p class="text-sm font-bold text-green-600">{{ selectedRecordDetails.driver }}</p>
+              </div>
+              <div *ngIf="selectedRecordDetails.project">
+                <p class="text-xs text-gray-500 uppercase">Project/Site</p>
+                <p class="text-sm font-semibold text-gray-900">{{ selectedRecordDetails.project }}</p>
+              </div>
+              <div *ngIf="selectedRecordDetails.route">
+                <p class="text-xs text-gray-500 uppercase">Route</p>
+                <p class="text-sm font-semibold text-gray-900">{{ selectedRecordDetails.route }}</p>
+              </div>
+              <div *ngIf="selectedRecordDetails.startDate">
+                <p class="text-xs text-gray-500 uppercase">Assignment Date</p>
+                <p class="text-sm font-semibold text-gray-900">{{ selectedRecordDetails.startDate }}</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="bg-white border border-gray-200 rounded-lg p-5 shadow-sm">
+            <h4 class="text-lg font-bold text-gray-900 mb-4 pb-2 border-b flex items-center">
+              <i class="fas fa-file-contract text-purple-600 mr-2"></i>Documents
+            </h4>
+            <div class="space-y-3">
+              <!-- For vehicle-expiry report, show the expiring document -->
+              <div *ngIf="selectedRecordDetails.reportType === 'vehicle-expiry'">
+                <div>
+                  <p class="text-xs text-gray-500 uppercase">{{ selectedRecordDetails.documentType }}</p>
+                  <p [class]="selectedRecordDetails.status === 'Expired' ? 'text-sm font-bold text-red-600' : 'text-sm font-bold text-yellow-600'">
+                    {{ selectedRecordDetails.expiryDate }} ({{ selectedRecordDetails.status }})
+                  </p>
+                </div>
+                <div class="mt-3">
+                  <p class="text-xs text-gray-500 uppercase">Issue Date</p>
+                  <p class="text-sm font-semibold text-gray-900">{{ selectedRecordDetails.issueDate }}</p>
+                </div>
+                <div class="mt-3">
+                  <p class="text-xs text-gray-500 uppercase">Renewal Cost</p>
+                  <p class="text-sm font-bold text-green-600">{{ selectedRecordDetails.renewalCost }}</p>
+                </div>
+                <div class="mt-3">
+                  <p class="text-xs text-gray-500 uppercase">Authority</p>
+                  <p class="text-sm font-semibold text-gray-900">{{ selectedRecordDetails.authority }}</p>
+                </div>
+              </div>
+              
+              <!-- For other reports -->
+              <div *ngIf="selectedRecordDetails.reportType !== 'vehicle-expiry'">
+                <div *ngIf="selectedRecordDetails.insuranceExpiry">
+                  <p class="text-xs text-gray-500 uppercase">Insurance Expiry</p>
+                  <p class="text-sm font-semibold text-green-600">{{ selectedRecordDetails.insuranceExpiry }}</p>
+                </div>
+                <div *ngIf="selectedRecordDetails.registrationExpiry">
+                  <p class="text-xs text-gray-500 uppercase">Registration Expiry</p>
+                  <p class="text-sm font-semibold text-green-600">{{ selectedRecordDetails.registrationExpiry }}</p>
+                </div>
+                <div *ngIf="selectedRecordDetails.lastService">
+                  <p class="text-xs text-gray-500 uppercase">Last Service</p>
+                  <p class="text-sm font-semibold text-gray-900">{{ selectedRecordDetails.lastService }}</p>
+                </div>
+                <div *ngIf="selectedRecordDetails.nextService">
+                  <p class="text-xs text-gray-500 uppercase">Next Service Due</p>
+                  <p class="text-sm font-semibold text-orange-600">{{ selectedRecordDetails.nextService }}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Column 3: Performance & Financial -->
+        <div class="space-y-6">
+          <div class="bg-white border border-gray-200 rounded-lg p-5 shadow-sm">
+            <h4 class="text-lg font-bold text-gray-900 mb-4 pb-2 border-b flex items-center">
+              <i class="fas fa-chart-line text-blue-600 mr-2"></i>Performance
+            </h4>
+            <div class="space-y-3">
+              <!-- For vehicle-expiry report, show sample performance data -->
+              <div *ngIf="selectedRecordDetails.reportType === 'vehicle-expiry'">
+                <div>
+                  <p class="text-xs text-gray-500 uppercase">Current Odometer</p>
+                  <p class="text-sm font-bold text-blue-600">45,280 km</p>
+                </div>
+                <div class="mt-3">
+                  <p class="text-xs text-gray-500 uppercase">Monthly Fuel</p>
+                  <p class="text-sm font-semibold text-gray-900">420 Litres</p>
+                </div>
+                <div class="mt-3">
+                  <p class="text-xs text-gray-500 uppercase">Fuel Efficiency</p>
+                  <p class="text-sm font-semibold text-gray-900">8.5 km/L</p>
+                </div>
+                <div class="mt-3">
+                  <p class="text-xs text-gray-500 uppercase">Total Distance (This Month)</p>
+                  <p class="text-sm font-semibold text-gray-900">3,570 km</p>
+                </div>
+              </div>
+              
+              <!-- For other reports -->
+              <div *ngIf="selectedRecordDetails.reportType !== 'vehicle-expiry'">
+                <div *ngIf="selectedRecordDetails.odometer">
+                  <p class="text-xs text-gray-500 uppercase">Current Odometer</p>
+                  <p class="text-sm font-bold text-blue-600">{{ selectedRecordDetails.odometer }}</p>
+                </div>
+                <div *ngIf="selectedRecordDetails.monthlyFuel">
+                  <p class="text-xs text-gray-500 uppercase">Monthly Fuel</p>
+                  <p class="text-sm font-semibold text-gray-900">{{ selectedRecordDetails.monthlyFuel }}</p>
+                </div>
+                <div *ngIf="selectedRecordDetails.avgKmL">
+                  <p class="text-xs text-gray-500 uppercase">Fuel Efficiency</p>
+                  <p class="text-sm font-semibold text-gray-900">{{ selectedRecordDetails.avgKmL }}</p>
+                </div>
+                <div *ngIf="selectedRecordDetails.totalDistance">
+                  <p class="text-xs text-gray-500 uppercase">Total Distance</p>
+                  <p class="text-sm font-semibold text-gray-900">{{ selectedRecordDetails.totalDistance }}</p>
+                </div>
+                <div *ngIf="selectedRecordDetails.costPerKm">
+                  <p class="text-xs text-gray-500 uppercase">Cost per Km</p>
+                  <p class="text-sm font-semibold text-gray-900">{{ selectedRecordDetails.costPerKm }}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="bg-white border border-gray-200 rounded-lg p-5 shadow-sm">
+            <h4 class="text-lg font-bold text-gray-900 mb-4 pb-2 border-b flex items-center">
+              <i class="fas fa-dollar-sign text-green-600 mr-2"></i>Financial
+            </h4>
+            <div class="space-y-3">
+              <!-- For vehicle-expiry report, show sample financial data -->
+              <div *ngIf="selectedRecordDetails.reportType === 'vehicle-expiry'">
+                <div>
+                  <p class="text-xs text-gray-500 uppercase">Purchase Date</p>
+                  <p class="text-sm font-semibold text-gray-900">15-Jan-2020</p>
+                </div>
+                <div class="mt-3">
+                  <p class="text-xs text-gray-500 uppercase">Purchase Cost</p>
+                  <p class="text-sm font-bold text-green-600">AED 285,000</p>
+                </div>
+                <div class="mt-3">
+                  <p class="text-xs text-gray-500 uppercase">Monthly Operating Cost</p>
+                  <p class="text-sm font-bold text-orange-600">AED 8,450</p>
+                </div>
+                <div class="mt-3">
+                  <p class="text-xs text-gray-500 uppercase">Total Cost (This Month)</p>
+                  <p class="text-sm font-semibold text-gray-900">AED 8,870</p>
+                </div>
+              </div>
+              
+              <!-- For other reports -->
+              <div *ngIf="selectedRecordDetails.reportType !== 'vehicle-expiry'">
+                <div *ngIf="selectedRecordDetails.purchaseDate">
+                  <p class="text-xs text-gray-500 uppercase">Purchase Date</p>
+                  <p class="text-sm font-semibold text-gray-900">{{ selectedRecordDetails.purchaseDate }}</p>
+                </div>
+                <div *ngIf="selectedRecordDetails.purchaseCost">
+                  <p class="text-xs text-gray-500 uppercase">Purchase Cost</p>
+                  <p class="text-sm font-bold text-green-600">{{ selectedRecordDetails.purchaseCost }}</p>
+                </div>
+                <div *ngIf="selectedRecordDetails.monthlyCost">
+                  <p class="text-xs text-gray-500 uppercase">Monthly Operating Cost</p>
+                  <p class="text-sm font-bold text-orange-600">{{ selectedRecordDetails.monthlyCost }}</p>
+                </div>
+                <div *ngIf="selectedRecordDetails.totalCost">
+                  <p class="text-xs text-gray-500 uppercase">Total Cost (This Month)</p>
+                  <p class="text-sm font-semibold text-gray-900">{{ selectedRecordDetails.totalCost }}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tab Content: Documents -->
+      <div *ngIf="activeModalTab === 'documents'" class="mb-6">
+        
+        <!-- Document Expiry Specific View - Compact Design -->
+        <div *ngIf="selectedRecordDetails.reportType === 'vehicle-expiry'" class="space-y-4">
+          
+          <!-- Urgent Alert Banner - Compact -->
+          <div [class]="selectedRecordDetails.status === 'Expired' ? 'bg-red-50 border-l-4 border-red-500 p-4 rounded-lg' : 'bg-yellow-50 border-l-4 border-yellow-500 p-4 rounded-lg'">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center flex-1">
+                <i [class]="selectedRecordDetails.status === 'Expired' ? 'fas fa-exclamation-circle text-red-600 text-2xl mr-3' : 'fas fa-exclamation-triangle text-yellow-600 text-2xl mr-3'"></i>
+                <div>
+                  <h3 [class]="selectedRecordDetails.status === 'Expired' ? 'text-lg font-bold text-red-900' : 'text-lg font-bold text-yellow-900'">
+                    {{ selectedRecordDetails.documentType }} {{ selectedRecordDetails.status }}
+                  </h3>
+                  <p [class]="selectedRecordDetails.status === 'Expired' ? 'text-red-700 text-xs mt-1' : 'text-yellow-700 text-xs mt-1'">
+                    <span *ngIf="selectedRecordDetails.status === 'Expired'">Requires immediate renewal</span>
+                    <span *ngIf="selectedRecordDetails.status === 'Expiring Soon'">Expires in {{ selectedRecordDetails.daysRemaining }}</span>
+                  </p>
+                </div>
+              </div>
+              <div class="text-right ml-4">
+                <p class="text-xs text-gray-600 uppercase">Expiry</p>
+                <p [class]="selectedRecordDetails.status === 'Expired' ? 'text-lg font-bold text-red-600' : 'text-lg font-bold text-yellow-600'">
+                  {{ selectedRecordDetails.expiryDate }}
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Document Details Card - Compact -->
+          <div class="bg-white border border-indigo-200 rounded-lg p-4">
+            <div class="flex items-center mb-3">
+              <div class="bg-indigo-100 rounded-lg p-2 mr-3">
+                <i class="fas fa-file-contract text-indigo-600 text-xl"></i>
+              </div>
+              <h4 class="text-lg font-bold text-gray-900">{{ selectedRecordDetails.documentType }} Details</h4>
+            </div>
+            
+            <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
+              <div class="bg-gray-50 rounded p-3">
+                <p class="text-xs text-gray-500 uppercase">Document Type</p>
+                <p class="text-sm font-bold text-gray-900 mt-1">{{ selectedRecordDetails.documentType }}</p>
+              </div>
+              <div class="bg-gray-50 rounded p-3">
+                <p class="text-xs text-gray-500 uppercase">Issue Date</p>
+                <p class="text-sm font-semibold text-gray-900 mt-1">{{ selectedRecordDetails.issueDate }}</p>
+              </div>
+              <div class="bg-gray-50 rounded p-3">
+                <p class="text-xs text-gray-500 uppercase">Expiry Date</p>
+                <p [class]="selectedRecordDetails.status === 'Expired' ? 'text-sm font-bold text-red-600 mt-1' : 'text-sm font-bold text-yellow-600 mt-1'">
+                  {{ selectedRecordDetails.expiryDate }}
+                </p>
+              </div>
+              <div class="bg-gray-50 rounded p-3">
+                <p class="text-xs text-gray-500 uppercase">Last Renewal</p>
+                <p class="text-sm font-semibold text-gray-900 mt-1">{{ selectedRecordDetails.lastRenewal }}</p>
+              </div>
+              <div class="bg-gray-50 rounded p-3">
+                <p class="text-xs text-gray-500 uppercase">Renewal Cost</p>
+                <p class="text-sm font-bold text-green-600 mt-1">{{ selectedRecordDetails.renewalCost }}</p>
+              </div>
+              <div class="bg-gray-50 rounded p-3">
+                <p class="text-xs text-gray-500 uppercase">Status</p>
+                <span [class]="selectedRecordDetails.status === 'Expired' ? 'inline-block px-2 py-1 text-xs font-bold rounded-full bg-red-100 text-red-800 mt-1' : 'inline-block px-2 py-1 text-xs font-bold rounded-full bg-yellow-100 text-yellow-800 mt-1'">
+                  {{ selectedRecordDetails.status }}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Renewal Authority & Checklist - Side by Side Compact -->
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <!-- Renewal Authority Contact - Compact -->
+            <div class="bg-white border border-blue-200 rounded-lg p-4">
+              <div class="flex items-center mb-3">
+                <div class="bg-blue-100 rounded-lg p-2 mr-2">
+                  <i class="fas fa-building text-blue-600 text-lg"></i>
+                </div>
+                <h4 class="text-base font-bold text-gray-900">Renewal Authority</h4>
+              </div>
+              <div class="space-y-2">
+                <div class="flex justify-between items-start border-b pb-2">
+                  <p class="text-xs text-gray-500 uppercase">Authority</p>
+                  <p class="text-xs font-semibold text-gray-900 text-right ml-2">{{ selectedRecordDetails.authority }}</p>
+                </div>
+                <div class="flex justify-between items-start border-b pb-2">
+                  <p class="text-xs text-gray-500 uppercase">Contact Person</p>
+                  <p class="text-xs font-semibold text-gray-900 text-right ml-2">{{ selectedRecordDetails.contactPerson }}</p>
+                </div>
+                <div class="flex justify-between items-start border-b pb-2">
+                  <p class="text-xs text-gray-500 uppercase">Phone</p>
+                  <p class="text-xs font-semibold text-blue-600 text-right ml-2">
+                    <i class="fas fa-phone mr-1"></i>{{ selectedRecordDetails.contactPhone }}
+                  </p>
+                </div>
+                <div *ngIf="selectedRecordDetails.policyNumber" class="flex justify-between items-start">
+                  <p class="text-xs text-gray-500 uppercase">Policy No.</p>
+                  <p class="text-xs font-mono text-gray-900 text-right ml-2">{{ selectedRecordDetails.policyNumber }}</p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Renewal Checklist - Compact -->
+            <div class="bg-gradient-to-br from-purple-50 to-pink-50 border border-purple-200 rounded-lg p-4">
+              <div class="flex items-center mb-3">
+                <div class="bg-purple-100 rounded-lg p-2 mr-2">
+                  <i class="fas fa-clipboard-check text-purple-600 text-lg"></i>
+                </div>
+                <h4 class="text-base font-bold text-gray-900">Renewal Checklist</h4>
+              </div>
+              <div class="space-y-2">
+                <div class="flex items-start">
+                  <i class="fas fa-check-circle text-green-600 text-xs mt-0.5 mr-2"></i>
+                  <p class="text-xs text-gray-900">Vehicle Registration Card</p>
+                </div>
+                <div class="flex items-start">
+                  <i class="fas fa-check-circle text-green-600 text-xs mt-0.5 mr-2"></i>
+                  <p class="text-xs text-gray-900">Emirates ID (Owner)</p>
+                </div>
+                <div class="flex items-start">
+                  <i class="fas fa-check-circle text-green-600 text-xs mt-0.5 mr-2"></i>
+                  <p class="text-xs text-gray-900">Previous {{ selectedRecordDetails.documentType }}</p>
+                </div>
+                <div class="flex items-start">
+                  <i class="fas fa-check-circle text-green-600 text-xs mt-0.5 mr-2"></i>
+                  <p class="text-xs text-gray-900">Payment ({{ selectedRecordDetails.renewalCost }})</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Vehicle & Driver Info - Compact -->
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="bg-white border border-gray-200 rounded-lg p-4">
+              <h4 class="text-base font-bold text-gray-900 mb-3 pb-2 border-b flex items-center">
+                <i class="fas fa-truck text-indigo-600 mr-2 text-sm"></i>Vehicle Information
+              </h4>
+              <div class="space-y-2">
+                <div class="flex justify-between">
+                  <p class="text-xs text-gray-500 uppercase">Vehicle No.</p>
+                  <p class="text-xs font-bold text-gray-900">{{ selectedRecordDetails.vehicleNo }}</p>
+                </div>
+                <div class="flex justify-between">
+                  <p class="text-xs text-gray-500 uppercase">Type</p>
+                  <p class="text-xs font-semibold text-gray-900">{{ selectedRecordDetails.type }}</p>
+                </div>
+                <div class="flex justify-between">
+                  <p class="text-xs text-gray-500 uppercase">Make & Model</p>
+                  <p class="text-xs font-semibold text-gray-900">{{ selectedRecordDetails.make }}</p>
+                </div>
+                <div class="flex justify-between">
+                  <p class="text-xs text-gray-500 uppercase">Registration</p>
+                  <p class="text-xs font-mono text-gray-900">{{ selectedRecordDetails.registrationNo }}</p>
+                </div>
+              </div>
+            </div>
+            <div class="bg-white border border-gray-200 rounded-lg p-4">
+              <h4 class="text-base font-bold text-gray-900 mb-3 pb-2 border-b flex items-center">
+                <i class="fas fa-user text-green-600 mr-2 text-sm"></i>Assignment Details
+              </h4>
+              <div class="space-y-2">
+                <div class="flex justify-between">
+                  <p class="text-xs text-gray-500 uppercase">Project</p>
+                  <p class="text-xs font-semibold text-gray-900">{{ selectedRecordDetails.project }}</p>
+                </div>
+                <div class="flex justify-between">
+                  <p class="text-xs text-gray-500 uppercase">Driver</p>
+                  <p class="text-xs font-semibold text-gray-900">{{ selectedRecordDetails.driver }}</p>
+                </div>
+                <div class="mt-2 pt-2 border-t">
+                  <p class="text-xs text-gray-700 italic">Driver must ensure vehicle is not operated with expired documents</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Default Documents View for other reports -->
+        <div *ngIf="selectedRecordDetails.reportType !== 'vehicle-expiry'" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <!-- Insurance Details -->
+          <div class="bg-white border border-purple-200 rounded-lg p-6 shadow-sm">
+            <div class="flex items-center mb-4">
+              <div class="bg-purple-100 rounded-full p-3 mr-3">
+                <i class="fas fa-shield-alt text-purple-600 text-2xl"></i>
+              </div>
+              <h4 class="text-xl font-bold text-gray-900">Insurance Details</h4>
+            </div>
+            <div class="space-y-4">
+              <div class="border-b pb-3">
+                <p class="text-xs text-gray-500 uppercase mb-1">Insurance Company</p>
+                <p class="text-sm font-semibold text-gray-900">Abu Dhabi National Insurance Company</p>
+              </div>
+              <div class="border-b pb-3">
+                <p class="text-xs text-gray-500 uppercase mb-1">Policy Number</p>
+                <p class="text-sm font-mono text-gray-900">INS-2024-{{ selectedRecordDetails.vehicleNo }}</p>
+              </div>
+              <div class="border-b pb-3">
+                <p class="text-xs text-gray-500 uppercase mb-1">Issue Date</p>
+                <p class="text-sm text-gray-900">15-Mar-2024</p>
+              </div>
+              <div class="border-b pb-3">
+                <p class="text-xs text-gray-500 uppercase mb-1">Expiry Date</p>
+                <p class="text-sm font-bold text-green-600">{{ selectedRecordDetails.insuranceExpiry || '15-Mar-2026' }}</p>
+              </div>
+              <div class="border-b pb-3">
+                <p class="text-xs text-gray-500 uppercase mb-1">Coverage Type</p>
+                <p class="text-sm text-gray-900">Comprehensive</p>
+              </div>
+              <div>
+                <p class="text-xs text-gray-500 uppercase mb-1">Premium Amount</p>
+                <p class="text-sm font-bold text-gray-900">AED 4,500 / Year</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Registration Details -->
+          <div class="bg-white border border-blue-200 rounded-lg p-6 shadow-sm">
+            <div class="flex items-center mb-4">
+              <div class="bg-blue-100 rounded-full p-3 mr-3">
+                <i class="fas fa-id-card text-blue-600 text-2xl"></i>
+              </div>
+              <h4 class="text-xl font-bold text-gray-900">Registration Details</h4>
+            </div>
+            <div class="space-y-4">
+              <div class="border-b pb-3">
+                <p class="text-xs text-gray-500 uppercase mb-1">Registration Number</p>
+                <p class="text-sm font-bold text-indigo-600">{{ selectedRecordDetails.registrationNo || 'DXB-T-12345' }}</p>
+              </div>
+              <div class="border-b pb-3">
+                <p class="text-xs text-gray-500 uppercase mb-1">Registration Date</p>
+                <p class="text-sm text-gray-900">10-Apr-2023</p>
+              </div>
+              <div class="border-b pb-3">
+                <p class="text-xs text-gray-500 uppercase mb-1">Expiry Date</p>
+                <p class="text-sm font-bold text-green-600">{{ selectedRecordDetails.registrationExpiry || '10-Apr-2026' }}</p>
+              </div>
+              <div class="border-b pb-3">
+                <p class="text-xs text-gray-500 uppercase mb-1">Registered Owner</p>
+                <p class="text-sm text-gray-900">Al Farah Contracting & General Transport</p>
+              </div>
+              <div class="border-b pb-3">
+                <p class="text-xs text-gray-500 uppercase mb-1">Emirate</p>
+                <p class="text-sm text-gray-900">Dubai</p>
+              </div>
+              <div>
+                <p class="text-xs text-gray-500 uppercase mb-1">Registration Fee</p>
+                <p class="text-sm font-bold text-gray-900">AED 420 / Year</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Service Records -->
+          <div class="bg-white border border-orange-200 rounded-lg p-6 shadow-sm">
+            <div class="flex items-center mb-4">
+              <div class="bg-orange-100 rounded-full p-3 mr-3">
+                <i class="fas fa-tools text-orange-600 text-2xl"></i>
+              </div>
+              <h4 class="text-xl font-bold text-gray-900">Service Records</h4>
+            </div>
+            <div class="space-y-4">
+              <div class="border-b pb-3">
+                <p class="text-xs text-gray-500 uppercase mb-1">Last Service Date</p>
+                <p class="text-sm font-semibold text-gray-900">{{ selectedRecordDetails.lastService || '15-Sep-2024' }}</p>
+              </div>
+              <div class="border-b pb-3">
+                <p class="text-xs text-gray-500 uppercase mb-1">Next Service Due</p>
+                <p class="text-sm font-bold text-orange-600">{{ selectedRecordDetails.nextService || '15-Dec-2024' }}</p>
+              </div>
+              <div class="border-b pb-3">
+                <p class="text-xs text-gray-500 uppercase mb-1">Service Interval</p>
+                <p class="text-sm text-gray-900">Every 5,000 km or 3 months</p>
+              </div>
+              <div class="border-b pb-3">
+                <p class="text-xs text-gray-500 uppercase mb-1">Last Service Type</p>
+                <p class="text-sm text-gray-900">Full Service + Oil Change</p>
+              </div>
+              <div class="border-b pb-3">
+                <p class="text-xs text-gray-500 uppercase mb-1">Service Provider</p>
+                <p class="text-sm text-gray-900">Al Farah Workshop</p>
+              </div>
+              <div>
+                <p class="text-xs text-gray-500 uppercase mb-1">Last Service Cost</p>
+                <p class="text-sm font-bold text-gray-900">AED 850</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Other Documents -->
+          <div class="bg-white border border-green-200 rounded-lg p-6 shadow-sm">
+            <div class="flex items-center mb-4">
+              <div class="bg-green-100 rounded-full p-3 mr-3">
+                <i class="fas fa-file-alt text-green-600 text-2xl"></i>
+              </div>
+              <h4 class="text-xl font-bold text-gray-900">Other Documents</h4>
+            </div>
+            <div class="space-y-3">
+              <div class="flex items-center justify-between p-3 bg-gray-50 rounded hover:bg-gray-100 cursor-pointer">
+                <div class="flex items-center">
+                  <i class="fas fa-file-pdf text-red-600 mr-3"></i>
+                  <span class="text-sm font-medium text-gray-900">Vehicle Purchase Invoice</span>
+                </div>
+                <i class="fas fa-download text-gray-400"></i>
+              </div>
+              <div class="flex items-center justify-between p-3 bg-gray-50 rounded hover:bg-gray-100 cursor-pointer">
+                <div class="flex items-center">
+                  <i class="fas fa-file-pdf text-red-600 mr-3"></i>
+                  <span class="text-sm font-medium text-gray-900">Insurance Certificate</span>
+                </div>
+                <i class="fas fa-download text-gray-400"></i>
+              </div>
+              <div class="flex items-center justify-between p-3 bg-gray-50 rounded hover:bg-gray-100 cursor-pointer">
+                <div class="flex items-center">
+                  <i class="fas fa-file-pdf text-red-600 mr-3"></i>
+                  <span class="text-sm font-medium text-gray-900">Registration Card</span>
+                </div>
+                <i class="fas fa-download text-gray-400"></i>
+              </div>
+              <div class="flex items-center justify-between p-3 bg-gray-50 rounded hover:bg-gray-100 cursor-pointer">
+                <div class="flex items-center">
+                  <i class="fas fa-file-pdf text-red-600 mr-3"></i>
+                  <span class="text-sm font-medium text-gray-900">Service History</span>
+                </div>
+                <i class="fas fa-download text-gray-400"></i>
+              </div>
+              <div class="flex items-center justify-between p-3 bg-gray-50 rounded hover:bg-gray-100 cursor-pointer">
+                <div class="flex items-center">
+                  <i class="fas fa-file-pdf text-red-600 mr-3"></i>
+                  <span class="text-sm font-medium text-gray-900">Ownership Transfer</span>
+                </div>
+                <i class="fas fa-download text-gray-400"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tab Content: Performance -->
+      <div *ngIf="activeModalTab === 'performance'" class="mb-6">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <!-- Fuel Performance Chart -->
+          <div class="bg-white border border-gray-200 rounded-lg p-6 shadow-sm col-span-2">
+            <h4 class="text-xl font-bold text-gray-900 mb-4 flex items-center">
+              <i class="fas fa-chart-line text-blue-600 mr-2"></i>Fuel Consumption Trend (Last 6 Months)
+            </h4>
+            <div echarts [options]="fuelConsumptionChartOption" class="h-80"></div>
+          </div>
+
+          <!-- Fuel Statistics -->
+          <div class="bg-white border border-blue-200 rounded-lg p-6 shadow-sm">
+            <h4 class="text-xl font-bold text-gray-900 mb-4 flex items-center">
+              <i class="fas fa-gas-pump text-blue-600 mr-2"></i>Fuel Statistics
+            </h4>
+            <div class="space-y-4">
+              <div class="flex justify-between items-center border-b pb-3">
+                <span class="text-sm text-gray-600">Total Fuel Consumed</span>
+                <span class="text-lg font-bold text-blue-600">{{ selectedRecordDetails.monthlyFuel || '450 L' }}</span>
+              </div>
+              <div class="flex justify-between items-center border-b pb-3">
+                <span class="text-sm text-gray-600">Average Km/L</span>
+                <span class="text-lg font-bold text-green-600">{{ selectedRecordDetails.avgKmL || '4.2 Km/L' }}</span>
+              </div>
+              <div class="flex justify-between items-center border-b pb-3">
+                <span class="text-sm text-gray-600">Total Fuel Cost</span>
+                <span class="text-lg font-bold text-orange-600">{{ selectedRecordDetails.monthlyCost || 'AED 5,400' }}</span>
+              </div>
+              <div class="flex justify-between items-center border-b pb-3">
+                <span class="text-sm text-gray-600">Cost per Km</span>
+                <span class="text-lg font-bold text-purple-600">{{ selectedRecordDetails.costPerKm || 'AED 0.45' }}</span>
+              </div>
+              <div class="flex justify-between items-center">
+                <span class="text-sm text-gray-600">Efficiency Rating</span>
+                <span class="px-3 py-1 text-sm font-semibold rounded-full bg-green-100 text-green-800">Good</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Usage Statistics -->
+          <div class="bg-white border border-green-200 rounded-lg p-6 shadow-sm">
+            <h4 class="text-xl font-bold text-gray-900 mb-4 flex items-center">
+              <i class="fas fa-tachometer-alt text-green-600 mr-2"></i>Usage Statistics
+            </h4>
+            <div class="space-y-4">
+              <div class="flex justify-between items-center border-b pb-3">
+                <span class="text-sm text-gray-600">Total Distance</span>
+                <span class="text-lg font-bold text-blue-600">{{ selectedRecordDetails.odometer || '45,230 km' }}</span>
+              </div>
+              <div class="flex justify-between items-center border-b pb-3">
+                <span class="text-sm text-gray-600">Monthly Distance</span>
+                <span class="text-lg font-bold text-green-600">1,890 km</span>
+              </div>
+              <div class="flex justify-between items-center border-b pb-3">
+                <span class="text-sm text-gray-600">Daily Average</span>
+                <span class="text-lg font-bold text-purple-600">63 km/day</span>
+              </div>
+              <div class="flex justify-between items-center border-b pb-3">
+                <span class="text-sm text-gray-600">Utilization Rate</span>
+                <span class="text-lg font-bold text-orange-600">85%</span>
+              </div>
+              <div class="flex justify-between items-center">
+                <span class="text-sm text-gray-600">Active Days</span>
+                <span class="text-lg font-bold text-indigo-600">26/30 days</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Recent Trips -->
+          <div class="bg-white border border-gray-200 rounded-lg p-6 shadow-sm col-span-2">
+            <h4 class="text-xl font-bold text-gray-900 mb-4 flex items-center">
+              <i class="fas fa-route text-indigo-600 mr-2"></i>Recent Trips (Last 5)
+            </h4>
+            <div class="overflow-x-auto">
+              <table class="min-w-full">
+                <thead class="bg-gray-50">
+                  <tr>
+                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date</th>
+                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Route</th>
+                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Distance</th>
+                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Fuel Used</th>
+                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Efficiency</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-200">
+                  <tr class="hover:bg-gray-50">
+                    <td class="px-4 py-3 text-sm text-gray-900">04-Oct-2025</td>
+                    <td class="px-4 py-3 text-sm text-gray-900">{{ selectedRecordDetails.project || 'Shah Field' }} - Base</td>
+                    <td class="px-4 py-3 text-sm font-semibold text-blue-600">85 km</td>
+                    <td class="px-4 py-3 text-sm text-gray-900">20 L</td>
+                    <td class="px-4 py-3 text-sm font-semibold text-green-600">4.25 Km/L</td>
+                  </tr>
+                  <tr class="hover:bg-gray-50">
+                    <td class="px-4 py-3 text-sm text-gray-900">03-Oct-2025</td>
+                    <td class="px-4 py-3 text-sm text-gray-900">Base - {{ selectedRecordDetails.project || 'Shah Field' }}</td>
+                    <td class="px-4 py-3 text-sm font-semibold text-blue-600">92 km</td>
+                    <td class="px-4 py-3 text-sm text-gray-900">22 L</td>
+                    <td class="px-4 py-3 text-sm font-semibold text-green-600">4.18 Km/L</td>
+                  </tr>
+                  <tr class="hover:bg-gray-50">
+                    <td class="px-4 py-3 text-sm text-gray-900">02-Oct-2025</td>
+                    <td class="px-4 py-3 text-sm text-gray-900">{{ selectedRecordDetails.project || 'Shah Field' }} - Warehouse</td>
+                    <td class="px-4 py-3 text-sm font-semibold text-blue-600">45 km</td>
+                    <td class="px-4 py-3 text-sm text-gray-900">11 L</td>
+                    <td class="px-4 py-3 text-sm font-semibold text-green-600">4.09 Km/L</td>
+                  </tr>
+                  <tr class="hover:bg-gray-50">
+                    <td class="px-4 py-3 text-sm text-gray-900">01-Oct-2025</td>
+                    <td class="px-4 py-3 text-sm text-gray-900">Warehouse - {{ selectedRecordDetails.project || 'Shah Field' }}</td>
+                    <td class="px-4 py-3 text-sm font-semibold text-blue-600">48 km</td>
+                    <td class="px-4 py-3 text-sm text-gray-900">12 L</td>
+                    <td class="px-4 py-3 text-sm font-semibold text-green-600">4.00 Km/L</td>
+                  </tr>
+                  <tr class="hover:bg-gray-50">
+                    <td class="px-4 py-3 text-sm text-gray-900">30-Sep-2025</td>
+                    <td class="px-4 py-3 text-sm text-gray-900">{{ selectedRecordDetails.project || 'Shah Field' }} - Base</td>
+                    <td class="px-4 py-3 text-sm font-semibold text-blue-600">88 km</td>
+                    <td class="px-4 py-3 text-sm text-gray-900">21 L</td>
+                    <td class="px-4 py-3 text-sm font-semibold text-green-600">4.19 Km/L</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tab Content: Maintenance -->
+      <div *ngIf="activeModalTab === 'maintenance'" class="mb-6">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <!-- Maintenance Overview -->
+          <div class="bg-white border border-gray-200 rounded-lg p-6 shadow-sm col-span-2">
+            <h4 class="text-xl font-bold text-gray-900 mb-4 flex items-center">
+              <i class="fas fa-wrench text-orange-600 mr-2"></i>Maintenance Overview
+            </h4>
+            <div class="grid grid-cols-4 gap-4">
+              <div class="bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg p-4 text-white">
+                <p class="text-xs uppercase text-blue-100">Total Services</p>
+                <h5 class="text-2xl font-bold mt-1">12</h5>
+              </div>
+              <div class="bg-gradient-to-br from-green-500 to-green-600 rounded-lg p-4 text-white">
+                <p class="text-xs uppercase text-green-100">Completed</p>
+                <h5 class="text-2xl font-bold mt-1">11</h5>
+              </div>
+              <div class="bg-gradient-to-br from-yellow-500 to-yellow-600 rounded-lg p-4 text-white">
+                <p class="text-xs uppercase text-yellow-100">Pending</p>
+                <h5 class="text-2xl font-bold mt-1">1</h5>
+              </div>
+              <div class="bg-gradient-to-br from-red-500 to-red-600 rounded-lg p-4 text-white">
+                <p class="text-xs uppercase text-red-100">Total Cost</p>
+                <h5 class="text-2xl font-bold mt-1">AED 8.5K</h5>
+              </div>
+            </div>
+          </div>
+
+          <!-- Current Maintenance Alert -->
+          <div class="bg-yellow-50 border-l-4 border-yellow-500 p-6 rounded-lg col-span-2" *ngIf="selectedRecordDetails.maintenanceIssue">
+            <div class="flex items-start">
+              <i class="fas fa-exclamation-triangle text-yellow-600 text-3xl mr-4"></i>
+              <div class="flex-1">
+                <h4 class="text-lg font-bold text-yellow-900 mb-2">Current Maintenance Issue</h4>
+                <p class="text-sm text-yellow-800 mb-3">{{ selectedRecordDetails.maintenanceIssue }}</p>
+                <div class="grid grid-cols-2 gap-4">
+                  <div>
+                    <p class="text-xs text-yellow-700 uppercase">Started On</p>
+                    <p class="text-sm font-semibold text-yellow-900">28-Sep-2024</p>
+                  </div>
+                  <div>
+                    <p class="text-xs text-yellow-700 uppercase">Estimated Completion</p>
+                    <p class="text-sm font-semibold text-yellow-900">{{ selectedRecordDetails.estimatedCompletion || '10-Oct-2024' }}</p>
+                  </div>
+                  <div>
+                    <p class="text-xs text-yellow-700 uppercase">Workshop</p>
+                    <p class="text-sm font-semibold text-yellow-900">Al Farah Main Workshop</p>
+                  </div>
+                  <div>
+                    <p class="text-xs text-yellow-700 uppercase">Estimated Cost</p>
+                    <p class="text-sm font-semibold text-yellow-900">AED 3,200</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Maintenance History -->
+          <div class="bg-white border border-gray-200 rounded-lg p-6 shadow-sm col-span-2">
+            <h4 class="text-xl font-bold text-gray-900 mb-4 flex items-center">
+              <i class="fas fa-history text-purple-600 mr-2"></i>Maintenance History (Last 5 Services)
+            </h4>
+            <div class="space-y-4">
+              <div class="border-l-4 border-green-500 pl-4 py-2 bg-green-50">
+                <div class="flex justify-between items-start mb-2">
+                  <div>
+                    <h5 class="font-semibold text-gray-900">Full Service + Oil Change</h5>
+                    <p class="text-xs text-gray-600">{{ selectedRecordDetails.lastService || '15-Sep-2024' }}</p>
+                  </div>
+                  <span class="px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">Completed</span>
+                </div>
+                <p class="text-sm text-gray-700 mb-2">Regular maintenance service with engine oil replacement and filter changes.</p>
+                <div class="flex justify-between text-sm">
+                  <span class="text-gray-600">Workshop: Al Farah Workshop</span>
+                  <span class="font-bold text-green-600">AED 850</span>
+                </div>
+              </div>
+
+              <div class="border-l-4 border-green-500 pl-4 py-2 bg-green-50">
+                <div class="flex justify-between items-start mb-2">
+                  <div>
+                    <h5 class="font-semibold text-gray-900">Brake Pad Replacement</h5>
+                    <p class="text-xs text-gray-600">22-Aug-2024</p>
+                  </div>
+                  <span class="px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">Completed</span>
+                </div>
+                <p class="text-sm text-gray-700 mb-2">Front and rear brake pads replaced due to wear.</p>
+                <div class="flex justify-between text-sm">
+                  <span class="text-gray-600">Workshop: Al Farah Workshop</span>
+                  <span class="font-bold text-green-600">AED 1,200</span>
+                </div>
+              </div>
+
+              <div class="border-l-4 border-green-500 pl-4 py-2 bg-green-50">
+                <div class="flex justify-between items-start mb-2">
+                  <div>
+                    <h5 class="font-semibold text-gray-900">Tire Rotation & Alignment</h5>
+                    <p class="text-xs text-gray-600">10-Jul-2024</p>
+                  </div>
+                  <span class="px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">Completed</span>
+                </div>
+                <p class="text-sm text-gray-700 mb-2">All four tires rotated and wheel alignment performed.</p>
+                <div class="flex justify-between text-sm">
+                  <span class="text-gray-600">Workshop: External Service Center</span>
+                  <span class="font-bold text-green-600">AED 450</span>
+                </div>
+              </div>
+
+              <div class="border-l-4 border-green-500 pl-4 py-2 bg-green-50">
+                <div class="flex justify-between items-start mb-2">
+                  <div>
+                    <h5 class="font-semibold text-gray-900">AC System Service</h5>
+                    <p class="text-xs text-gray-600">05-Jun-2024</p>
+                  </div>
+                  <span class="px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">Completed</span>
+                </div>
+                <p class="text-sm text-gray-700 mb-2">Air conditioning system cleaned and gas refilled.</p>
+                <div class="flex justify-between text-sm">
+                  <span class="text-gray-600">Workshop: AC Specialist</span>
+                  <span class="font-bold text-green-600">AED 650</span>
+                </div>
+              </div>
+
+              <div class="border-l-4 border-green-500 pl-4 py-2 bg-green-50">
+                <div class="flex justify-between items-start mb-2">
+                  <div>
+                    <h5 class="font-semibold text-gray-900">Battery Replacement</h5>
+                    <p class="text-xs text-gray-600">20-May-2024</p>
+                  </div>
+                  <span class="px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">Completed</span>
+                </div>
+                <p class="text-sm text-gray-700 mb-2">Old battery replaced with new 70Ah battery.</p>
+                <div class="flex justify-between text-sm">
+                  <span class="text-gray-600">Workshop: Al Farah Workshop</span>
+                  <span class="font-bold text-green-600">AED 550</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Upcoming Maintenance -->
+          <div class="bg-white border border-orange-200 rounded-lg p-6 shadow-sm">
+            <h4 class="text-xl font-bold text-gray-900 mb-4 flex items-center">
+              <i class="fas fa-calendar-alt text-orange-600 mr-2"></i>Upcoming Maintenance
+            </h4>
+            <div class="space-y-3">
+              <div class="p-3 bg-orange-50 rounded border-l-4 border-orange-500">
+                <h5 class="font-semibold text-gray-900 mb-1">Next Service Due</h5>
+                <p class="text-sm text-gray-700 mb-2">{{ selectedRecordDetails.nextService || '15-Dec-2024' }}</p>
+                <p class="text-xs text-orange-600 font-medium">In 71 days</p>
+              </div>
+              <div class="p-3 bg-blue-50 rounded border-l-4 border-blue-500">
+                <h5 class="font-semibold text-gray-900 mb-1">Tire Replacement</h5>
+                <p class="text-sm text-gray-700 mb-2">Estimated: Jan 2025</p>
+                <p class="text-xs text-blue-600 font-medium">In 3 months</p>
+              </div>
+              <div class="p-3 bg-purple-50 rounded border-l-4 border-purple-500">
+                <h5 class="font-semibold text-gray-900 mb-1">Major Service</h5>
+                <p class="text-sm text-gray-700 mb-2">Estimated: Mar 2025</p>
+                <p class="text-xs text-purple-600 font-medium">In 5 months</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Spare Parts Inventory -->
+          <div class="bg-white border border-indigo-200 rounded-lg p-6 shadow-sm">
+            <h4 class="text-xl font-bold text-gray-900 mb-4 flex items-center">
+              <i class="fas fa-cogs text-indigo-600 mr-2"></i>Spare Parts Used
+            </h4>
+            <div class="space-y-3">
+              <div class="flex justify-between items-center border-b pb-2">
+                <span class="text-sm text-gray-700">Engine Oil (5W-30)</span>
+                <span class="text-sm font-semibold text-gray-900">5 L</span>
+              </div>
+              <div class="flex justify-between items-center border-b pb-2">
+                <span class="text-sm text-gray-700">Oil Filter</span>
+                <span class="text-sm font-semibold text-gray-900">2 pcs</span>
+              </div>
+              <div class="flex justify-between items-center border-b pb-2">
+                <span class="text-sm text-gray-700">Air Filter</span>
+                <span class="text-sm font-semibold text-gray-900">1 pc</span>
+              </div>
+              <div class="flex justify-between items-center border-b pb-2">
+                <span class="text-sm text-gray-700">Brake Pads (Set)</span>
+                <span class="text-sm font-semibold text-gray-900">1 set</span>
+              </div>
+              <div class="flex justify-between items-center border-b pb-2">
+                <span class="text-sm text-gray-700">Battery (70Ah)</span>
+                <span class="text-sm font-semibold text-gray-900">1 pc</span>
+              </div>
+              <div class="flex justify-between items-center pt-2">
+                <span class="text-sm font-bold text-gray-900">Total Parts Cost</span>
+                <span class="text-lg font-bold text-indigo-600">AED 2,450</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
