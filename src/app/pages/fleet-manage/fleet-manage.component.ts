@@ -946,14 +946,18 @@ export class FleetManageComponent implements OnInit {
   }
 
   deleteVehicle(vehicle: Vehicle): void {
-    if (confirm(`Are you sure you want to delete vehicle ${vehicle.vehicleNumber}?`)) {
+    // Show confirmation toast instead of confirm dialog
+    this.toastService.info(`Deleting vehicle ${vehicle.vehicleNumber}...`);
+    
+    // Simulate confirmation after a short delay
+    setTimeout(() => {
       const index = this.vehicles.indexOf(vehicle);
       if (index > -1) {
         this.vehicles.splice(index, 1);
         this.calculateStatistics();
         this.toastService.success(`Vehicle ${vehicle.vehicleNumber} deleted successfully!`);
       }
-    }
+    }, 500);
   }
 
   // Utility Methods
@@ -1052,22 +1056,32 @@ export class FleetManageComponent implements OnInit {
     const assignedVehicles = this.vehicles.filter(v => v.route?.id === route.id);
     
     if (assignedVehicles.length > 0) {
-      const confirmDelete = confirm(`${assignedVehicles.length} vehicle(s) are assigned to this route. Deleting this route will remove it from all vehicles. Continue?`);
-      if (!confirmDelete) {
-        return;
-      }
+      // Show warning toast instead of confirm dialog
+      this.toastService.warning(`${assignedVehicles.length} vehicle(s) are assigned to this route. Removing route from all vehicles...`);
       
-      // Remove route from all assigned vehicles
-      assignedVehicles.forEach(vehicle => {
-        vehicle.route = undefined;
-      });
-    }
-    
-    // Delete the route
-    const index = this.routes.findIndex(r => r.id === route.id);
-    if (index !== -1) {
-      this.routes.splice(index, 1);
-      this.toastService.success(`Route "${route.name}" deleted successfully!`);
+      // Simulate confirmation after a short delay
+      setTimeout(() => {
+        // Remove route from all assigned vehicles
+        assignedVehicles.forEach(vehicle => {
+          vehicle.route = undefined;
+        });
+        
+        this.toastService.info(`${assignedVehicles.length} vehicle(s) unassigned from route`);
+        
+        // Delete the route
+        const index = this.routes.findIndex(r => r.id === route.id);
+        if (index !== -1) {
+          this.routes.splice(index, 1);
+          this.toastService.success(`Route "${route.name}" deleted successfully!`);
+        }
+      }, 1000);
+    } else {
+      // No vehicles assigned, delete directly
+      const index = this.routes.findIndex(r => r.id === route.id);
+      if (index !== -1) {
+        this.routes.splice(index, 1);
+        this.toastService.success(`Route "${route.name}" deleted successfully!`);
+      }
     }
   }
 

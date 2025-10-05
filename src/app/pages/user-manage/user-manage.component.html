@@ -1,1 +1,531 @@
-<p>user-manage works!</p>
+<div class="min-h-screen bg-gray-50 p-6">
+  <div class="w-full mx-auto">
+    
+    <!-- Header -->
+    <div class="mb-6">
+      <div class="flex justify-between items-center">
+        <div>
+          <h1 class="text-3xl font-bold text-gray-900">User Management</h1>
+          <p class="text-gray-600 mt-1">Manage system users and permissions</p>
+        </div>
+        <button (click)="openAddModal()" class="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors shadow-md">
+          <i class="fas fa-user-plus mr-2"></i> Add New User
+        </button>
+      </div>
+    </div>
+
+    <!-- Search and Filter -->
+    <div class="bg-white rounded-lg shadow-md border border-gray-200 p-4 mb-6">
+      <div class="flex items-center space-x-4">
+        <div class="flex-1">
+          <div class="relative">
+            <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+            <input 
+              type="text" 
+              [(ngModel)]="searchTerm" 
+              (ngModelChange)="searchUsers()"
+              placeholder="Search by name, username, email, role, or department..."
+              class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+          </div>
+        </div>
+        <div class="text-sm text-gray-600">
+          <i class="fas fa-users mr-2"></i>
+          <span class="font-medium">{{ filteredUsers.length }}</span> users found
+        </div>
+      </div>
+    </div>
+
+    <!-- Users Table -->
+    <div class="bg-white rounded-lg shadow-md border border-gray-200">
+      <!-- Pagination Info (Top) -->
+      <div class="px-6 py-3 bg-gray-50 border-b border-gray-200 flex justify-between items-center">
+        <div class="flex items-center space-x-4">
+          <h3 class="text-lg font-semibold text-gray-900">All Users</h3>
+          <div class="text-sm text-gray-700">
+            Showing <span class="font-medium">{{ ((currentPage - 1) * itemsPerPage) + 1 }}</span> to 
+            <span class="font-medium">{{ getMin(currentPage * itemsPerPage, filteredUsers.length) }}</span> of 
+            <span class="font-medium">{{ filteredUsers.length }}</span> users
+          </div>
+        </div>
+        <div class="flex items-center space-x-2">
+          <label class="text-sm text-gray-600">Show:</label>
+          <select 
+            [ngModel]="itemsPerPage" 
+            (ngModelChange)="changeItemsPerPage($any($event))"
+            class="px-3 py-1 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+            <option *ngFor="let option of itemsPerPageOptions" [value]="option">{{ option }}</option>
+          </select>
+          <span class="text-sm text-gray-600">per page</span>
+        </div>
+      </div>
+
+      <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-200">
+          <thead class="bg-gray-50">
+            <tr>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">User</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Role</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Department</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Contact</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Last Login</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+            </tr>
+          </thead>
+          <tbody class="bg-white divide-y divide-gray-200">
+            <tr *ngFor="let user of paginatedUsers" class="hover:bg-gray-50">
+              <td class="px-6 py-4 whitespace-nowrap">
+                <div class="flex items-center">
+                  <div class="flex-shrink-0 h-10 w-10 bg-gradient-to-br from-blue-400 to-blue-600 rounded-full flex items-center justify-center">
+                    <span class="text-white font-bold">{{ user.fullName.charAt(0) }}</span>
+                  </div>
+                  <div class="ml-4">
+                    <div class="text-sm font-medium text-gray-900">{{ user.fullName }}</div>
+                    <div class="text-sm text-gray-500">&#64;{{ user.username }}</div>
+                  </div>
+                </div>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap">
+                <div class="flex items-center">
+                  <i class="{{ getRoleIcon(user.role) }} text-blue-600 mr-2"></i>
+                  <span class="text-sm text-gray-900">{{ user.role }}</span>
+                </div>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                {{ user.department }}
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap">
+                <div class="text-sm text-gray-900">{{ user.email }}</div>
+                <div class="text-sm text-gray-500">{{ user.phone }}</div>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap">
+                <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full" [class]="getStatusColor(user.status)">
+                  {{ user.status }}
+                </span>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                {{ getTimeSinceLogin(user.lastLogin) }}
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                <div class="flex space-x-2">
+                  <button (click)="openDetailsModal(user)" class="text-blue-600 hover:text-blue-900 px-2 py-1 rounded bg-blue-50 hover:bg-blue-100" title="View Details">
+                    <i class="fas fa-eye"></i>
+                  </button>
+                  <button (click)="openEditModal(user)" class="text-green-600 hover:text-green-900 px-2 py-1 rounded bg-green-50 hover:bg-green-100" title="Edit">
+                    <i class="fas fa-edit"></i>
+                  </button>
+                  <button (click)="deleteUser(user)" class="text-red-600 hover:text-red-900 px-2 py-1 rounded bg-red-50 hover:bg-red-100" title="Delete">
+                    <i class="fas fa-trash"></i>
+                  </button>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Pagination (Bottom) -->
+      <div class="px-6 py-3 bg-gray-50 border-t border-gray-200 flex justify-between items-center">
+        <div class="text-sm text-gray-700">
+          Page <span class="font-medium">{{ currentPage }}</span> of <span class="font-medium">{{ totalPages }}</span>
+        </div>
+        <div class="flex items-center space-x-2">
+          <button 
+            (click)="previousPage()" 
+            [disabled]="currentPage === 1"
+            [class]="currentPage === 1 ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-200'"
+            class="px-3 py-1 text-sm bg-white border border-gray-300 rounded-md">
+            <i class="fas fa-chevron-left"></i> Previous
+          </button>
+          <button 
+            *ngFor="let page of getPageNumbers()"
+            (click)="goToPage(page)"
+            [class]="page === currentPage ? 'bg-blue-600 text-white' : 'bg-white text-gray-700 hover:bg-gray-100'"
+            class="px-3 py-1 text-sm border border-gray-300 rounded-md">
+            {{ page }}
+          </button>
+          <button 
+            (click)="nextPage()" 
+            [disabled]="currentPage === totalPages"
+            [class]="currentPage === totalPages ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-200'"
+            class="px-3 py-1 text-sm bg-white border border-gray-300 rounded-md">
+            Next <i class="fas fa-chevron-right"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- Add/Edit User Modal -->
+<div *ngIf="showAddEditModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+  <div class="relative top-10 mx-auto p-5 border w-11/12 max-w-3xl shadow-lg rounded-md bg-white mb-10">
+    <div class="mt-3">
+      <div class="flex items-center justify-between mb-6 pb-4 border-b">
+        <div class="flex items-center">
+          <div class="w-12 h-12 bg-blue-50 rounded-lg flex items-center justify-center mr-3">
+            <i class="fas fa-user text-blue-600 text-xl"></i>
+          </div>
+          <h3 class="text-xl font-bold text-gray-900">{{ isEditMode ? 'Edit User' : 'Add New User' }}</h3>
+        </div>
+        <button (click)="closeAddEditModal()" class="text-gray-400 hover:text-gray-600 transition-colors">
+          <i class="fas fa-times text-2xl"></i>
+        </button>
+      </div>
+
+      <div class="space-y-4">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Full Name *</label>
+            <input type="text" [(ngModel)]="newUser.fullName" class="block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="e.g., Ahmed Al Maktoum">
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Username *</label>
+            <input type="text" [(ngModel)]="newUser.username" class="block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="e.g., ahmed123">
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Email *</label>
+            <input type="email" [(ngModel)]="newUser.email" class="block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="e.g., ahmed@alfarah.ae">
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Phone</label>
+            <input type="text" [(ngModel)]="newUser.phone" class="block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="e.g., +971 50 1234567">
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Role *</label>
+            <select [(ngModel)]="newUser.role" class="block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+              <option value="">Select Role</option>
+              <option *ngFor="let role of roles" [value]="role">{{ role }}</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Department *</label>
+            <select [(ngModel)]="newUser.department" class="block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+              <option value="">Select Department</option>
+              <option *ngFor="let dept of departments" [value]="dept">{{ dept }}</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Status *</label>
+            <select [(ngModel)]="newUser.status" class="block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+              <option *ngFor="let status of statuses" [value]="status">{{ status }}</option>
+            </select>
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">Permissions</label>
+          <div class="grid grid-cols-2 md:grid-cols-3 gap-3 p-4 bg-gray-50 rounded-lg max-h-48 overflow-y-auto">
+            <div *ngFor="let permission of allPermissions" class="flex items-center">
+              <input 
+                type="checkbox" 
+                [attr.checked]="hasPermission(permission) ? true : null"
+                (change)="togglePermission(permission)"
+                class="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
+              <label class="ml-2 text-sm text-gray-700">{{ permission }}</label>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="flex justify-end space-x-3 mt-6">
+        <button (click)="closeAddEditModal()" class="px-6 py-2 bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400 transition-colors">
+          Cancel
+        </button>
+        <button (click)="saveUser()" class="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors">
+          <i class="fas fa-save mr-2"></i> {{ isEditMode ? 'Update User' : 'Add User' }}
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- User Details Modal -->
+<div *ngIf="showDetailsModal && selectedUser" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+  <div class="relative top-10 mx-auto p-5 border w-11/12 max-w-6xl shadow-lg rounded-md bg-white mb-10">
+    <div class="mt-3">
+      <!-- Header -->
+      <div class="flex items-center justify-between mb-6 pb-4 border-b bg-gradient-to-r from-blue-50 to-indigo-50 p-4 rounded-lg">
+        <div class="flex items-center">
+          <div class="flex-shrink-0 h-20 w-20 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-full flex items-center justify-center mr-4 shadow-lg">
+            <span class="text-white font-bold text-3xl">{{ selectedUser.fullName.charAt(0) }}</span>
+          </div>
+          <div>
+            <h3 class="text-2xl font-bold text-gray-900">{{ selectedUser.fullName }}</h3>
+            <p class="text-sm text-gray-600">&#64;{{ selectedUser.username }} • {{ selectedUser.role }}</p>
+            <p class="text-xs text-gray-500 mt-1">
+              <i class="fas fa-id-badge mr-1"></i>{{ selectedUser.employeeID }} | 
+              <i class="fas fa-building ml-2 mr-1"></i>{{ selectedUser.department }}
+            </p>
+          </div>
+        </div>
+        <button (click)="closeDetailsModal()" class="text-gray-400 hover:text-gray-600 transition-colors">
+          <i class="fas fa-times text-2xl"></i>
+        </button>
+      </div>
+
+      <!-- Main Content Grid -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        
+        <!-- Column 1: Personal & Contact Information -->
+        <div class="space-y-4">
+          <!-- Personal Information -->
+          <div class="bg-blue-50 p-4 rounded-lg border border-blue-200">
+            <h4 class="text-sm font-semibold text-blue-900 mb-3 flex items-center">
+              <i class="fas fa-user-circle mr-2 text-lg"></i> Personal Information
+            </h4>
+            <div class="space-y-2">
+              <div class="flex justify-between items-start">
+                <span class="text-xs text-blue-700">Full Name:</span>
+                <span class="text-xs font-medium text-blue-900 text-right">{{ selectedUser.fullName }}</span>
+              </div>
+              <div class="flex justify-between items-start">
+                <span class="text-xs text-blue-700">Date of Birth:</span>
+                <span class="text-xs font-medium text-blue-900">{{ formatDate(selectedUser.dateOfBirth!) }}</span>
+              </div>
+              <div class="flex justify-between items-start">
+                <span class="text-xs text-blue-700">Age:</span>
+                <span class="text-xs font-medium text-blue-900">{{ calculateAge(selectedUser.dateOfBirth) }} years</span>
+              </div>
+              <div class="flex justify-between items-start">
+                <span class="text-xs text-blue-700">Nationality:</span>
+                <span class="text-xs font-medium text-blue-900">{{ selectedUser.nationality }}</span>
+              </div>
+              <div class="flex justify-between items-start">
+                <span class="text-xs text-blue-700">Emirates ID:</span>
+                <span class="text-xs font-medium text-blue-900">{{ selectedUser.emiratesID }}</span>
+              </div>
+              <div class="flex justify-between items-start">
+                <span class="text-xs text-blue-700">Address:</span>
+                <span class="text-xs font-medium text-blue-900 text-right">{{ selectedUser.address }}</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Contact Information -->
+          <div class="bg-green-50 p-4 rounded-lg border border-green-200">
+            <h4 class="text-sm font-semibold text-green-900 mb-3 flex items-center">
+              <i class="fas fa-phone-alt mr-2 text-lg"></i> Contact Information
+            </h4>
+            <div class="space-y-2">
+              <div class="flex justify-between items-start">
+                <span class="text-xs text-green-700">Email:</span>
+                <span class="text-xs font-medium text-green-900 text-right">{{ selectedUser.email }}</span>
+              </div>
+              <div class="flex justify-between items-start">
+                <span class="text-xs text-green-700">Phone:</span>
+                <span class="text-xs font-medium text-green-900">{{ selectedUser.phone }}</span>
+              </div>
+              <div class="flex justify-between items-start">
+                <span class="text-xs text-green-700">Emergency Contact:</span>
+                <span class="text-xs font-medium text-green-900 text-right">{{ selectedUser.emergencyContactName }}</span>
+              </div>
+              <div class="flex justify-between items-start">
+                <span class="text-xs text-green-700">Emergency Phone:</span>
+                <span class="text-xs font-medium text-green-900">{{ selectedUser.emergencyContact }}</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Account Status -->
+          <div class="bg-gray-50 p-4 rounded-lg border border-gray-200">
+            <h4 class="text-sm font-semibold text-gray-900 mb-3 flex items-center">
+              <i class="fas fa-toggle-on mr-2 text-lg"></i> Account Status
+            </h4>
+            <div class="space-y-2">
+              <div class="flex justify-between items-start">
+                <span class="text-xs text-gray-700">Status:</span>
+                <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full" [class]="getStatusColor(selectedUser.status)">
+                  {{ selectedUser.status }}
+                </span>
+              </div>
+              <div class="flex justify-between items-start">
+                <span class="text-xs text-gray-700">User ID:</span>
+                <span class="text-xs font-medium text-gray-900">{{ selectedUser.id }}</span>
+              </div>
+              <div class="flex justify-between items-start">
+                <span class="text-xs text-gray-700">Username:</span>
+                <span class="text-xs font-medium text-gray-900">&#64;{{ selectedUser.username }}</span>
+              </div>
+              <div class="flex justify-between items-start">
+                <span class="text-xs text-gray-700">Last Login:</span>
+                <span class="text-xs font-medium text-gray-900">{{ getTimeSinceLogin(selectedUser.lastLogin) }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Column 2: Employment & Financial Information -->
+        <div class="space-y-4">
+          <!-- Employment Information -->
+          <div class="bg-indigo-50 p-4 rounded-lg border border-indigo-200">
+            <h4 class="text-sm font-semibold text-indigo-900 mb-3 flex items-center">
+              <i class="fas fa-briefcase mr-2 text-lg"></i> Employment Details
+            </h4>
+            <div class="space-y-2">
+              <div class="flex justify-between items-start">
+                <span class="text-xs text-indigo-700">Employee ID:</span>
+                <span class="text-xs font-medium text-indigo-900">{{ selectedUser.employeeID }}</span>
+              </div>
+              <div class="flex justify-between items-start">
+                <span class="text-xs text-indigo-700">Role:</span>
+                <span class="text-xs font-medium text-indigo-900">{{ selectedUser.role }}</span>
+              </div>
+              <div class="flex justify-between items-start">
+                <span class="text-xs text-indigo-700">Department:</span>
+                <span class="text-xs font-medium text-indigo-900">{{ selectedUser.department }}</span>
+              </div>
+              <div class="flex justify-between items-start">
+                <span class="text-xs text-indigo-700">Manager:</span>
+                <span class="text-xs font-medium text-indigo-900">{{ selectedUser.manager }}</span>
+              </div>
+              <div class="flex justify-between items-start">
+                <span class="text-xs text-indigo-700">Work Location:</span>
+                <span class="text-xs font-medium text-indigo-900 text-right">{{ selectedUser.workLocation }}</span>
+              </div>
+              <div class="flex justify-between items-start">
+                <span class="text-xs text-indigo-700">Contract Type:</span>
+                <span class="text-xs font-medium text-indigo-900">{{ selectedUser.contractType }}</span>
+              </div>
+              <div class="flex justify-between items-start">
+                <span class="text-xs text-indigo-700">Join Date:</span>
+                <span class="text-xs font-medium text-indigo-900">{{ formatDate(selectedUser.joinDate) }}</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Financial Information -->
+          <div class="bg-yellow-50 p-4 rounded-lg border border-yellow-200">
+            <h4 class="text-sm font-semibold text-yellow-900 mb-3 flex items-center">
+              <i class="fas fa-money-bill-wave mr-2 text-lg"></i> Financial Details
+            </h4>
+            <div class="space-y-2">
+              <div class="flex justify-between items-start">
+                <span class="text-xs text-yellow-700">Monthly Salary:</span>
+                <span class="text-xs font-bold text-yellow-900">AED {{ selectedUser.salary?.toLocaleString() }}</span>
+              </div>
+              <div class="flex justify-between items-start">
+                <span class="text-xs text-yellow-700">Bank Name:</span>
+                <span class="text-xs font-medium text-yellow-900 text-right">{{ selectedUser.bankName }}</span>
+              </div>
+              <div class="flex justify-between items-start">
+                <span class="text-xs text-yellow-700">Bank Account:</span>
+                <span class="text-xs font-medium text-yellow-900 break-all">{{ selectedUser.bankAccount }}</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Document Information -->
+          <div class="bg-purple-50 p-4 rounded-lg border border-purple-200">
+            <h4 class="text-sm font-semibold text-purple-900 mb-3 flex items-center">
+              <i class="fas fa-passport mr-2 text-lg"></i> Documents & Visa
+            </h4>
+            <div class="space-y-3">
+              <!-- Passport -->
+              <div class="bg-white p-2 rounded border border-purple-100">
+                <div class="flex justify-between items-start mb-1">
+                  <span class="text-xs text-purple-700 font-semibold">Passport:</span>
+                  <span class="text-xs font-medium text-purple-900">{{ selectedUser.passportNumber }}</span>
+                </div>
+                <div class="flex justify-between items-start">
+                  <span class="text-xs text-purple-600">Expiry:</span>
+                  <span class="text-xs" [class]="getExpiryStatusColor(selectedUser.passportExpiry)">
+                    {{ formatDate(selectedUser.passportExpiry!) }}
+                  </span>
+                </div>
+                <div class="text-xs text-right mt-1" [class]="getExpiryStatusColor(selectedUser.passportExpiry)">
+                  {{ getExpiryStatusText(selectedUser.passportExpiry) }}
+                </div>
+              </div>
+
+              <!-- Visa -->
+              <div class="bg-white p-2 rounded border border-purple-100">
+                <div class="flex justify-between items-start mb-1">
+                  <span class="text-xs text-purple-700 font-semibold">Visa Status:</span>
+                  <span class="text-xs font-medium text-purple-900">{{ selectedUser.visaStatus }}</span>
+                </div>
+                <div class="flex justify-between items-start">
+                  <span class="text-xs text-purple-600">Expiry:</span>
+                  <span class="text-xs" [class]="getExpiryStatusColor(selectedUser.visaExpiry)">
+                    {{ formatDate(selectedUser.visaExpiry!) }}
+                  </span>
+                </div>
+                <div class="text-xs text-right mt-1" [class]="getExpiryStatusColor(selectedUser.visaExpiry)">
+                  {{ getExpiryStatusText(selectedUser.visaExpiry) }}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Column 3: Permissions & Access Rights -->
+        <div class="space-y-4">
+          <div class="bg-red-50 p-4 rounded-lg border border-red-200">
+            <h4 class="text-sm font-semibold text-red-900 mb-3 flex items-center">
+              <i class="fas fa-shield-alt mr-2 text-lg"></i> Permissions & Access ({{ selectedUser.permissions.length }})
+            </h4>
+            <div class="max-h-[600px] overflow-y-auto space-y-2 pr-2">
+              <div *ngFor="let permission of selectedUser.permissions" class="flex items-center bg-white p-2 rounded border border-red-100 hover:bg-red-50 transition-colors">
+                <i class="fas fa-check-circle text-green-500 mr-2"></i>
+                <span class="text-xs text-gray-700">{{ permission }}</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Quick Stats -->
+          <div class="bg-gradient-to-br from-blue-50 to-indigo-50 p-4 rounded-lg border border-blue-200">
+            <h4 class="text-sm font-semibold text-blue-900 mb-3 flex items-center">
+              <i class="fas fa-chart-line mr-2 text-lg"></i> Quick Stats
+            </h4>
+            <div class="grid grid-cols-2 gap-3">
+              <div class="bg-white p-3 rounded-lg text-center border border-blue-100">
+                <i class="fas fa-calendar-alt text-blue-600 text-xl mb-1"></i>
+                <div class="text-xs text-gray-600">Tenure</div>
+                <div class="text-sm font-bold text-blue-900">{{ getTenureYears(selectedUser.joinDate) }} years</div>
+              </div>
+              <div class="bg-white p-3 rounded-lg text-center border border-green-100">
+                <i class="fas fa-shield-alt text-green-600 text-xl mb-1"></i>
+                <div class="text-xs text-gray-600">Permissions</div>
+                <div class="text-sm font-bold text-green-900">{{ selectedUser.permissions.length }}</div>
+              </div>
+              <div class="bg-white p-3 rounded-lg text-center border border-yellow-100">
+                <i class="fas fa-money-bill-wave text-yellow-600 text-xl mb-1"></i>
+                <div class="text-xs text-gray-600">Salary</div>
+                <div class="text-sm font-bold text-yellow-900">{{ selectedUser.salary?.toLocaleString() }}</div>
+              </div>
+              <div class="bg-white p-3 rounded-lg text-center border border-purple-100">
+                <i class="fas fa-clock text-purple-600 text-xl mb-1"></i>
+                <div class="text-xs text-gray-600">Last Login</div>
+                <div class="text-sm font-bold text-purple-900">{{ getTimeSinceLogin(selectedUser.lastLogin) }}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Footer Actions -->
+      <div class="flex justify-between items-center mt-6 pt-4 border-t">
+        <div class="text-xs text-gray-500">
+          <i class="fas fa-info-circle mr-1"></i>
+          Last updated: {{ formatDate(selectedUser.joinDate) }}
+        </div>
+        <div class="flex space-x-3">
+          <button (click)="closeDetailsModal()" class="px-6 py-2 bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400 transition-colors">
+            <i class="fas fa-times mr-2"></i>Close
+          </button>
+          <button (click)="openEditModal(selectedUser); closeDetailsModal();" class="px-6 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors">
+            <i class="fas fa-edit mr-2"></i> Edit User
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+

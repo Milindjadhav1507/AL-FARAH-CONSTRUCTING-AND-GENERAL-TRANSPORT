@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
+import { ToastService } from '../../services/toast.service';
 
 interface LoginData {
   email: string;
@@ -27,7 +28,7 @@ export class LoginComponent {
   isLoading = false;
   errorMessage = '';
 
-  constructor(private router: Router, private authService: AuthService) {}
+  constructor(private router: Router, private authService: AuthService, private toastService: ToastService) {}
 
   togglePasswordVisibility() {
     this.showPassword = !this.showPassword;
@@ -56,11 +57,11 @@ export class LoginComponent {
   // Social login methods (mock implementations)
   loginWithGoogle() {
     console.log('Google login clicked');
-    alert('Google login not implemented yet');
+    this.toastService.info('Google login not implemented yet');
   }
 
   loginWithGitHub() {
     console.log('GitHub login clicked');
-    alert('GitHub login not implemented yet');
+    this.toastService.info('GitHub login not implemented yet');
   }
 }

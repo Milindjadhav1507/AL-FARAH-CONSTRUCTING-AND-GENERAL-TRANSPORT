@@ -1,1 +1,1070 @@
-<p>camp-manage works!</p>
+<!-- Camp Management Component -->
+<div class="w-full p-4 bg-gradient-to-br from-gray-50 to-blue-50 min-h-screen">
+  
+  <!-- Header -->
+  <div class="mb-4">
+    <div class="flex items-center justify-between bg-white rounded-lg shadow-sm p-4 border-l-4 border-indigo-600">
+      <div>
+        <h1 class="text-2xl font-bold text-gray-900 flex items-center">
+          <div class="bg-indigo-100 rounded-lg p-2 mr-3">
+            <i class="fas fa-campground text-indigo-600 text-xl"></i>
+          </div>
+          Al Farah Camps Management
+        </h1>
+        <p class="text-sm text-gray-600 mt-1 ml-12">Manage camp accommodations, rooms, and occupants</p>
+      </div>
+      <div class="text-right bg-gradient-to-br from-indigo-50 to-indigo-100 rounded-lg p-4 border border-indigo-200">
+        <div class="text-xs text-indigo-700 font-medium uppercase">Total Capacity</div>
+        <div class="text-3xl font-bold text-indigo-600">{{ getTotalCapacity() }}</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tab Navigation -->
+  <div class="bg-white rounded-lg shadow-sm border border-gray-200 mb-4">
+    <div class="flex border-b border-gray-200">
+      <button 
+        (click)="switchView('overview')" 
+        [class]="selectedView === 'overview' ? 'border-b-2 border-indigo-600 text-indigo-600 bg-indigo-50' : 'text-gray-600 hover:text-indigo-600 hover:bg-gray-50'"
+        class="px-4 py-2.5 text-sm font-medium transition-colors">
+        <i class="fas fa-chart-pie mr-1.5"></i>Overview
+      </button>
+      <button 
+        (click)="switchView('camps')" 
+        [class]="selectedView === 'camps' ? 'border-b-2 border-indigo-600 text-indigo-600 bg-indigo-50' : 'text-gray-600 hover:text-indigo-600 hover:bg-gray-50'"
+        class="px-4 py-2.5 text-sm font-medium transition-colors">
+        <i class="fas fa-campground mr-1.5"></i>Camps
+      </button>
+      <button 
+        (click)="switchView('rooms')" 
+        [class]="selectedView === 'rooms' ? 'border-b-2 border-indigo-600 text-indigo-600 bg-indigo-50' : 'text-gray-600 hover:text-indigo-600 hover:bg-gray-50'"
+        class="px-4 py-2.5 text-sm font-medium transition-colors">
+        <i class="fas fa-door-open mr-1.5"></i>Rooms
+      </button>
+      <button 
+        (click)="switchView('occupants')" 
+        [class]="selectedView === 'occupants' ? 'border-b-2 border-indigo-600 text-indigo-600 bg-indigo-50' : 'text-gray-600 hover:text-indigo-600 hover:bg-gray-50'"
+        class="px-4 py-2.5 text-sm font-medium transition-colors">
+        <i class="fas fa-users mr-1.5"></i>Occupants
+      </button>
+    </div>
+  </div>
+
+  <!-- Overview Tab -->
+  <div *ngIf="selectedView === 'overview'" class="space-y-4">
+    
+    <!-- Summary Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <div class="bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg shadow-md p-4 hover:shadow-lg transition-all hover:scale-105 transform">
+        <div class="flex items-center justify-between text-white">
+          <div>
+            <p class="text-blue-100 text-xs font-medium uppercase tracking-wide">Total Camps</p>
+            <h3 class="text-3xl font-bold mt-1">{{ camps.length }}</h3>
+          </div>
+          <div class="bg-white bg-opacity-20 rounded-lg p-3">
+            <i class="fas fa-campground text-2xl"></i>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-gradient-to-br from-green-500 to-green-600 rounded-lg shadow-md p-4 hover:shadow-lg transition-all hover:scale-105 transform">
+        <div class="flex items-center justify-between text-white">
+          <div>
+            <p class="text-green-100 text-xs font-medium uppercase tracking-wide">Total Capacity</p>
+            <h3 class="text-3xl font-bold mt-1">{{ getTotalCapacity() }}</h3>
+          </div>
+          <div class="bg-white bg-opacity-20 rounded-lg p-3">
+            <i class="fas fa-bed text-2xl"></i>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-gradient-to-br from-purple-500 to-purple-600 rounded-lg shadow-md p-4 hover:shadow-lg transition-all hover:scale-105 transform">
+        <div class="flex items-center justify-between text-white">
+          <div>
+            <p class="text-purple-100 text-xs font-medium uppercase tracking-wide">Total Occupants</p>
+            <h3 class="text-3xl font-bold mt-1">{{ getTotalActiveOccupants() }}</h3>
+          </div>
+          <div class="bg-white bg-opacity-20 rounded-lg p-3">
+            <i class="fas fa-users text-2xl"></i>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-gradient-to-br from-orange-500 to-orange-600 rounded-lg shadow-md p-4 hover:shadow-lg transition-all hover:scale-105 transform">
+        <div class="flex items-center justify-between text-white">
+          <div>
+            <p class="text-orange-100 text-xs font-medium uppercase tracking-wide">Avg Occupancy</p>
+            <h3 class="text-3xl font-bold mt-1">{{ getAverageOccupancy() }}%</h3>
+          </div>
+          <div class="bg-white bg-opacity-20 rounded-lg p-3">
+            <i class="fas fa-chart-line text-2xl"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Camps Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div *ngFor="let camp of camps" class="bg-white rounded-lg shadow-md border-l-4 border-indigo-500 hover:shadow-xl transition-all hover:-translate-y-1 transform">
+        <div class="p-4">
+          <!-- Camp Header -->
+          <div class="flex items-center justify-between mb-3">
+            <div class="flex items-center">
+              <div class="bg-gradient-to-br from-indigo-500 to-indigo-600 rounded-lg p-2.5 mr-3 shadow-md">
+                <i class="fas fa-campground text-white text-lg"></i>
+              </div>
+              <div>
+                <h3 class="text-base font-bold text-gray-900">{{ camp.name }}</h3>
+                <p class="text-xs text-gray-500 flex items-center">
+                  <i class="fas fa-map-marker-alt mr-1 text-indigo-500"></i>{{ camp.location }}
+                </p>
+              </div>
+            </div>
+            <span class="inline-flex px-3 py-1 text-xs font-bold rounded-full shadow-sm" 
+                  [class]="camp.status === 'Full' ? 'bg-gradient-to-r from-red-500 to-red-600 text-white' : 'bg-gradient-to-r from-green-500 to-green-600 text-white'">
+              {{ camp.status }}
+            </span>
+          </div>
+
+          <!-- Capacity Info -->
+          <div class="grid grid-cols-3 gap-2 mb-3">
+            <div class="text-center p-2.5 bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg border border-blue-200 hover:shadow-md transition-shadow">
+              <i class="fas fa-bed text-blue-600 text-base mb-1"></i>
+              <div class="text-xl font-bold text-blue-900">{{ camp.totalCapacity }}</div>
+              <div class="text-xs text-blue-700 font-medium">Capacity</div>
+            </div>
+            <div class="text-center p-2.5 bg-gradient-to-br from-green-50 to-green-100 rounded-lg border border-green-200 hover:shadow-md transition-shadow">
+              <i class="fas fa-users text-green-600 text-base mb-1"></i>
+              <div class="text-xl font-bold text-green-900">{{ getActiveOccupantsBycamp(camp.id) }}</div>
+              <div class="text-xs text-green-700 font-medium">Occupants</div>
+            </div>
+            <div class="text-center p-2.5 bg-gradient-to-br from-purple-50 to-purple-100 rounded-lg border border-purple-200 hover:shadow-md transition-shadow">
+              <i class="fas fa-door-open text-purple-600 text-base mb-1"></i>
+              <div class="text-xl font-bold text-purple-900">{{ camp.totalRooms }}</div>
+              <div class="text-xs text-purple-700 font-medium">Rooms</div>
+            </div>
+          </div>
+
+          <!-- Occupancy Bar -->
+          <div class="mb-3 bg-gray-50 p-3 rounded-lg border border-gray-200">
+            <div class="flex justify-between text-xs mb-2">
+              <span class="text-gray-700 font-semibold flex items-center">
+                <i class="fas fa-chart-bar mr-1 text-indigo-500"></i>Occupancy
+              </span>
+              <span class="font-bold px-2 py-0.5 rounded-full text-white text-xs" 
+                    [class]="camp.occupancyRate >= 90 ? 'bg-red-500' : camp.occupancyRate >= 75 ? 'bg-yellow-500' : 'bg-green-500'">
+                {{ camp.occupancyRate }}%
+              </span>
+            </div>
+            <div class="w-full bg-gray-200 rounded-full h-2.5 shadow-inner">
+              <div class="h-2.5 rounded-full transition-all shadow-sm" 
+                   [style.width.%]="camp.occupancyRate"
+                   [class]="camp.occupancyRate >= 90 ? 'bg-gradient-to-r from-red-500 to-red-600' : camp.occupancyRate >= 75 ? 'bg-gradient-to-r from-yellow-500 to-yellow-600' : 'bg-gradient-to-r from-green-500 to-green-600'">
+              </div>
+            </div>
+          </div>
+
+          <!-- Employee vs External -->
+          <div class="grid grid-cols-2 gap-2 mb-3">
+            <div class="bg-gradient-to-br from-blue-50 to-blue-100 p-2.5 rounded-lg border border-blue-200 hover:shadow-md transition-shadow">
+              <div class="flex items-center justify-between">
+                <span class="text-xs text-blue-700 font-semibold flex items-center">
+                  <i class="fas fa-user-tie mr-1"></i>Company
+                </span>
+                <span class="text-lg font-bold text-blue-900">{{ getCompanyEmployeeCount(camp.id) }}</span>
+              </div>
+            </div>
+            <div class="bg-gradient-to-br from-orange-50 to-orange-100 p-2.5 rounded-lg border border-orange-200 hover:shadow-md transition-shadow">
+              <div class="flex items-center justify-between">
+                <span class="text-xs text-orange-700 font-semibold flex items-center">
+                  <i class="fas fa-user-friends mr-1"></i>External
+                </span>
+                <span class="text-lg font-bold text-orange-900">{{ getExternalWorkerCount(camp.id) }}</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Actions -->
+          <div class="flex space-x-2">
+            <button (click)="openCampDetails(camp)" class="flex-1 px-3 py-2.5 text-sm font-semibold bg-gradient-to-r from-indigo-600 to-indigo-700 text-white rounded-lg hover:from-indigo-700 hover:to-indigo-800 transition-all shadow-md hover:shadow-lg">
+              <i class="fas fa-eye mr-1"></i>Details
+            </button>
+            <button (click)="selectCamp(camp.id)" class="flex-1 px-3 py-2.5 text-sm font-semibold bg-gradient-to-r from-green-600 to-green-700 text-white rounded-lg hover:from-green-700 hover:to-green-800 transition-all shadow-md hover:shadow-lg">
+              <i class="fas fa-door-open mr-1"></i>Rooms
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Camps Tab -->
+  <div *ngIf="selectedView === 'camps'" class="space-y-4">
+    <div class="grid grid-cols-1 gap-6">
+      <div *ngFor="let camp of camps" class="bg-white rounded-lg shadow-md border border-gray-200">
+        <div class="p-6">
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <!-- Left: Camp Info -->
+            <div class="md:col-span-2">
+              <div class="flex items-center mb-4">
+                <div class="bg-indigo-100 rounded-full p-4 mr-4">
+                  <i class="fas fa-campground text-indigo-600 text-3xl"></i>
+                </div>
+                <div>
+                  <h3 class="text-2xl font-bold text-gray-900">{{ camp.name }}</h3>
+                  <p class="text-gray-600"><i class="fas fa-map-marker-alt mr-2"></i>{{ camp.location }}</p>
+                  <span class="inline-flex px-3 py-1 text-xs font-semibold rounded-full mt-2" 
+                        [class]="camp.status === 'Full' ? 'bg-red-100 text-red-800' : 'bg-green-100 text-green-800'">
+                    {{ camp.status }}
+                  </span>
+                </div>
+              </div>
+
+              <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
+                <div class="bg-blue-50 p-4 rounded-lg text-center">
+                  <i class="fas fa-bed text-blue-600 text-2xl mb-2"></i>
+                  <div class="text-2xl font-bold text-blue-900">{{ camp.totalCapacity }}</div>
+                  <div class="text-xs text-blue-700">Total Capacity</div>
+                </div>
+                <div class="bg-green-50 p-4 rounded-lg text-center">
+                  <i class="fas fa-door-open text-green-600 text-2xl mb-2"></i>
+                  <div class="text-2xl font-bold text-green-900">{{ camp.totalRooms }}</div>
+                  <div class="text-xs text-green-700">Total Rooms</div>
+                </div>
+                <div class="bg-purple-50 p-4 rounded-lg text-center">
+                  <i class="fas fa-check-circle text-purple-600 text-2xl mb-2"></i>
+                  <div class="text-2xl font-bold text-purple-900">{{ camp.occupiedRooms }}</div>
+                  <div class="text-xs text-purple-700">Occupied</div>
+                </div>
+                <div class="bg-orange-50 p-4 rounded-lg text-center">
+                  <i class="fas fa-times-circle text-orange-600 text-2xl mb-2"></i>
+                  <div class="text-2xl font-bold text-orange-900">{{ camp.availableRooms }}</div>
+                  <div class="text-xs text-orange-700">Available</div>
+                </div>
+              </div>
+
+              <div class="mb-4">
+                <h4 class="text-sm font-semibold text-gray-700 mb-2">Facilities</h4>
+                <div class="flex flex-wrap gap-2">
+                  <span *ngFor="let facility of camp.facilities" class="inline-flex items-center px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-xs">
+                    <i class="fas fa-check mr-1 text-green-600"></i>{{ facility }}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Right: Occupancy Stats -->
+            <div class="bg-gradient-to-br from-indigo-50 to-purple-50 p-6 rounded-lg">
+              <h4 class="text-lg font-bold text-gray-900 mb-4">Occupancy Statistics</h4>
+              
+              <div class="mb-4">
+                <div class="flex justify-between text-sm mb-2">
+                  <span class="text-gray-700">Occupancy Rate</span>
+                  <span class="font-bold" [class]="getOccupancyColor(camp.occupancyRate)">{{ camp.occupancyRate }}%</span>
+                </div>
+                <div class="w-full bg-gray-200 rounded-full h-4">
+                  <div class="h-4 rounded-full transition-all flex items-center justify-end pr-2" 
+                       [style.width.%]="camp.occupancyRate"
+                       [class]="camp.occupancyRate >= 90 ? 'bg-red-500' : camp.occupancyRate >= 75 ? 'bg-yellow-500' : 'bg-green-500'">
+                    <span class="text-xs text-white font-bold">{{ camp.occupancyRate }}%</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="space-y-3">
+                <div class="bg-white p-3 rounded-lg">
+                  <div class="flex justify-between items-center">
+                    <span class="text-sm text-gray-600">Total Occupants</span>
+                    <span class="text-xl font-bold text-gray-900">{{ getActiveOccupantsBycamp(camp.id) }}</span>
+                  </div>
+                </div>
+                <div class="bg-white p-3 rounded-lg">
+                  <div class="flex justify-between items-center">
+                    <span class="text-sm text-blue-600">Company Employees</span>
+                    <span class="text-xl font-bold text-blue-900">{{ getCompanyEmployeeCount(camp.id) }}</span>
+                  </div>
+                </div>
+                <div class="bg-white p-3 rounded-lg">
+                  <div class="flex justify-between items-center">
+                    <span class="text-sm text-orange-600">External Workers</span>
+                    <span class="text-xl font-bold text-orange-900">{{ getExternalWorkerCount(camp.id) }}</span>
+                  </div>
+                </div>
+              </div>
+
+              <button (click)="selectCamp(camp.id)" class="w-full mt-4 px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition-colors">
+                <i class="fas fa-door-open mr-2"></i>View All Rooms
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Rooms Tab -->
+  <div *ngIf="selectedView === 'rooms'" class="space-y-4">
+    
+    <!-- Camp Selector & Filters -->
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-3">
+      <div class="flex flex-wrap items-center gap-4">
+        <div class="flex-1 min-w-[200px]">
+          <label class="block text-sm font-medium text-gray-700 mb-2">Select Camp</label>
+          <select [(ngModel)]="selectedCampId" (ngModelChange)="currentPage = 1" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500">
+            <option value="">All Camps</option>
+            <option *ngFor="let camp of camps" [value]="camp.id">{{ camp.name }}</option>
+          </select>
+        </div>
+        
+        <div class="flex-1 min-w-[200px]">
+          <label class="block text-sm font-medium text-gray-700 mb-2">Room Status</label>
+          <select [(ngModel)]="filterRoomStatus" (ngModelChange)="currentPage = 1" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500">
+            <option value="All">All Status</option>
+            <option value="Available">Available</option>
+            <option value="Occupied">Occupied</option>
+            <option value="Full">Full</option>
+            <option value="Maintenance">Maintenance</option>
+          </select>
+        </div>
+
+        <div class="flex-1 min-w-[300px]">
+          <label class="block text-sm font-medium text-gray-700 mb-2">Search</label>
+          <div class="relative">
+            <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+            <input type="text" [(ngModel)]="searchTerm" (ngModelChange)="currentPage = 1" placeholder="Search by room number or camp..." class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500">
+          </div>
+        </div>
+
+        <div class="text-sm text-gray-600 whitespace-nowrap mt-6">
+          <i class="fas fa-door-open mr-1"></i>
+          <span class="font-medium">{{ filteredRooms.length }}</span> rooms found
+        </div>
+      </div>
+    </div>
+
+    <!-- Rooms Table -->
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200">
+      <!-- Pagination Info (Top) -->
+      <div class="px-4 py-2.5 bg-gray-50 border-b border-gray-200 flex justify-between items-center">
+        <div class="flex items-center space-x-3">
+          <h3 class="text-base font-semibold text-gray-900">Rooms</h3>
+          <div class="text-xs text-gray-600">
+            Showing <span class="font-medium">{{ ((currentPage - 1) * itemsPerPage) + 1 }}</span> to 
+            <span class="font-medium">{{ getMin(currentPage * itemsPerPage, filteredRooms.length) }}</span> of 
+            <span class="font-medium">{{ filteredRooms.length }}</span>
+          </div>
+        </div>
+        <div class="flex items-center space-x-2">
+          <label class="text-sm text-gray-600">Show:</label>
+          <select 
+            [ngModel]="itemsPerPage" 
+            (ngModelChange)="changeItemsPerPage($any($event))"
+            class="px-3 py-1 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500">
+            <option *ngFor="let option of itemsPerPageOptions" [value]="option">{{ option }}</option>
+          </select>
+          <span class="text-sm text-gray-600">per page</span>
+        </div>
+      </div>
+
+      <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-200">
+          <thead class="bg-gray-50">
+            <tr>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Room</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Camp</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Floor</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Capacity</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Occupied</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Available</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+            </tr>
+          </thead>
+          <tbody class="bg-white divide-y divide-gray-200">
+            <tr *ngFor="let room of paginatedRooms" class="hover:bg-gray-50">
+              <td class="px-6 py-4 whitespace-nowrap">
+                <div class="flex items-center">
+                  <i class="fas fa-door-open text-indigo-600 text-lg mr-3"></i>
+                  <div class="text-sm font-medium text-gray-900">{{ room.roomNumber }}</div>
+                </div>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                {{ getCampName(room.campId) }}
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                Floor {{ room.floor }}
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                {{ room.roomType }}
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                {{ room.capacity }} beds
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-blue-900">
+                {{ room.occupiedBeds }}
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-green-900">
+                {{ room.availableBeds }}
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap">
+                <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full" [class]="getRoomStatusColor(room.status)">
+                  {{ room.status }}
+                </span>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                <button (click)="openRoomDetails(room)" class="text-indigo-600 hover:text-indigo-900 px-2 py-1 rounded bg-indigo-50 hover:bg-indigo-100">
+                  <i class="fas fa-eye"></i>
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Pagination Info (Bottom) -->
+      <div class="px-6 py-3 bg-gray-50 border-t border-gray-200 flex justify-between items-center">
+        <div class="text-sm text-gray-700">
+          Page <span class="font-medium">{{ currentPage }}</span> of <span class="font-medium">{{ totalPages }}</span>
+        </div>
+        <div class="flex items-center space-x-2">
+          <button 
+            (click)="previousPage()" 
+            [disabled]="currentPage === 1"
+            [class]="currentPage === 1 ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-200'"
+            class="px-3 py-1 text-sm bg-white border border-gray-300 rounded-md">
+            <i class="fas fa-chevron-left"></i> Previous
+          </button>
+          <button 
+            *ngFor="let page of getPageNumbers()"
+            (click)="goToPage(page)"
+            [class]="page === currentPage ? 'bg-indigo-600 text-white' : 'bg-white text-gray-700 hover:bg-gray-100'"
+            class="px-3 py-1 text-sm border border-gray-300 rounded-md">
+            {{ page }}
+          </button>
+          <button 
+            (click)="nextPage()" 
+            [disabled]="currentPage === totalPages"
+            [class]="currentPage === totalPages ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-200'"
+            class="px-3 py-1 text-sm bg-white border border-gray-300 rounded-md">
+            Next <i class="fas fa-chevron-right"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Occupants Tab -->
+  <div *ngIf="selectedView === 'occupants'" class="space-y-4">
+    
+    <!-- Camp Selector & Filters -->
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-3">
+      <div class="flex flex-wrap items-center gap-4">
+        <div class="flex-1 min-w-[200px]">
+          <label class="block text-sm font-medium text-gray-700 mb-2">Select Camp</label>
+          <select [(ngModel)]="selectedCampId" (ngModelChange)="currentPage = 1" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500">
+            <option value="">All Camps</option>
+            <option *ngFor="let camp of camps" [value]="camp.id">{{ camp.name }}</option>
+          </select>
+        </div>
+        
+        <div class="flex-1 min-w-[200px]">
+          <label class="block text-sm font-medium text-gray-700 mb-2">Occupant Type</label>
+          <select [(ngModel)]="filterOccupantType" (ngModelChange)="currentPage = 1" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500">
+            <option value="All">All Types</option>
+            <option *ngFor="let type of occupantTypes" [value]="type">{{ type }}</option>
+          </select>
+        </div>
+
+        <div class="flex-1 min-w-[300px]">
+          <label class="block text-sm font-medium text-gray-700 mb-2">Search</label>
+          <div class="relative">
+            <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+            <input type="text" [(ngModel)]="searchTerm" (ngModelChange)="currentPage = 1" placeholder="Search by name, ID, Emirates ID..." class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500">
+          </div>
+        </div>
+
+        <div class="flex items-center gap-4 mt-6">
+          <div class="text-sm text-gray-600 whitespace-nowrap">
+            <i class="fas fa-users mr-1"></i>
+            <span class="font-medium">{{ filteredOccupants.length }}</span> occupants found
+          </div>
+          <button (click)="openAddOccupantModal()" 
+                  class="px-4 py-2 bg-gradient-to-r from-green-600 to-green-700 text-white rounded-lg hover:from-green-700 hover:to-green-800 transition-all shadow-md hover:shadow-lg flex items-center">
+            <i class="fas fa-user-plus mr-2"></i>Check In New
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Occupants Table -->
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200">
+      <!-- Pagination Info (Top) -->
+      <div class="px-4 py-2.5 bg-gray-50 border-b border-gray-200 flex justify-between items-center">
+        <div class="flex items-center space-x-3">
+          <h3 class="text-base font-semibold text-gray-900">Occupants</h3>
+          <div class="text-xs text-gray-600">
+            Showing <span class="font-medium">{{ ((currentPage - 1) * itemsPerPage) + 1 }}</span> to 
+            <span class="font-medium">{{ getMin(currentPage * itemsPerPage, filteredOccupants.length) }}</span> of 
+            <span class="font-medium">{{ filteredOccupants.length }}</span>
+          </div>
+        </div>
+        <div class="flex items-center space-x-2">
+          <label class="text-sm text-gray-600">Show:</label>
+          <select 
+            [ngModel]="itemsPerPage" 
+            (ngModelChange)="changeItemsPerPage($any($event))"
+            class="px-3 py-1 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500">
+            <option *ngFor="let option of itemsPerPageOptions" [value]="option">{{ option }}</option>
+          </select>
+          <span class="text-sm text-gray-600">per page</span>
+        </div>
+      </div>
+
+      <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-200">
+          <thead class="bg-gray-50">
+            <tr>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Occupant</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Camp</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Room</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Bed</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Check-In</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Days Stayed</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+            </tr>
+          </thead>
+          <tbody class="bg-white divide-y divide-gray-200">
+            <tr *ngFor="let occupant of paginatedOccupants" class="hover:bg-gray-50">
+              <td class="px-6 py-4 whitespace-nowrap">
+                <div class="flex items-center">
+                  <div class="flex-shrink-0 h-10 w-10 bg-gradient-to-br from-indigo-400 to-indigo-600 rounded-full flex items-center justify-center">
+                    <span class="text-white font-bold">{{ occupant.name.charAt(0) }}</span>
+                  </div>
+                  <div class="ml-4">
+                    <div class="text-sm font-medium text-gray-900">{{ occupant.name }}</div>
+                    <div class="text-sm text-gray-500">{{ occupant.employeeID }}</div>
+                  </div>
+                </div>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap">
+                <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full" [class]="getOccupantTypeColor(occupant.type)">
+                  {{ occupant.type }}
+                </span>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                {{ getCampName(occupant.campId) }}
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                {{ getRoomNumberByOccupant(occupant) }}
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                Bed {{ occupant.bedNumber }}
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                {{ formatDate(occupant.checkInDate) }}
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-indigo-900">
+                {{ getDaysStayed(occupant.checkInDate) }} days
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                <div class="flex space-x-2">
+                  <button (click)="openOccupantDetails(occupant)" class="text-indigo-600 hover:text-indigo-900 px-2 py-1 rounded bg-indigo-50 hover:bg-indigo-100">
+                    <i class="fas fa-eye"></i>
+                  </button>
+                  <button (click)="checkOutOccupant(occupant)" class="text-red-600 hover:text-red-900 px-2 py-1 rounded bg-red-50 hover:bg-red-100">
+                    <i class="fas fa-sign-out-alt"></i>
+                  </button>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Pagination Info (Bottom) -->
+      <div class="px-6 py-3 bg-gray-50 border-t border-gray-200 flex justify-between items-center">
+        <div class="text-sm text-gray-700">
+          Page <span class="font-medium">{{ currentPage }}</span> of <span class="font-medium">{{ totalPages }}</span>
+        </div>
+        <div class="flex items-center space-x-2">
+          <button 
+            (click)="previousPage()" 
+            [disabled]="currentPage === 1"
+            [class]="currentPage === 1 ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-200'"
+            class="px-3 py-1 text-sm bg-white border border-gray-300 rounded-md">
+            <i class="fas fa-chevron-left"></i> Previous
+          </button>
+          <button 
+            *ngFor="let page of getPageNumbers()"
+            (click)="goToPage(page)"
+            [class]="page === currentPage ? 'bg-indigo-600 text-white' : 'bg-white text-gray-700 hover:bg-gray-100'"
+            class="px-3 py-1 text-sm border border-gray-300 rounded-md">
+            {{ page }}
+          </button>
+          <button 
+            (click)="nextPage()" 
+            [disabled]="currentPage === totalPages"
+            [class]="currentPage === totalPages ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-200'"
+            class="px-3 py-1 text-sm bg-white border border-gray-300 rounded-md">
+            Next <i class="fas fa-chevron-right"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- Camp Details Modal -->
+<div *ngIf="showCampDetailsModal && selectedCamp" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+  <div class="relative top-10 mx-auto p-5 border w-11/12 max-w-4xl shadow-lg rounded-md bg-white mb-10">
+    <div class="mt-3">
+      <div class="flex items-center justify-between mb-6 pb-4 border-b">
+        <div class="flex items-center">
+          <div class="bg-indigo-100 rounded-full p-4 mr-4">
+            <i class="fas fa-campground text-indigo-600 text-3xl"></i>
+          </div>
+          <div>
+            <h3 class="text-2xl font-bold text-gray-900">{{ selectedCamp.name }}</h3>
+            <p class="text-gray-600"><i class="fas fa-map-marker-alt mr-2"></i>{{ selectedCamp.location }}</p>
+          </div>
+        </div>
+        <button (click)="closeCampDetailsModal()" class="text-gray-400 hover:text-gray-600 transition-colors">
+          <i class="fas fa-times text-2xl"></i>
+        </button>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <!-- Capacity Information -->
+        <div class="bg-blue-50 p-4 rounded-lg border border-blue-200">
+          <h4 class="text-lg font-semibold text-blue-900 mb-4"><i class="fas fa-bed mr-2"></i>Capacity Information</h4>
+          <div class="space-y-3">
+            <div class="flex justify-between">
+              <span class="text-blue-700">Total Capacity:</span>
+              <span class="font-bold text-blue-900">{{ selectedCamp.totalCapacity }} beds</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-blue-700">Total Rooms:</span>
+              <span class="font-bold text-blue-900">{{ selectedCamp.totalRooms }}</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-blue-700">Occupied Rooms:</span>
+              <span class="font-bold text-blue-900">{{ selectedCamp.occupiedRooms }}</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-blue-700">Available Rooms:</span>
+              <span class="font-bold text-blue-900">{{ selectedCamp.availableRooms }}</span>
+            </div>
+            <div class="flex justify-between pt-3 border-t border-blue-200">
+              <span class="text-blue-700">Occupancy Rate:</span>
+              <span class="font-bold text-xl" [class]="getOccupancyColor(selectedCamp.occupancyRate)">{{ selectedCamp.occupancyRate }}%</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Occupant Statistics -->
+        <div class="bg-green-50 p-4 rounded-lg border border-green-200">
+          <h4 class="text-lg font-semibold text-green-900 mb-4"><i class="fas fa-users mr-2"></i>Occupant Statistics</h4>
+          <div class="space-y-3">
+            <div class="flex justify-between">
+              <span class="text-green-700">Total Occupants:</span>
+              <span class="font-bold text-green-900">{{ getActiveOccupantsBycamp(selectedCamp.id) }}</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-green-700">Company Employees:</span>
+              <span class="font-bold text-green-900">{{ getCompanyEmployeeCount(selectedCamp.id) }}</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-green-700">External Workers:</span>
+              <span class="font-bold text-green-900">{{ getExternalWorkerCount(selectedCamp.id) }}</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-green-700">Contractors:</span>
+              <span class="font-bold text-green-900">{{ getContractorCount(selectedCamp.id) }}</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-green-700">Visitors:</span>
+              <span class="font-bold text-green-900">{{ getVisitorCount(selectedCamp.id) }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Facilities -->
+      <div class="mt-6 bg-purple-50 p-4 rounded-lg border border-purple-200">
+        <h4 class="text-lg font-semibold text-purple-900 mb-3"><i class="fas fa-concierge-bell mr-2"></i>Facilities Available</h4>
+        <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
+          <div *ngFor="let facility of selectedCamp.facilities" class="flex items-center bg-white p-3 rounded-lg">
+            <i class="fas fa-check-circle text-green-500 mr-2"></i>
+            <span class="text-sm text-gray-700">{{ facility }}</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="flex justify-end space-x-3 mt-6">
+        <button (click)="closeCampDetailsModal()" class="px-6 py-2 bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400 transition-colors">
+          Close
+        </button>
+        <button (click)="selectCamp(selectedCamp.id); closeCampDetailsModal();" class="px-6 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition-colors">
+          <i class="fas fa-door-open mr-2"></i>View Rooms
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Room Details Modal -->
+<div *ngIf="showRoomDetailsModal && selectedRoom" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+  <div class="relative top-10 mx-auto p-5 border w-11/12 max-w-4xl shadow-lg rounded-md bg-white mb-10">
+    <div class="mt-3">
+      <div class="flex items-center justify-between mb-6 pb-4 border-b">
+        <div class="flex items-center">
+          <div class="bg-indigo-100 rounded-full p-4 mr-4">
+            <i class="fas fa-door-open text-indigo-600 text-3xl"></i>
+          </div>
+          <div>
+            <h3 class="text-2xl font-bold text-gray-900">Room {{ selectedRoom.roomNumber }}</h3>
+            <p class="text-gray-600">{{ getCampName(selectedRoom.campId) }} - Floor {{ selectedRoom.floor }}</p>
+          </div>
+        </div>
+        <button (click)="closeRoomDetailsModal()" class="text-gray-400 hover:text-gray-600 transition-colors">
+          <i class="fas fa-times text-2xl"></i>
+        </button>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <!-- Room Information -->
+        <div class="bg-blue-50 p-4 rounded-lg border border-blue-200">
+          <h4 class="text-lg font-semibold text-blue-900 mb-4"><i class="fas fa-info-circle mr-2"></i>Room Information</h4>
+          <div class="space-y-3">
+            <div class="flex justify-between">
+              <span class="text-blue-700">Room Number:</span>
+              <span class="font-bold text-blue-900">{{ selectedRoom.roomNumber }}</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-blue-700">Floor:</span>
+              <span class="font-bold text-blue-900">{{ selectedRoom.floor }}</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-blue-700">Room Type:</span>
+              <span class="font-bold text-blue-900">{{ selectedRoom.roomType }}</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-blue-700">Total Capacity:</span>
+              <span class="font-bold text-blue-900">{{ selectedRoom.capacity }} beds</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-blue-700">Occupied Beds:</span>
+              <span class="font-bold text-blue-900">{{ selectedRoom.occupiedBeds }}</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-blue-700">Available Beds:</span>
+              <span class="font-bold text-blue-900">{{ selectedRoom.availableBeds }}</span>
+            </div>
+            <div class="flex justify-between pt-3 border-t border-blue-200">
+              <span class="text-blue-700">Status:</span>
+              <span class="inline-flex px-3 py-1 text-xs font-semibold rounded-full" [class]="getRoomStatusColor(selectedRoom.status)">
+                {{ selectedRoom.status }}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Occupants List -->
+        <div class="bg-green-50 p-4 rounded-lg border border-green-200">
+          <h4 class="text-lg font-semibold text-green-900 mb-4"><i class="fas fa-users mr-2"></i>Current Occupants ({{ getActiveRoomOccupants(selectedRoom.id).length }})</h4>
+          <div class="space-y-3 max-h-64 overflow-y-auto">
+            <div *ngFor="let occupant of getActiveRoomOccupants(selectedRoom.id)" class="bg-white p-3 rounded-lg">
+              <div class="flex items-center justify-between mb-2">
+                <div class="flex items-center">
+                  <div class="flex-shrink-0 h-8 w-8 bg-gradient-to-br from-indigo-400 to-indigo-600 rounded-full flex items-center justify-center mr-3">
+                    <span class="text-white font-bold text-sm">{{ occupant.name.charAt(0) }}</span>
+                  </div>
+                  <div>
+                    <div class="text-sm font-medium text-gray-900">{{ occupant.name }}</div>
+                    <div class="text-xs text-gray-500">Bed {{ occupant.bedNumber }}</div>
+                  </div>
+                </div>
+                <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full" [class]="getOccupantTypeColor(occupant.type)">
+                  {{ occupant.type }}
+                </span>
+              </div>
+              <div class="text-xs text-gray-600">
+                <div><i class="fas fa-id-card mr-1"></i>{{ occupant.employeeID }}</div>
+                <div><i class="fas fa-calendar mr-1"></i>Check-in: {{ formatDate(occupant.checkInDate) }}</div>
+                <div><i class="fas fa-clock mr-1"></i>{{ getDaysStayed(occupant.checkInDate) }} days stayed</div>
+              </div>
+            </div>
+            <div *ngIf="getActiveRoomOccupants(selectedRoom.id).length === 0" class="text-center text-gray-500 py-4">
+              <i class="fas fa-inbox text-3xl mb-2"></i>
+              <p>No occupants in this room</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="flex justify-between items-center mt-6">
+        <button (click)="openAddOccupantModal(selectedRoom)" 
+                *ngIf="selectedRoom.availableBeds > 0"
+                class="px-4 py-2 bg-gradient-to-r from-green-600 to-green-700 text-white rounded-md hover:from-green-700 hover:to-green-800 transition-all shadow-md hover:shadow-lg flex items-center">
+          <i class="fas fa-user-plus mr-2"></i>Check In to This Room
+        </button>
+        <div class="flex space-x-3">
+          <button (click)="closeRoomDetailsModal()" class="px-6 py-2 bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400 transition-colors">
+            Close
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Occupant Details Modal -->
+<div *ngIf="showOccupantDetailsModal && selectedOccupant" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+  <div class="relative top-10 mx-auto p-5 border w-11/12 max-w-3xl shadow-lg rounded-md bg-white mb-10">
+    <div class="mt-3">
+      <div class="flex items-center justify-between mb-6 pb-4 border-b">
+        <div class="flex items-center">
+          <div class="flex-shrink-0 h-16 w-16 bg-gradient-to-br from-indigo-400 to-indigo-600 rounded-full flex items-center justify-center mr-4">
+            <span class="text-white font-bold text-2xl">{{ selectedOccupant.name.charAt(0) }}</span>
+          </div>
+          <div>
+            <h3 class="text-2xl font-bold text-gray-900">{{ selectedOccupant.name }}</h3>
+            <p class="text-gray-600">{{ selectedOccupant.employeeID }}</p>
+          </div>
+        </div>
+        <button (click)="closeOccupantDetailsModal()" class="text-gray-400 hover:text-gray-600 transition-colors">
+          <i class="fas fa-times text-2xl"></i>
+        </button>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <!-- Personal Information -->
+        <div class="bg-blue-50 p-4 rounded-lg border border-blue-200">
+          <h4 class="text-lg font-semibold text-blue-900 mb-4"><i class="fas fa-user mr-2"></i>Personal Information</h4>
+          <div class="space-y-2">
+            <div class="flex justify-between">
+              <span class="text-sm text-blue-700">Full Name:</span>
+              <span class="text-sm font-medium text-blue-900">{{ selectedOccupant.name }}</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-sm text-blue-700">Employee ID:</span>
+              <span class="text-sm font-medium text-blue-900">{{ selectedOccupant.employeeID }}</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-sm text-blue-700">Type:</span>
+              <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full" [class]="getOccupantTypeColor(selectedOccupant.type)">
+                {{ selectedOccupant.type }}
+              </span>
+            </div>
+            <div class="flex justify-between" *ngIf="selectedOccupant.department">
+              <span class="text-sm text-blue-700">Department:</span>
+              <span class="text-sm font-medium text-blue-900">{{ selectedOccupant.department }}</span>
+            </div>
+            <div class="flex justify-between" *ngIf="selectedOccupant.company">
+              <span class="text-sm text-blue-700">Company:</span>
+              <span class="text-sm font-medium text-blue-900">{{ selectedOccupant.company }}</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-sm text-blue-700">Nationality:</span>
+              <span class="text-sm font-medium text-blue-900">{{ selectedOccupant.nationality }}</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-sm text-blue-700">Emirates ID:</span>
+              <span class="text-sm font-medium text-blue-900">{{ selectedOccupant.emiratesID }}</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-sm text-blue-700">Phone:</span>
+              <span class="text-sm font-medium text-blue-900">{{ selectedOccupant.phone }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Accommodation Details -->
+        <div class="bg-green-50 p-4 rounded-lg border border-green-200">
+          <h4 class="text-lg font-semibold text-green-900 mb-4"><i class="fas fa-bed mr-2"></i>Accommodation Details</h4>
+          <div class="space-y-2">
+            <div class="flex justify-between">
+              <span class="text-sm text-green-700">Camp:</span>
+              <span class="text-sm font-medium text-green-900">{{ getCampName(selectedOccupant.campId) }}</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-sm text-green-700">Room Number:</span>
+                <span class="text-sm font-medium text-green-900">{{ getRoomNumberByOccupant(selectedOccupant) }}</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-sm text-green-700">Floor:</span>
+              <span class="text-sm font-medium text-green-900">{{ getFloorByOccupant(selectedOccupant) }}</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-sm text-green-700">Bed Number:</span>
+              <span class="text-sm font-medium text-green-900">{{ selectedOccupant.bedNumber }}</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-sm text-green-700">Check-In Date:</span>
+              <span class="text-sm font-medium text-green-900">{{ formatDate(selectedOccupant.checkInDate) }}</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-sm text-green-700">Days Stayed:</span>
+              <span class="text-sm font-bold text-green-900">{{ getDaysStayed(selectedOccupant.checkInDate) }} days</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-sm text-green-700">Status:</span>
+              <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">
+                {{ selectedOccupant.status }}
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="flex justify-end space-x-3 mt-6">
+        <button (click)="closeOccupantDetailsModal()" class="px-6 py-2 bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400 transition-colors">
+          Close
+        </button>
+        <button (click)="checkOutOccupant(selectedOccupant); closeOccupantDetailsModal();" class="px-6 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors">
+          <i class="fas fa-sign-out-alt mr-2"></i>Check Out
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Add Occupant Modal -->
+<div *ngIf="showAddOccupantModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+  <div class="relative top-10 mx-auto p-5 border w-11/12 max-w-2xl shadow-lg rounded-md bg-white mb-10">
+    <div class="mt-3">
+      <div class="flex items-center justify-between mb-6 pb-4 border-b">
+        <div class="flex items-center">
+          <div class="bg-gradient-to-br from-green-500 to-green-600 rounded-full p-4 mr-4">
+            <i class="fas fa-user-plus text-white text-2xl"></i>
+          </div>
+          <div>
+            <h3 class="text-2xl font-bold text-gray-900">Check In New Occupant</h3>
+            <p class="text-gray-600">Add a new person to camp accommodation</p>
+          </div>
+        </div>
+        <button (click)="closeAddOccupantModal()" class="text-gray-400 hover:text-gray-600 transition-colors">
+          <i class="fas fa-times text-2xl"></i>
+        </button>
+      </div>
+
+      <form (ngSubmit)="saveOccupant()" class="space-y-4">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <!-- Personal Information -->
+          <div class="md:col-span-2">
+            <h4 class="text-lg font-semibold text-gray-900 mb-3 flex items-center">
+              <i class="fas fa-user text-blue-600 mr-2"></i>Personal Information
+            </h4>
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Full Name *</label>
+            <input type="text" [(ngModel)]="newOccupant.name" name="name" required
+                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                   placeholder="Enter full name">
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Employee ID *</label>
+            <input type="text" [(ngModel)]="newOccupant.employeeID" name="employeeID" required
+                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                   placeholder="Enter employee ID">
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Phone Number</label>
+            <input type="tel" [(ngModel)]="newOccupant.phone" name="phone"
+                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                   placeholder="+971-50-1234567">
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Emirates ID</label>
+            <input type="text" [(ngModel)]="newOccupant.emiratesID" name="emiratesID"
+                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                   placeholder="784-1990-1234567-8">
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Nationality</label>
+            <input type="text" [(ngModel)]="newOccupant.nationality" name="nationality"
+                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                   placeholder="UAE" value="UAE">
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Department</label>
+            <input type="text" [(ngModel)]="newOccupant.department" name="department"
+                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                   placeholder="Engineering">
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Company</label>
+            <input type="text" [(ngModel)]="newOccupant.company" name="company"
+                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                   placeholder="Al Farah" value="Al Farah">
+          </div>
+
+          <!-- Accommodation Information -->
+          <div class="md:col-span-2 mt-4">
+            <h4 class="text-lg font-semibold text-gray-900 mb-3 flex items-center">
+              <i class="fas fa-bed text-green-600 mr-2"></i>Accommodation Information
+            </h4>
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Occupant Type *</label>
+            <select [(ngModel)]="newOccupant.type" name="type" required
+                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500">
+              <option value="">Select Type</option>
+              <option value="Company Employee">Company Employee</option>
+              <option value="Contractor">Contractor</option>
+              <option value="External Worker">External Worker</option>
+              <option value="Visitor">Visitor</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Camp *</label>
+            <select [(ngModel)]="newOccupant.campId" name="campId" required
+                    (ngModelChange)="newOccupant.roomId = ''"
+                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500">
+              <option value="">Select Camp</option>
+              <option *ngFor="let camp of camps" [value]="camp.id">{{ camp.name }}</option>
+            </select>
+          </div>
+
+          <div class="md:col-span-2">
+            <label class="block text-sm font-medium text-gray-700 mb-2">Room *</label>
+            <select [(ngModel)]="newOccupant.roomId" name="roomId" required
+                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500">
+              <option value="">Select Room</option>
+              <option *ngFor="let room of getCampRooms(newOccupant.campId || '')" 
+                      [value]="room.id" 
+                      [disabled]="room.availableBeds === 0">
+                Room {{ room.roomNumber }} - Floor {{ room.floor }} 
+                ({{ room.availableBeds }} beds available)
+              </option>
+            </select>
+          </div>
+        </div>
+
+        <div class="flex justify-end space-x-3 mt-6 pt-4 border-t">
+          <button type="button" (click)="closeAddOccupantModal()" 
+                  class="px-6 py-2 bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400 transition-colors">
+            Cancel
+          </button>
+          <button type="submit" 
+                  class="px-6 py-2 bg-gradient-to-r from-green-600 to-green-700 text-white rounded-md hover:from-green-700 hover:to-green-800 transition-all shadow-md hover:shadow-lg">
+            <i class="fas fa-user-plus mr-2"></i>Check In
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
