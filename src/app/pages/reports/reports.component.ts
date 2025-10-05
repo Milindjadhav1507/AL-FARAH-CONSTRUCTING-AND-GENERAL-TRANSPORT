@@ -67,58 +67,44 @@ export class ReportsComponent implements OnInit {
       icon: 'fa-gas-pump',
       reports: [
         { id: 'fuel-issue-register', name: 'Fuel Issue Register', description: 'All daily fuel issues with cost and vehicle linkage', icon: 'fa-clipboard-list', category: 'fuel-management' },
-        { id: 'fuel-consumption-summary', name: 'Fuel Consumption Summary', description: 'Total fuel used per month/project/vehicle', icon: 'fa-chart-bar', category: 'fuel-management' },
-        { id: 'fuel-efficiency', name: 'Fuel Efficiency Report', description: 'Compare vehicles\' fuel performance', icon: 'fa-tachometer-alt', category: 'fuel-management' },
-        { id: 'top-fuel-consumers', name: 'Top 10 Fuel Consumers', description: 'Identify highest fuel users', icon: 'fa-fire', category: 'fuel-management' },
-        { id: 'abnormal-consumption', name: 'Abnormal Consumption Report', description: 'Highlight vehicles consuming more than threshold', icon: 'fa-exclamation-triangle', category: 'fuel-management' }
+        { id: 'fuel-consumption-summary', name: 'Fuel Consumption Summary', description: 'Total fuel used per month/project/vehicle', icon: 'fa-chart-bar', category: 'fuel-management' }
       ]
     },
-    {
-      id: 'maintenance-workshop',
-      name: 'Maintenance & Workshop',
-      icon: 'fa-wrench',
-      reports: [
-        { id: 'maintenance-job-card', name: 'Maintenance Job Card Register', description: 'List of all opened/closed repair jobs', icon: 'fa-tools', category: 'maintenance-workshop' },
-        { id: 'maintenance-cost-summary', name: 'Maintenance Cost Summary', description: 'Total cost by vehicle/project/month', icon: 'fa-dollar-sign', category: 'maintenance-workshop' },
-        { id: 'pending-maintenance', name: 'Pending Maintenance Report', description: 'Vehicles currently under repair', icon: 'fa-hourglass-half', category: 'maintenance-workshop' },
-        { id: 'downtime-analysis', name: 'Downtime Analysis Report', description: 'How long each vehicle was unavailable', icon: 'fa-clock', category: 'maintenance-workshop' },
-        { id: 'parts-usage', name: 'Parts Usage Report', description: 'Track spare parts used in repairs', icon: 'fa-cogs', category: 'maintenance-workshop' },
-        { id: 'service-due', name: 'Service Due Report', description: 'Vehicles due for next preventive service', icon: 'fa-calendar-check', category: 'maintenance-workshop' }
-      ]
-    },
-    {
-      id: 'financial-cost',
-      name: 'Financial/Cost Reports',
-      icon: 'fa-money-bill-wave',
-      reports: [
-        { id: 'fleet-cost-summary', name: 'Fleet Cost Summary', description: 'Monthly total cost of operating all vehicles', icon: 'fa-file-invoice-dollar', category: 'financial-cost' },
-        { id: 'cost-per-vehicle-type', name: 'Cost per Vehicle Type', description: 'Truck vs Pickup vs Bus cost comparison', icon: 'fa-balance-scale', category: 'financial-cost' },
-        { id: 'cost-recovery', name: 'Cost Recovery Report', description: 'Revenue earned vs cost incurred per project', icon: 'fa-chart-area', category: 'financial-cost' },
-        { id: 'vendor-fuel-bill', name: 'Vendor Fuel Bill Reconciliation', description: 'Cross-check ADNOC/ENOC bills with system entries', icon: 'fa-receipt', category: 'financial-cost' }
-      ]
-    },
-    {
-      id: 'driver-tracking',
-      name: 'Driver & Time Tracking',
-      icon: 'fa-user-clock',
-      reports: [
-        { id: 'driver-allocation', name: 'Driver Allocation Report', description: 'Driver → Vehicle mapping with date/time', icon: 'fa-user-tag', category: 'driver-tracking' },
-        { id: 'driver-attendance', name: 'Driver Attendance/Timesheet Report', description: 'Hours logged per day', icon: 'fa-calendar-check', category: 'driver-tracking' },
-        { id: 'driver-performance', name: 'Driver Performance Summary', description: 'Trips completed, fuel efficiency, punctuality', icon: 'fa-star', category: 'driver-tracking' },
-        { id: 'violation-accident', name: 'Violation/Accident Report', description: 'Vehicle incidents, fines, etc.', icon: 'fa-car-crash', category: 'driver-tracking' }
-      ]
-    },
-    {
-      id: 'alerts-exceptions',
-      name: 'Alerts & Exceptions',
-      icon: 'fa-bell',
-      reports: [
-        { id: 'insurance-expiry-alerts', name: 'Insurance/Registration Expiry Alerts', description: 'Vehicles with documents due next 30 days', icon: 'fa-bell', category: 'alerts-exceptions' },
-        { id: 'overdue-maintenance', name: 'Overdue Maintenance Report', description: 'Vehicles not serviced on time', icon: 'fa-exclamation-triangle', category: 'alerts-exceptions' },
-        { id: 'fuel-entry-missing', name: 'Fuel Entry Missing Report', description: 'Vehicles with no fuel record in past week', icon: 'fa-question-circle', category: 'alerts-exceptions' },
-        { id: 'odometer-anomaly', name: 'Odometer Anomaly Report', description: 'Suspicious odometer readings', icon: 'fa-bug', category: 'alerts-exceptions' }
-      ]
-    }
+    // {
+    //   id: 'maintenance-workshop',
+    //   name: 'Maintenance & Workshop',
+    //   icon: 'fa-wrench',
+    //   reports: [
+    //     { id: 'maintenance-job-card', name: 'Maintenance Job Card Register', description: 'List of all opened/closed repair jobs', icon: 'fa-tools', category: 'maintenance-workshop' },
+    //     { id: 'maintenance-cost-summary', name: 'Maintenance Cost Summary', description: 'Total cost by vehicle/project/month', icon: 'fa-dollar-sign', category: 'maintenance-workshop' },
+    //     { id: 'pending-maintenance', name: 'Pending Maintenance Report', description: 'Vehicles currently under repair', icon: 'fa-hourglass-half', category: 'maintenance-workshop' },
+    //     { id: 'downtime-analysis', name: 'Downtime Analysis Report', description: 'How long each vehicle was unavailable', icon: 'fa-clock', category: 'maintenance-workshop' },
+    //     { id: 'parts-usage', name: 'Parts Usage Report', description: 'Track spare parts used in repairs', icon: 'fa-cogs', category: 'maintenance-workshop' },
+    //     { id: 'service-due', name: 'Service Due Report', description: 'Vehicles due for next preventive service', icon: 'fa-calendar-check', category: 'maintenance-workshop' }
+    //   ]
+    // },
+    // {
+    //   id: 'driver-tracking',
+    //   name: 'Driver & Time Tracking',
+    //   icon: 'fa-user-clock',
+    //   reports: [
+    //     // { id: 'driver-allocation', name: 'Driver Allocation Report', description: 'Driver → Vehicle mapping with date/time', icon: 'fa-user-tag', category: 'driver-tracking' },
+    //     { id: 'driver-attendance', name: 'Driver Attendance/Timesheet Report', description: 'Hours logged per day', icon: 'fa-calendar-check', category: 'driver-tracking' },
+    //     { id: 'driver-performance', name: 'Driver Performance Summary', description: 'Trips completed, fuel efficiency, punctuality', icon: 'fa-star', category: 'driver-tracking' },
+    //     // { id: 'violation-accident', name: 'Violation/Accident Report', description: 'Vehicle incidents, fines, etc.', icon: 'fa-car-crash', category: 'driver-tracking' }
+    //   ]
+    // },
+    // {
+    //   id: 'alerts-exceptions',
+    //   name: 'Alerts & Exceptions',
+    //   icon: 'fa-bell',
+    //   reports: [
+    //     { id: 'insurance-expiry-alerts', name: 'Insurance/Registration Expiry Alerts', description: 'Vehicles with documents due next 30 days', icon: 'fa-bell', category: 'alerts-exceptions' },
+    //     { id: 'overdue-maintenance', name: 'Overdue Maintenance Report', description: 'Vehicles not serviced on time', icon: 'fa-exclamation-triangle', category: 'alerts-exceptions' },
+    //     { id: 'fuel-entry-missing', name: 'Fuel Entry Missing Report', description: 'Vehicles with no fuel record in past week', icon: 'fa-question-circle', category: 'alerts-exceptions' },
+    //     { id: 'odometer-anomaly', name: 'Odometer Anomaly Report', description: 'Suspicious odometer readings', icon: 'fa-bug', category: 'alerts-exceptions' }
+    //   ]
+    // }
   ];
 
   // Dropdown options
@@ -133,9 +119,20 @@ export class ReportsComponent implements OnInit {
     this.filters.dateTo = today.toISOString().split('T')[0];
     this.filters.dateFrom = lastMonth.toISOString().split('T')[0];
 
-    // Load first report by default
-    if (this.reportCategories.length > 0 && this.reportCategories[0].reports.length > 0) {
-      this.selectReport(this.reportCategories[0].reports[0]);
+    // Load Vehicle Master List report by default
+    const vehicleMasterListReport = this.reportCategories
+      .find(c => c.id === 'vehicle-master')
+      ?.reports.find(r => r.id === 'vehicle-master-list');
+    
+    if (vehicleMasterListReport) {
+      console.log('Loading Vehicle Master List by default:', vehicleMasterListReport);
+      this.selectReport(vehicleMasterListReport);
+    } else {
+      // Fallback to first report from the selected category
+      const category = this.reportCategories.find(c => c.id === this.selectedCategory);
+      if (category && category.reports.length > 0) {
+        this.selectReport(category.reports[0]);
+      }
     }
   }
 
@@ -148,7 +145,17 @@ export class ReportsComponent implements OnInit {
   }
 
   selectReport(report: Report): void {
+    console.log('Selecting Report:', report);
     this.selectedReport = report;
+    // Also set the correct category when selecting a report
+    this.selectedCategory = report.category;
+    
+    // Set default status filter to 'Active' for Vehicle Master List
+    if (report.id === 'vehicle-master-list') {
+      this.filters.status = 'Active';
+    }
+    
+    console.log('Report Selected - ID:', this.selectedReport?.id, 'Category:', this.selectedCategory);
   }
 
   toggleSidebar(): void {
@@ -297,5 +304,10 @@ export class ReportsComponent implements OnInit {
 
   setActiveModalTab(tab: string): void {
     this.activeModalTab = tab;
+  }
+
+  // Helper method to parse float values in template
+  parseFloat(value: any): number {
+    return parseFloat(value);
   }
 }
