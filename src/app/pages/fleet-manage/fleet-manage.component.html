@@ -215,6 +215,9 @@
         <div class="flex justify-between items-center mb-4">
           <h3 class="text-lg font-semibold text-gray-900">Vehicle Management</h3>
           <div class="flex items-center space-x-2">
+            <button (click)="openAddVehicleModal()" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors">
+              <i class="fas fa-plus mr-2"></i> Add Vehicle
+            </button>
             <span class="text-sm text-gray-500">View:</span>
             <button 
               (click)="viewMode = 'grid'"
@@ -664,6 +667,9 @@
             </div>
           </div>
           <div class="flex items-center space-x-2">
+            <button (click)="openFuelEntryModal()" class="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors">
+              <i class="fas fa-gas-pump mr-2"></i> Add Fuel
+            </button>
             <label class="text-sm text-gray-600">Show:</label>
             <select 
               [ngModel]="fuelItemsPerPage" 
@@ -860,6 +866,9 @@
             </div>
           </div>
           <div class="flex items-center space-x-2">
+            <button (click)="openServiceModal()" class="px-4 py-2 bg-yellow-600 text-white rounded-md hover:bg-yellow-700 transition-colors">
+              <i class="fas fa-wrench mr-2"></i> Add Maintenance
+            </button>
             <label class="text-sm text-gray-600">Show:</label>
             <select 
               [ngModel]="maintenanceItemsPerPage" 
