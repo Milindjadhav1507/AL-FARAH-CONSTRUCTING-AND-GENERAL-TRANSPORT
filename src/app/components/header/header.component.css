@@ -3,6 +3,69 @@
   transform: rotate(180deg);
 }
 
+/* Logo styles */
+.logo {
+  display: flex;
+  align-items: center;
+  height: 60px;
+  min-width: 160px;
+}
+
+.logo img {
+  height: 50px;
+  width: auto;
+  object-fit: contain;
+  max-width: 200px;
+  min-width: 160px;
+  transition: all 0.3s ease;
+  display: block;
+}
+
+.logo img:hover {
+  transform: scale(1.05);
+}
+
+/* Fallback if logo doesn't load */
+.logo::before {
+  content: "AL-FARAH";
+  font-size: 24px;
+  font-weight: bold;
+  color: #2563eb;
+  display: none;
+}
+
+.logo img:not([src]), 
+.logo img[src=""] {
+  display: none;
+}
+
+.logo img:not([src]) + .logo::before,
+.logo img[src=""] + .logo::before {
+  display: block;
+}
+
+/* Notification dropdown styles */
+.notification-dropdown {
+  z-index: 1000;
+}
+
+.notification-dropdown::-webkit-scrollbar {
+  width: 6px;
+}
+
+.notification-dropdown::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+.notification-dropdown::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 3px;
+}
+
+.notification-dropdown::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
 /* Dropdown animation enhancements */
 .dropdown-enter {
   opacity: 0;

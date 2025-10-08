@@ -9,6 +9,7 @@ import { ReportsComponent } from './pages/reports/reports.component';
 import { UserManageComponent } from './pages/user-manage/user-manage.component';
 import { DriverManageComponent } from './pages/driver-manage/driver-manage.component';
 import { TimesheetManageComponent } from './pages/timesheet-manage/timesheet-manage.component';
+import { NotificationsComponent } from './pages/notifications/notifications.component';
 
 export const routes: Routes = [
   { path: 'login', component: LoginComponent },
@@ -24,6 +25,7 @@ export const routes: Routes = [
       { path: 'driver-management', component: DriverManageComponent },
       { path: 'timesheet-management', component: TimesheetManageComponent },
       { path: 'reports', component: ReportsComponent },
+      { path: 'notifications', component: NotificationsComponent },
       { path: '', redirectTo: '/dashboard', pathMatch: 'full' }
     ]
   },

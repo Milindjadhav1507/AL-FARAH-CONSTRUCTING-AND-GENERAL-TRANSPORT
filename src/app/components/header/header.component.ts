@@ -2,6 +2,7 @@ import { Component, OnInit, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
+import { NotificationService } from '../../services/notification.service';
 
 @Component({
   selector: 'app-header',
@@ -10,19 +11,26 @@ import { AuthService } from '../../services/auth.service';
   styleUrl: './header.component.css'
 })
 export class HeaderComponent implements OnInit {
-  appTitle = 'Project Management';
-  userName = 'John Doe';
-  userEmail = 'john.doe@example.com';
-  userInitials = 'JD';
+  appTitle = 'AL-FARAH-CONSTRUCTION-AND-GENERAL-TRANSPORT';
+  userName = 'Hassan Ahmed';
+  userEmail = 'hassan.ahmed@example.com';
+  userInitials = 'HA';
   
   isDropdownOpen = false;
   isMobileMenuOpen = false;
+  isNotificationOpen = false;
+  notificationCount = 0;
 
-  constructor(private router: Router, private authService: AuthService) {}
+  constructor(
+    private router: Router, 
+    private authService: AuthService,
+    private notificationService: NotificationService
+  ) {}
 
   ngOnInit() {
     // Initialize user data - in a real app, this would come from a service
     this.setUserInitials();
+    this.loadNotificationCount();
   }
 
   private setUserInitials() {
@@ -32,17 +40,34 @@ export class HeaderComponent implements OnInit {
 
   toggleDropdown() {
     this.isDropdownOpen = !this.isDropdownOpen;
-    // Close mobile menu if open
+    // Close mobile menu and notification if open
     if (this.isMobileMenuOpen) {
       this.isMobileMenuOpen = false;
+    }
+    if (this.isNotificationOpen) {
+      this.isNotificationOpen = false;
+    }
+  }
+
+  toggleNotification() {
+    this.isNotificationOpen = !this.isNotificationOpen;
+    // Close mobile menu and dropdown if open
+    if (this.isMobileMenuOpen) {
+      this.isMobileMenuOpen = false;
+    }
+    if (this.isDropdownOpen) {
+      this.isDropdownOpen = false;
     }
   }
 
   toggleMobileMenu() {
     this.isMobileMenuOpen = !this.isMobileMenuOpen;
-    // Close dropdown if open
+    // Close dropdown and notification if open
     if (this.isDropdownOpen) {
       this.isDropdownOpen = false;
+    }
+    if (this.isNotificationOpen) {
+      this.isNotificationOpen = false;
     }
   }
 
@@ -51,10 +76,16 @@ export class HeaderComponent implements OnInit {
   onDocumentClick(event: Event) {
     const target = event.target as HTMLElement;
     const userMenuButton = document.getElementById('user-menu-button');
+    const notificationButton = document.getElementById('notification-button');
     
     // Check if click is outside the dropdown
     if (userMenuButton && !userMenuButton.contains(target) && !target.closest('.absolute')) {
       this.isDropdownOpen = false;
+    }
+    
+    // Check if click is outside the notification dropdown
+    if (notificationButton && !notificationButton.contains(target) && !target.closest('.notification-dropdown')) {
+      this.isNotificationOpen = false;
     }
   }
 
@@ -63,6 +94,13 @@ export class HeaderComponent implements OnInit {
   onEscapeKey() {
     this.isDropdownOpen = false;
     this.isMobileMenuOpen = false;
+    this.isNotificationOpen = false;
+  }
+
+  private loadNotificationCount() {
+    this.notificationService.getNotifications().subscribe(notifications => {
+      this.notificationCount = notifications.filter(n => !n.read).length;
+    });
   }
 
   logout() {
