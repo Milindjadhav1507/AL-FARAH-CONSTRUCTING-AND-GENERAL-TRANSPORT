@@ -99,22 +99,22 @@
     </div>
 
     <!-- Notifications List -->
-    <div class="space-y-4">
+    <div class="space-y-2">
       <!-- List View -->
-      <div *ngIf="viewMode === 'list'" class="space-y-4">
+      <div *ngIf="viewMode === 'list'" class="space-y-2">
         <div
           *ngFor="let notification of filteredNotifications"
           (click)="markAsRead(notification)"
-          class="bg-white rounded-xl shadow-lg border border-gray-200 p-6 hover:shadow-xl transition-all duration-300 cursor-pointer group hover:scale-[1.01]"
+          class="bg-white rounded-lg shadow-md border border-gray-200 p-3 hover:shadow-lg transition-all duration-200 cursor-pointer group hover:scale-[1.005]"
           [class.bg-blue-50]="!notification.read"
           [class.border-l-4]="!notification.read"
           [class.border-l-blue-500]="!notification.read"
         >
-          <div class="flex items-start space-x-6">
+          <div class="flex items-start space-x-3">
             <!-- Icon -->
             <div class="flex-shrink-0">
-              <div class="w-12 h-12 rounded-full flex items-center justify-center shadow-md" [class]="getNotificationColor(notification.type)">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div class="w-8 h-8 rounded-full flex items-center justify-center shadow-sm" [class]="getNotificationColor(notification.type)">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" [attr.d]="getNotificationIcon(notification.type)"></path>
                 </svg>
               </div>
@@ -122,30 +122,30 @@
 
             <!-- Content -->
             <div class="flex-1 min-w-0">
-              <div class="flex items-center justify-between mb-2">
-                <h3 class="text-xl font-bold text-gray-900" [class.font-extrabold]="!notification.read">
+              <div class="flex items-center justify-between mb-1">
+                <h3 class="text-base font-semibold text-gray-900" [class.font-bold]="!notification.read">
                   {{ notification.title }}
                 </h3>
-                <div class="flex items-center space-x-3">
-                  <span *ngIf="!notification.read" class="text-xs font-semibold text-blue-600 bg-blue-100 px-2 py-1 rounded-full">
+                <div class="flex items-center space-x-2">
+                  <span *ngIf="!notification.read" class="text-xs font-medium text-blue-600 bg-blue-100 px-1.5 py-0.5 rounded-full">
                     NEW
                   </span>
-                  <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold" [class]="getNotificationColor(notification.type)">
+                  <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium" [class]="getNotificationColor(notification.type)">
                     {{ notification.category }}
                   </span>
                   <button
                     (click)="confirmDelete(notification.id); $event.stopPropagation()"
-                    class="text-gray-400 hover:text-red-500 transition-colors p-2 hover:bg-red-50 rounded-full"
+                    class="text-gray-400 hover:text-red-500 transition-colors p-1 hover:bg-red-50 rounded"
                   >
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
                     </svg>
                   </button>
                 </div>
               </div>
-              <p class="text-gray-700 mb-3 leading-relaxed">{{ notification.message }}</p>
-              <div class="flex items-center text-sm text-gray-500">
-                <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <p class="text-gray-600 mb-2 text-sm leading-relaxed">{{ notification.message }}</p>
+              <div class="flex items-center text-xs text-gray-500">
+                <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                 </svg>
                 {{ formatTimeAgo(notification.timestamp) }}
@@ -156,74 +156,106 @@
       </div>
 
       <!-- Timeline View -->
-      <div *ngIf="viewMode === 'timeline'">
-        <ol class="relative border-s border-gray-200 dark:border-gray-700">
+      <div *ngIf="viewMode === 'timeline'" class="relative">
+        <ol class="relative border-l-2 border-gray-300 ml-6 timeline-container">
           <li *ngFor="let notification of filteredNotifications; let i = index" 
-              class="mb-10 ms-4">
-             <!-- Timeline Dot with Icon -->
-             <div class="absolute w-6 h-6 rounded-full mt-1.5 -start-3 flex items-center justify-center timeline-dot-enhanced"
-                  [class.bg-blue-500]="notification.type === 'info'"
-                  [class.bg-green-500]="notification.type === 'success'"
-                  [class.bg-yellow-500]="notification.type === 'warning'"
-                  [class.bg-red-500]="notification.type === 'error'"
-                  [class.bg-gray-500]="notification.type !== 'info' && notification.type !== 'success' && notification.type !== 'warning' && notification.type !== 'error'">
-               <!-- Info Icon -->
-               <svg *ngIf="notification.type === 'info'" class="w-3 h-3 text-white timeline-icon" fill="currentColor" viewBox="0 0 20 20">
-                 <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path>
-               </svg>
-               <!-- Success Icon -->
-               <svg *ngIf="notification.type === 'success'" class="w-3 h-3 text-white timeline-icon" fill="currentColor" viewBox="0 0 20 20">
-                 <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
-               </svg>
-               <!-- Warning Icon -->
-               <svg *ngIf="notification.type === 'warning'" class="w-3 h-3 text-white timeline-icon" fill="currentColor" viewBox="0 0 20 20">
-                 <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
-               </svg>
-               <!-- Error Icon -->
-               <svg *ngIf="notification.type === 'error'" class="w-3 h-3 text-white timeline-icon" fill="currentColor" viewBox="0 0 20 20">
-                 <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"></path>
-               </svg>
-               <!-- Default Icon -->
-               <svg *ngIf="notification.type !== 'info' && notification.type !== 'success' && notification.type !== 'warning' && notification.type !== 'error'" class="w-3 h-3 text-white timeline-icon" fill="currentColor" viewBox="0 0 20 20">
-                 <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path>
-               </svg>
-             </div>
+              class="mb-4 relative notification-item">
             
-            <!-- Time -->
-            <time class="mb-1 text-sm font-normal leading-none text-gray-400 dark:text-gray-500">
-              {{ formatTimeAgo(notification.timestamp) }}
-            </time>
+            <!-- Timeline Dot with Icon -->
+            <div class="absolute -left-8 w-6 h-6 rounded-full flex items-center justify-center timeline-dot-enhanced shadow-md border-2 border-white"
+                 [class.bg-blue-500]="notification.type === 'info'"
+                 [class.bg-green-500]="notification.type === 'success'"
+                 [class.bg-yellow-500]="notification.type === 'warning'"
+                 [class.bg-red-500]="notification.type === 'error'"
+                 [class.bg-gray-500]="notification.type !== 'info' && notification.type !== 'success' && notification.type !== 'warning' && notification.type !== 'error'"
+                 [class.ring-2]="!notification.read"
+                 [class.ring-blue-200]="!notification.read && notification.type === 'info'"
+                 [class.ring-green-200]="!notification.read && notification.type === 'success'"
+                 [class.ring-yellow-200]="!notification.read && notification.type === 'warning'"
+                 [class.ring-red-200]="!notification.read && notification.type === 'error'"
+                 [class.ring-gray-200]="!notification.read && notification.type !== 'info' && notification.type !== 'success' && notification.type !== 'warning' && notification.type !== 'error'">
+              <!-- Info Icon -->
+              <svg *ngIf="notification.type === 'info'" class="w-3 h-3 text-white timeline-icon" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path>
+              </svg>
+              <!-- Success Icon -->
+              <svg *ngIf="notification.type === 'success'" class="w-3 h-3 text-white timeline-icon" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+              </svg>
+              <!-- Warning Icon -->
+              <svg *ngIf="notification.type === 'warning'" class="w-3 h-3 text-white timeline-icon" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
+              </svg>
+              <!-- Error Icon -->
+              <svg *ngIf="notification.type === 'error'" class="w-3 h-3 text-white timeline-icon" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"></path>
+              </svg>
+              <!-- Default Icon -->
+              <svg *ngIf="notification.type !== 'info' && notification.type !== 'success' && notification.type !== 'warning' && notification.type !== 'error'" class="w-3 h-3 text-white timeline-icon" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path>
+              </svg>
+            </div>
             
-            <!-- Title -->
-            <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
-              {{ notification.title }}
-            </h3>
-            
-             <!-- Message -->
-             <p class="mb-4 text-base font-normal text-gray-500 dark:text-gray-400">
-               {{ notification.message }}
-             </p>
-             
-             <!-- Action Buttons -->
-             <div class="flex items-center justify-end space-x-3 mt-4 pt-4 border-t border-gray-100">
-               <button
-                 *ngIf="!notification.read"
-                 (click)="markAsRead(notification); $event.stopPropagation()"
-                 class="inline-flex items-center px-4 py-2 text-sm font-medium text-blue-600 bg-blue-50 border border-blue-200 rounded-lg hover:bg-blue-100 hover:border-blue-300 focus:z-10 focus:ring-2 focus:outline-none focus:ring-blue-200 transition-all duration-200">
-                 <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                 </svg>
-                 Mark as Read
-               </button>
-               <button
-                 (click)="confirmDelete(notification.id); $event.stopPropagation()"
-                 class="inline-flex items-center px-4 py-2 text-sm font-medium text-red-600 bg-red-50 border border-red-200 rounded-lg hover:bg-red-100 hover:border-red-300 focus:z-10 focus:ring-2 focus:outline-none focus:ring-red-200 transition-all duration-200">
-                 <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
-                 </svg>
-                 Delete
-               </button>
-             </div>
+            <!-- Notification Content Card -->
+            <div class="bg-white rounded-lg shadow-md border border-gray-200 p-4 hover:shadow-lg transition-all duration-200 ml-3"
+                 [class.bg-blue-50]="!notification.read"
+                 [class.border-l-4]="!notification.read"
+                 [class.border-l-blue-500]="!notification.read">
+              
+              <!-- Header with Time, Category and Action Buttons -->
+              <div class="flex items-center justify-between mb-3">
+                <div class="flex items-center space-x-2">
+                  <time class="text-xs font-medium text-gray-500">
+                    {{ formatTimeAgo(notification.timestamp) }}
+                  </time>
+                  <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium"
+                        [class.bg-blue-100]="notification.type === 'info'"
+                        [class.text-blue-800]="notification.type === 'info'"
+                        [class.bg-green-100]="notification.type === 'success'"
+                        [class.text-green-800]="notification.type === 'success'"
+                        [class.bg-yellow-100]="notification.type === 'warning'"
+                        [class.text-yellow-800]="notification.type === 'warning'"
+                        [class.bg-red-100]="notification.type === 'error'"
+                        [class.text-red-800]="notification.type === 'error'">
+                    {{ notification.category }}
+                  </span>
+                  <span *ngIf="!notification.read" class="inline-flex items-center px-1.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                    NEW
+                  </span>
+                </div>
+                
+                <!-- Action Buttons in Header -->
+                <div class="flex items-center space-x-1">
+                  <button
+                    *ngIf="!notification.read"
+                    (click)="markAsRead(notification); $event.stopPropagation()"
+                    class="inline-flex items-center px-2 py-1 text-xs font-medium text-blue-600 bg-blue-50 border border-blue-200 rounded hover:bg-blue-100 hover:border-blue-300 focus:z-10 focus:ring-1 focus:outline-none focus:ring-blue-200 transition-all duration-200"
+                    title="Mark as Read">
+                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                  </button>
+                  <button
+                    (click)="confirmDelete(notification.id); $event.stopPropagation()"
+                    class="inline-flex items-center px-2 py-1 text-xs font-medium text-red-600 bg-red-50 border border-red-200 rounded hover:bg-red-100 hover:border-red-300 focus:z-10 focus:ring-1 focus:outline-none focus:ring-red-200 transition-all duration-200"
+                    title="Delete Notification">
+                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                    </svg>
+                  </button>
+                </div>
+              </div>
+              
+              <!-- Title -->
+              <h3 class="text-lg font-semibold text-gray-900 mb-2" [class.font-bold]="!notification.read">
+                {{ notification.title }}
+              </h3>
+              
+              <!-- Message -->
+              <p class="text-gray-600 text-sm leading-relaxed">
+                {{ notification.message }}
+              </p>
+            </div>
           </li>
         </ol>
       </div>

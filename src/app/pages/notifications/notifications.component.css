@@ -1,21 +1,61 @@
 /* Notifications component styles */
 
 /* Enhanced Timeline Styles */
-.relative.border-s {
-  border-left-width: 2px;
+.timeline-container {
+  border-left-width: 3px;
   border-color: #e5e7eb;
+  position: relative;
+}
+
+.timeline-container::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -1.5px;
+  width: 3px;
+  height: 100%;
+  background: linear-gradient(to bottom, 
+    #3b82f6 0%, 
+    #10b981 25%, 
+    #f59e0b 50%, 
+    #ef4444 75%, 
+    #8b5cf6 100%);
+  border-radius: 2px;
+  opacity: 0.8;
+  box-shadow: 0 0 8px rgba(59, 130, 246, 0.3);
 }
 
 /* Timeline dot enhancements */
 .timeline-dot-enhanced {
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  transition: all 0.3s ease;
-  border: none;
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.15), 0 1px 3px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  border: 2px solid white;
+  z-index: 10;
+  position: relative;
+}
+
+.timeline-dot-enhanced::before {
+  content: '';
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  right: -2px;
+  bottom: -2px;
+  border-radius: 50%;
+  background: inherit;
+  opacity: 0.2;
+  z-index: -1;
+  transform: scale(1.2);
 }
 
 .timeline-dot-enhanced:hover {
-  transform: scale(1.1);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+  transform: scale(1.15);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2), 0 2px 6px rgba(0, 0, 0, 0.15);
+}
+
+.timeline-dot-enhanced:hover::before {
+  transform: scale(1.4);
+  opacity: 0.3;
 }
 
 /* Ensure no borders on timeline dots */
@@ -25,11 +65,52 @@
 
 /* Icon animations */
 .timeline-icon {
-  transition: all 0.2s ease;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.1));
 }
 
 .timeline-dot-enhanced:hover .timeline-icon {
-  transform: scale(1.1);
+  transform: scale(1.1) rotate(5deg);
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
+}
+
+/* Notification item animations */
+.notification-item {
+  animation: slideInFromLeft 0.6s cubic-bezier(0.4, 0, 0.2, 1) both;
+}
+
+.notification-item:nth-child(1) { animation-delay: 0.1s; }
+.notification-item:nth-child(2) { animation-delay: 0.2s; }
+.notification-item:nth-child(3) { animation-delay: 0.3s; }
+.notification-item:nth-child(4) { animation-delay: 0.4s; }
+.notification-item:nth-child(5) { animation-delay: 0.5s; }
+.notification-item:nth-child(6) { animation-delay: 0.6s; }
+.notification-item:nth-child(7) { animation-delay: 0.7s; }
+.notification-item:nth-child(8) { animation-delay: 0.8s; }
+
+@keyframes slideInFromLeft {
+  0% {
+    opacity: 0;
+    transform: translateX(-30px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* Unread notification pulse animation */
+.timeline-dot-enhanced[class*="ring-"] {
+  animation: pulseGlow 2s infinite;
+}
+
+@keyframes pulseGlow {
+  0%, 100% {
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.15), 0 1px 3px rgba(0, 0, 0, 0.1);
+  }
+  50% {
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.15), 0 1px 3px rgba(0, 0, 0, 0.1), 0 0 0 4px rgba(59, 130, 246, 0.1);
+  }
 }
 
 /* Custom scrollbar for notification list */
