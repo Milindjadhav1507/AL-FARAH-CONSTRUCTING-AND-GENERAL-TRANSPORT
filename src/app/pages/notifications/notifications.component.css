@@ -208,3 +208,67 @@
     transform: translateY(0) scale(1);
   }
 }
+
+/* Enhanced mobile responsiveness */
+@media (max-width: 640px) {
+  .timeline-container {
+    margin-left: 1.5rem;
+  }
+  
+  .timeline-dot-enhanced {
+    left: -0.75rem;
+    width: 1.5rem;
+    height: 1.5rem;
+  }
+  
+  .notification-item {
+    margin-bottom: 1rem;
+  }
+}
+
+/* Improved focus states for accessibility */
+button:focus-visible,
+input:focus-visible,
+select:focus-visible {
+  outline: 2px solid #3b82f6;
+  outline-offset: 2px;
+}
+
+/* Smooth transitions for all interactive elements */
+.notification-card {
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.notification-card:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+/* Enhanced button hover effects */
+.action-button {
+  transition: all 0.15s ease-in-out;
+}
+
+.action-button:hover {
+  transform: scale(1.05);
+}
+
+.action-button:active {
+  transform: scale(0.95);
+}
+
+/* Improved skeleton loading animation */
+@keyframes shimmer {
+  0% {
+    background-position: -200px 0;
+  }
+  100% {
+    background-position: calc(200px + 100%) 0;
+  }
+}
+
+.animate-pulse {
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200px 100%;
+  animation: shimmer 1.5s infinite;
+}

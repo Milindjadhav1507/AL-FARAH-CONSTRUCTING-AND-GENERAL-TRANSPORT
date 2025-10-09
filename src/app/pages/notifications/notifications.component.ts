@@ -7,7 +7,7 @@ import { ToastService } from '../../services/toast.service';
 
 @Component({
   selector: 'app-notifications',
-  imports: [CommonModule, FormsModule, RouterLink],
+  imports: [CommonModule, FormsModule,],
   templateUrl: './notifications.component.html',
   styleUrl: './notifications.component.css'
 })
@@ -20,6 +20,10 @@ export class NotificationsComponent implements OnInit {
   searchTerm: string = '';
   showDeleteConfirm: boolean = false;
   notificationToDelete: string | null = null;
+  isLoading: boolean = true;
+  unreadCount: number = 0;
+  selectedNotification: Notification | null = null;
+  showDetailsModal: boolean = false;
   
   filterOptions = [
     { value: 'all', label: 'All Notifications' },
@@ -47,9 +51,12 @@ export class NotificationsComponent implements OnInit {
   }
 
   loadNotifications() {
+    this.isLoading = true;
     this.notificationService.getNotifications().subscribe(notifications => {
       this.notifications = notifications.sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime());
+      this.unreadCount = this.notifications.filter(n => !n.read).length;
       this.applyFilters();
+      this.isLoading = false;
     });
   }
 
@@ -178,5 +185,22 @@ export class NotificationsComponent implements OnInit {
     if (this.showDeleteConfirm) {
       this.cancelDelete();
     }
+    if (this.showDetailsModal) {
+      this.closeDetailsModal();
+    }
+  }
+
+  showNotificationDetails(notification: Notification) {
+    this.selectedNotification = notification;
+    this.showDetailsModal = true;
+    // Auto mark as read when viewing details
+    if (!notification.read) {
+      this.markAsRead(notification);
+    }
+  }
+
+  closeDetailsModal() {
+    this.showDetailsModal = false;
+    this.selectedNotification = null;
   }
 }
