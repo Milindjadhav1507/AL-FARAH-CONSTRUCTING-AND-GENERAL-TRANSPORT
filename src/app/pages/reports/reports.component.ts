@@ -68,7 +68,7 @@ export class ReportsComponent implements OnInit {
       name: 'Fuel Management Reports',
       icon: 'fa-gas-pump',
       reports: [
-        { id: 'fuel-issue-register', name: 'Fuel Issue Register', description: 'All daily fuel issues with cost and vehicle linkage', icon: 'fa-clipboard-list', category: 'fuel-management' },
+        // { id: 'fuel-issue-register', name: 'Fuel Issue Register', description: 'All daily fuel issues with cost and vehicle linkage', icon: 'fa-clipboard-list', category: 'fuel-management' },
         { id: 'fuel-consumption-summary', name: 'Fuel Consumption Summary', description: 'Total fuel used per month/project/vehicle', icon: 'fa-chart-bar', category: 'fuel-management' }
       ]
     },
@@ -1123,5 +1123,73 @@ export class ReportsComponent implements OnInit {
   // Helper method to parse float values in template
   parseFloat(value: any): number {
     return parseFloat(value);
+  }
+
+  // Pagination properties
+  currentPage: number = 1;
+  itemsPerPage: number = 10;
+  totalVehicles: number = 600;
+  
+  get totalPages(): number {
+    return Math.ceil(this.totalVehicles / this.itemsPerPage);
+  }
+
+  getVisiblePages(): number[] {
+    const pages: number[] = [];
+    const maxVisiblePages = 7; // Show maximum 7 page numbers
+    
+    if (this.totalPages <= maxVisiblePages) {
+      // Show all pages if total pages is less than max visible
+      for (let i = 1; i <= this.totalPages; i++) {
+        pages.push(i);
+      }
+    } else {
+      // Show pages around current page
+      let startPage = Math.max(1, this.currentPage - 3);
+      let endPage = Math.min(this.totalPages, startPage + maxVisiblePages - 1);
+      
+      // Adjust start page if we're near the end
+      if (endPage - startPage < maxVisiblePages - 1) {
+        startPage = Math.max(1, endPage - maxVisiblePages + 1);
+      }
+      
+      for (let i = startPage; i <= endPage; i++) {
+        pages.push(i);
+      }
+    }
+    
+    return pages;
+  }
+
+  goToPage(page: number): void {
+    if (page >= 1 && page <= this.totalPages) {
+      this.currentPage = page;
+      console.log(`Navigated to page ${page}`);
+    }
+  }
+
+  goToPreviousPage(): void {
+    if (this.currentPage > 1) {
+      this.currentPage--;
+      console.log(`Navigated to page ${this.currentPage}`);
+    }
+  }
+
+  goToNextPage(): void {
+    if (this.currentPage < this.totalPages) {
+      this.currentPage++;
+      console.log(`Navigated to page ${this.currentPage}`);
+    }
+  }
+
+  onItemsPerPageChange(): void {
+    // Reset to first page when changing items per page
+    this.currentPage = 1;
+    console.log(`Items per page changed to ${this.itemsPerPage}`);
+  }
+
+  // Helper method to access Math in template
+  get Math() {
+    return Math;
   }
 }
