@@ -21,7 +21,7 @@ export class NotificationService {
       id: '1',
       title: 'New vehicle assigned',
       message: 'Vehicle #AF-001 has been assigned to your fleet',
-      detailedMessage: 'A new vehicle has been successfully assigned to your fleet. Vehicle Details: Vehicle Number: AF-001, Make: Toyota, Model: Hilux, Year: 2023, Registration: UAE-ABC-001, Type: Double Cabin Pickup (5 Seater), Fuel Type: Diesel, Current Status: Available. The vehicle has been inspected and is in excellent condition with all necessary documentation completed. Ready for driver assignment.',
+      detailedMessage: 'A new vehicle has been successfully assigned to your fleet. Vehicle Details: Vehicle Number: AF-001, Make: Toyota, Model: Hilux, Year: 2025, Registration: UAE-ABC-001, Type: Double Cabin Pickup (5 Seater), Fuel Type: Diesel, Current Status: Available. The vehicle has been inspected and is in excellent condition with all necessary documentation completed. Ready for driver assignment.',
       timestamp: new Date(Date.now() - 2 * 60 * 1000), // 2 minutes ago
       type: 'info',
       read: false,
@@ -31,7 +31,7 @@ export class NotificationService {
       id: '2',
       title: 'Maintenance scheduled',
       message: 'Vehicle #AF-003 maintenance is scheduled for tomorrow',
-      detailedMessage: 'Regular maintenance has been scheduled for Vehicle #AF-003. Vehicle Details: Make: Volvo, Model: FMX, Year: 2022, Registration: UAE-DEF-003, Type: Heavy Truck, Current Status: Maintenance, Assigned Driver: Ahmed Hassan (License: CDL-12345, Phone: +971-50-1234567). Maintenance includes: Oil change, brake inspection, tire rotation, and general vehicle health check. Scheduled for tomorrow at 9:00 AM. Bring vehicle to Service Center by 8:30 AM. Estimated completion: 2-3 hours.',
+      detailedMessage: 'Regular maintenance has been scheduled for Vehicle #AF-003. Vehicle Details: Make: Volvo, Model: FMX, Year: 2025, Registration: UAE-DEF-003, Type: Heavy Truck, Current Status: Maintenance, Assigned Driver: Ahmed Hassan (License: CDL-12345, Phone: +971-50-1234567). Maintenance includes: Oil change, brake inspection, tire rotation, and general vehicle health check. Scheduled for tomorrow at 9:00 AM. Bring vehicle to Service Center by 8:30 AM. Estimated completion: 2-3 hours.',
       timestamp: new Date(Date.now() - 60 * 60 * 1000), // 1 hour ago
       type: 'success',
       read: false,
@@ -50,22 +50,12 @@ export class NotificationService {
     {
       id: '4',
       title: 'Fuel expense report',
-      message: 'Monthly fuel expense report is ready for review',
-      detailedMessage: 'The monthly fuel expense report for December 2024 is now available for review. Report Summary: Total Vehicles: 600, Total Fuel Consumption: 37,000 liters, Total Cost: AED 111,000, Average Efficiency: 9.2 km/L. Top consuming vehicles: AF-001 (Toyota Hilux) - 1,200L, AF-003 (Volvo FMX) - 1,800L, AF-005 (Mercedes Sprinter) - 950L. Cost breakdown by vehicle type: Transport vehicles (60%), Construction vehicles (35%), Specialized vehicles (5%). Comparison with November: 5% increase due to increased route coverage. Please review and approve for accounting purposes.',
+      message: 'Vehicle AF-007 monthly fuel expense report is ready',
+      detailedMessage: 'The monthly fuel expense report for Vehicle AF-007 (Scania P-Series) for October 2025 is now available for review. Vehicle Details: Vehicle Number: AF-007, Make: Scania, Model: P-Series, Year: 2025, Registration: UAE-GHI-007, Type: Heavy Truck, Current Driver: Hassan Ali (DR-008), Phone: +971-50-5555555. Fuel Consumption Summary: Total Fuel Used: 1,850 liters, Total Cost: AED 5,550, Average Efficiency: 8.5 km/L, Distance Covered: 15,725 km, Cost per Kilometer: AED 0.35. Comparison with September: 8% increase due to extended construction site routes. Route Details: Primary Route (Construction Site 1 to Material Yard) - 45%, Secondary Route (Equipment Depot to Site 2) - 35%, Emergency/Ad-hoc Routes - 20%. Please review and approve for accounting purposes.',
       timestamp: new Date(Date.now() - 6 * 60 * 60 * 1000), // 6 hours ago
       type: 'info',
       read: true,
       category: 'Reports'
-    },
-    {
-      id: '5',
-      title: 'Vehicle inspection due',
-      message: 'Vehicle #AF-005 requires inspection within 3 days',
-      detailedMessage: 'URGENT: Vehicle #AF-005 requires annual safety inspection within the next 3 days. Vehicle Details: Make: Mercedes, Model: Sprinter, Year: 2021, Registration: UAE-GHI-005, Type: Station Wagon (7 Seater), Current Status: Warning, Assigned Driver: Muhammad Ali (License: CDL-67890, Phone: +971-50-9876543). Current inspection expires on December 28, 2024. Last Service: November 15, 2024, Next Service Due: January 15, 2025. Failure to complete inspection will result in vehicle being taken off-road until compliance is achieved. Please schedule inspection immediately at the authorized service center.',
-      timestamp: new Date(Date.now() - 24 * 60 * 60 * 1000), // 1 day ago
-      type: 'error',
-      read: true,
-      category: 'Maintenance'
     },
     {
       id: '6',
@@ -80,8 +70,8 @@ export class NotificationService {
     {
       id: '8',
       title: 'Insurance renewal required',
-      message: 'Vehicle insurance for 3 vehicles expires in 30 days',
-      detailedMessage: 'URGENT INSURANCE RENEWAL REQUIRED: Specific vehicle insurance policies are approaching expiration and require immediate attention. These vehicles must maintain valid insurance coverage to remain operational. Failure to renew on time will result in vehicles being taken off-road until coverage is restored, causing significant operational disruption and potential fines from RTA.',
+      message: 'Vehicle AF-007 insurance expires in 30 days',
+      detailedMessage: 'URGENT INSURANCE RENEWAL REQUIRED: Vehicle AF-007 (Scania P-Series) insurance policy is approaching expiration and requires immediate attention. This vehicle must maintain valid insurance coverage to remain operational. Failure to renew on time will result in vehicle being taken off-road until coverage is restored, causing operational disruption and potential fines from RTA.',
       timestamp: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000), // 1 week ago
       type: 'warning',
       read: true,
@@ -91,7 +81,7 @@ export class NotificationService {
       id: '9',
       title: 'Driver license expired today',
       message: 'Driver Hassan Ali\'s license has expired today',
-      detailedMessage: 'URGENT: Driver Hassan Ali\'s commercial driving license (CDL-54321) has expired today (December 28, 2024). Driver Details: ID: DR-008, Phone: +971-50-5555555, Currently assigned to: AF-009 (Caterpillar 320D). This driver is NOT authorized to operate any vehicles until license renewal is completed. Please immediately reassign vehicle AF-009 to another qualified driver and arrange license renewal. Contact RTA at +971-4-800-9000 for renewal process.',
+      detailedMessage: 'URGENT: Driver Hassan Ali\'s commercial driving license (CDL-54321) has expired today (October 10, 2025). Driver Details: ID: DR-008, Phone: +971-50-5555555, Currently assigned to: AF-009 (Caterpillar 320D). This driver is NOT authorized to operate any vehicles until license renewal is completed. Please immediately reassign vehicle AF-009 to another qualified driver and arrange license renewal. Contact RTA at +971-4-800-9000 for renewal process.',
       timestamp: new Date(Date.now() - 1 * 60 * 1000), // 1 minute ago
       type: 'error',
       read: false,
@@ -101,7 +91,7 @@ export class NotificationService {
       id: '10',
       title: 'Driver license expiring soon',
       message: 'Driver Ali Ahmed\'s license expires in 3 days',
-      detailedMessage: 'Driver Ali Ahmed\'s commercial driving license (CDL-98765) will expire on December 31, 2024 (3 days from now). Driver Details: ID: DR-009, Phone: +971-50-6666666, Currently assigned to: AF-015 (JCB 3CX). License renewal process should be initiated immediately to avoid service disruption. Please contact RTA at +971-4-800-9000 or visit nearest RTA center for renewal. Required documents: Current license, Emirates ID, medical certificate.',
+      detailedMessage: 'Driver Ali Ahmed\'s commercial driving license (CDL-98765) will expire on October 13, 2025 (3 days from now). Driver Details: ID: DR-009, Phone: +971-50-6666666, Currently assigned to: AF-015 (JCB 3CX). License renewal process should be initiated immediately to avoid service disruption. Please contact RTA at +971-4-800-9000 or visit nearest RTA center for renewal. Required documents: Current license, Emirates ID, medical certificate.',
       timestamp: new Date(Date.now() - 30 * 60 * 1000), // 30 minutes ago
       type: 'warning',
       read: false,
@@ -110,6 +100,9 @@ export class NotificationService {
   ]);
 
   public notifications$ = this.notificationsSubject.asObservable();
+  
+  private selectedNotificationSubject = new BehaviorSubject<Notification | null>(null);
+  public selectedNotification$ = this.selectedNotificationSubject.asObservable();
 
   constructor() {}
 
@@ -149,5 +142,9 @@ export class NotificationService {
     return this.notificationsSubject.value.filter(n => 
       n.timestamp >= startDate && n.timestamp <= endDate
     );
+  }
+
+  setSelectedNotification(notification: Notification | null): void {
+    this.selectedNotificationSubject.next(notification);
   }
 }

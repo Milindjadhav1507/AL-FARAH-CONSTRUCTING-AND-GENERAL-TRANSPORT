@@ -48,6 +48,16 @@ export class NotificationsComponent implements OnInit {
 
   ngOnInit() {
     this.loadNotifications();
+    // Listen for selected notification from header
+    this.notificationService.selectedNotification$.subscribe(notification => {
+      if (notification) {
+        this.showNotificationDetails(notification);
+        // Clear the selected notification after showing
+        setTimeout(() => {
+          this.notificationService.setSelectedNotification(null);
+        }, 100);
+      }
+    });
   }
 
   loadNotifications() {
