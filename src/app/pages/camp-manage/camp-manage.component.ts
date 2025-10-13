@@ -83,6 +83,9 @@ export class CampManageComponent implements OnInit {
   filterRoomStatus: string = 'All';
   selectedRoomType: string = '';
   
+  // View states
+  campView: 'card' | 'list' = 'list';
+  
   // Pagination
   currentPage: number = 1;
   itemsPerPage: number = 10;
@@ -241,6 +244,10 @@ export class CampManageComponent implements OnInit {
   switchView(view: 'overview' | 'camps' | 'rooms' | 'occupants'): void {
     this.selectedView = view;
     this.currentPage = 1;
+  }
+
+  setCampView(view: 'card' | 'list'): void {
+    this.campView = view;
   }
 
   selectCamp(campId: string): void {
