@@ -90,14 +90,14 @@ export class UserManageComponent implements OnInit {
 
   // Generate sample users
   generateUsers(): void {
-    const firstNames = ['Ahmed', 'Mohammed', 'Ali', 'Hassan', 'Omar', 'Khalid', 'Rashid', 'Salem', 'Saeed', 'Abdullah'];
-    const lastNames = ['Al Maktoum', 'Al Nahyan', 'Khan', 'Ahmed', 'Rahman', 'Hassan', 'Ali', 'Sheikh', 'Malik', 'Farooq'];
+    const firstNames = ['Salman', 'Shah Rukh', 'Aamir', 'Akshay', 'Hrithik', 'Ranbir', 'Ranveer', 'Ajay', 'Saif Ali', 'Varun'];
+    const lastNames = ['Khan', 'Kumar', 'Kapoor', 'Roshan', 'Singh', 'Devgan', 'Dhawan', 'Shroff', 'Malhotra', 'Rao'];
     const nationalities = ['UAE', 'India', 'Pakistan', 'Bangladesh', 'Philippines', 'Egypt', 'Jordan', 'Sri Lanka'];
     const contractTypes: Array<'Permanent' | 'Contract' | 'Temporary'> = ['Permanent', 'Contract', 'Temporary'];
     const bankNames = ['Emirates NBD', 'Abu Dhabi Commercial Bank', 'Dubai Islamic Bank', 'Mashreq Bank', 'First Abu Dhabi Bank'];
     const visaStatuses = ['Valid', 'Under Process', 'Renewal Pending', 'Expired'];
     const workLocations = ['Dubai - Head Office', 'Dubai - Site Office', 'Abu Dhabi Branch', 'Sharjah Branch'];
-    const managers = ['Mohammed Al Maktoum', 'Ahmed Hassan', 'Khalid Rahman', 'Omar Sheikh', 'Ali Farooq'];
+    const managers = ['Salman Khan', 'Shah Rukh Kumar', 'Aamir Kapoor', 'Akshay Roshan', 'Hrithik Singh'];
 
     for (let i = 1; i <= 50; i++) {
       const firstName = firstNames[i % firstNames.length];
