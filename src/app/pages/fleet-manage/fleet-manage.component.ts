@@ -206,7 +206,7 @@ export class FleetManageComponent implements OnInit {
   selectedStatus: string = 'all';
   selectedType: string = 'all';
   searchTerm: string = '';
-  selectedTab: 'overview' | 'vehicles' | 'fuel' | 'routes' | 'maintenance' = 'overview';
+  selectedTab: 'overview' | 'vehicles' | 'fuel' | 'routes' | 'maintenance' = 'vehicles';
   viewMode: 'grid' | 'list' = 'list';
 
   // Pagination
@@ -226,6 +226,8 @@ export class FleetManageComponent implements OnInit {
 
   // Modal and Form Properties
   showAddVehicleModal: boolean = false;
+  showEditVehicleModal: boolean = false;
+  showStatusConfirmModal: boolean = false;
   showFuelEntryModal: boolean = false;
   showServiceModal: boolean = false;
   showDriverAssignModal: boolean = false;
@@ -240,9 +242,11 @@ export class FleetManageComponent implements OnInit {
   selectedFuelRecord: FuelRecord | null = null;
   selectedRoute: Route | null = null;
   selectedRouteForDetails: Route | null = null;
+  pendingStatusChange: VehicleStatus | null = null;
 
   // Form Data
   newVehicle: Partial<Vehicle> = {};
+  editVehicle: Partial<Vehicle> = {};
   newFuelRecord: Partial<FuelRecord> = {};
   newServiceRecord: any = {};
   newRoute: Partial<Route> = {};
@@ -613,6 +617,31 @@ export class FleetManageComponent implements OnInit {
     return new Date(date).toLocaleDateString('en-GB');
   }
 
+  // Format date for input field (YYYY-MM-DD)
+  formatDateForInput(date: Date | undefined): string {
+    if (!date) return '';
+    const d = new Date(date);
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  }
+
+  // Helper method to update last service date
+  updateLastServiceDate(dateString: string): void {
+    this.editVehicle.lastServiceDate = new Date(dateString);
+  }
+
+  // Helper method to update next service date
+  updateNextServiceDate(dateString: string): void {
+    this.editVehicle.nextServiceDate = new Date(dateString);
+  }
+
+  // Helper method to update insurance expiry date
+  updateInsuranceExpiry(dateString: string): void {
+    this.editVehicle.insuranceExpiry = new Date(dateString);
+  }
+
   // Calculate days until service
   getDaysUntilService(vehicle: Vehicle): number {
     const today = new Date();
@@ -704,6 +733,79 @@ export class FleetManageComponent implements OnInit {
   closeAddVehicleModal(): void {
     this.showAddVehicleModal = false;
     this.newVehicle = {};
+  }
+
+  openEditVehicleModal(vehicle: Vehicle): void {
+    this.showEditVehicleModal = true;
+    this.selectedVehicle = vehicle;
+    // Create a deep copy of the vehicle for editing
+    this.editVehicle = {
+      id: vehicle.id,
+      vehicleNumber: vehicle.vehicleNumber,
+      vehicleType: vehicle.vehicleType,
+      make: vehicle.make,
+      model: vehicle.model,
+      year: vehicle.year,
+      capacity: vehicle.capacity,
+      fuelType: vehicle.fuelType,
+      registrationNumber: vehicle.registrationNumber,
+      insuranceExpiry: vehicle.insuranceExpiry,
+      lastServiceDate: vehicle.lastServiceDate,
+      nextServiceDate: vehicle.nextServiceDate,
+      assignedDriver: vehicle.assignedDriver,
+      currentStatus: vehicle.currentStatus,
+      location: vehicle.location,
+      route: vehicle.route,
+      fuelEfficiency: vehicle.fuelEfficiency,
+      totalKm: vehicle.totalKm,
+      lastFuelDate: vehicle.lastFuelDate,
+      maintenanceStatus: vehicle.maintenanceStatus
+    };
+  }
+
+  closeEditVehicleModal(): void {
+    this.showEditVehicleModal = false;
+    this.selectedVehicle = null;
+    this.editVehicle = {};
+  }
+
+  requestStatusChange(vehicle: Vehicle, newStatusName: string): void {
+    if (!newStatusName || newStatusName === vehicle.currentStatus.name) {
+      return; // No change needed
+    }
+
+    const newStatus = this.vehicleStatuses.find(s => s.name === newStatusName);
+    if (newStatus) {
+      this.selectedVehicle = vehicle;
+      this.pendingStatusChange = newStatus;
+      this.showStatusConfirmModal = true;
+      
+      // Auto-close after 10 seconds if user doesn't respond
+      setTimeout(() => {
+        if (this.showStatusConfirmModal) {
+          this.cancelStatusChange();
+          this.toastService.warning('Status change cancelled due to timeout');
+        }
+      }, 10000);
+    }
+  }
+
+  confirmStatusChange(): void {
+    if (this.selectedVehicle && this.pendingStatusChange) {
+      this.updateVehicleStatus(this.selectedVehicle, this.pendingStatusChange.name);
+      this.closeStatusConfirmModal();
+    }
+  }
+
+  cancelStatusChange(): void {
+    this.closeStatusConfirmModal();
+    // The dropdown will automatically reset to the current status since we're not changing the model
+  }
+
+  closeStatusConfirmModal(): void {
+    this.showStatusConfirmModal = false;
+    this.selectedVehicle = null;
+    this.pendingStatusChange = null;
   }
 
   openFuelEntryModal(): void {
@@ -816,6 +918,46 @@ export class FleetManageComponent implements OnInit {
       this.calculateStatistics();
       this.closeAddVehicleModal();
       this.toastService.success('Vehicle added successfully!');
+    } else {
+      this.toastService.error('Please fill in all required fields');
+    }
+  }
+
+  updateVehicle(): void {
+    if (this.editVehicle.vehicleNumber && this.editVehicle.make && this.editVehicle.model && this.selectedVehicle) {
+      // Find the vehicle in the array and update it
+      const vehicleIndex = this.vehicles.findIndex(v => v.id === this.selectedVehicle!.id);
+      if (vehicleIndex !== -1) {
+        // Update the vehicle with edited data
+        this.vehicles[vehicleIndex] = {
+          ...this.vehicles[vehicleIndex],
+          vehicleNumber: this.editVehicle.vehicleNumber!,
+          vehicleType: this.editVehicle.vehicleType!,
+          make: this.editVehicle.make!,
+          model: this.editVehicle.model!,
+          year: this.editVehicle.year!,
+          capacity: this.editVehicle.capacity!,
+          fuelType: this.editVehicle.fuelType!,
+          registrationNumber: this.editVehicle.registrationNumber!,
+          insuranceExpiry: this.editVehicle.insuranceExpiry!,
+          lastServiceDate: this.editVehicle.lastServiceDate!,
+          nextServiceDate: this.editVehicle.nextServiceDate!,
+          assignedDriver: this.editVehicle.assignedDriver,
+          currentStatus: this.editVehicle.currentStatus!,
+          location: this.editVehicle.location!,
+          route: this.editVehicle.route,
+          fuelEfficiency: this.editVehicle.fuelEfficiency!,
+          totalKm: this.editVehicle.totalKm!,
+          lastFuelDate: this.editVehicle.lastFuelDate,
+          maintenanceStatus: this.editVehicle.maintenanceStatus!
+        };
+
+        this.calculateStatistics();
+        this.closeEditVehicleModal();
+        this.toastService.success(`Vehicle ${this.editVehicle.vehicleNumber} updated successfully!`);
+      } else {
+        this.toastService.error('Vehicle not found');
+      }
     } else {
       this.toastService.error('Please fill in all required fields');
     }
