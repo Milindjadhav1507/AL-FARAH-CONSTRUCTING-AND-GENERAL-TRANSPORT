@@ -81,6 +81,7 @@ export class CampManageComponent implements OnInit {
   searchTerm: string = '';
   filterOccupantType: string = 'All';
   filterRoomStatus: string = 'All';
+  selectedRoomType: string = '';
   
   // Pagination
   currentPage: number = 1;
@@ -182,10 +183,10 @@ export class CampManageComponent implements OnInit {
   }
 
   generateOccupants(): void {
-    const firstNames = ['Ahmed', 'Mohammed', 'Ali', 'Hassan', 'Omar', 'Khalid', 'Rashid', 'Salem', 'Saeed', 'Abdullah', 
-                        'Youssef', 'Tariq', 'Faisal', 'Majid', 'Nasser', 'Hamza', 'Ibrahim', 'Zayed'];
-    const lastNames = ['Al Maktoum', 'Al Nahyan', 'Khan', 'Ahmed', 'Rahman', 'Hassan', 'Ali', 'Sheikh', 'Malik', 'Farooq',
-                       'Patel', 'Kumar', 'Singh', 'Das', 'Sharma', 'Rizvi'];
+    const firstNames = ['Salman', 'Shah Rukh', 'Aamir', 'Hrithik', 'Akshay', 'Ajay', 'Ranbir', 'Ranveer', 'Varun', 'Sidharth', 
+                        'Tiger', 'Arjun', 'Kartik', 'Ayushmann', 'Rajkummar', 'Vicky', 'Irrfan', 'Saif'];
+    const lastNames = ['Khan', 'Kumar', 'Kapoor', 'Singh', 'Malhotra', 'Shroff', 'Dhawan', 'Aaryan', 'Sharma', 'Pandey',
+                       'Rajput', 'Kaushal', 'Tandon', 'Bhatia', 'Joshi', 'Gupta', 'Agarwal', 'Verma'];
 
     let occupantCounter = 1;
     
@@ -262,6 +263,16 @@ export class CampManageComponent implements OnInit {
     return this.rooms.filter(r => r.campId === campId);
   }
 
+  getFilteredRooms(campId: string, roomType: string): Room[] {
+    let rooms = this.rooms.filter(r => r.campId === campId);
+    
+    if (roomType && roomType !== '') {
+      rooms = rooms.filter(r => r.roomType === roomType);
+    }
+    
+    return rooms;
+  }
+
   getCampOccupants(campId: string): Occupant[] {
     return this.occupants.filter(o => o.campId === campId);
   }
@@ -306,6 +317,7 @@ export class CampManageComponent implements OnInit {
 
   openAddOccupantModal(room?: Room): void {
     this.newOccupant = {};
+    this.selectedRoomType = '';
     if (room) {
       this.newOccupant.campId = room.campId;
       this.newOccupant.roomId = room.id;
@@ -316,6 +328,7 @@ export class CampManageComponent implements OnInit {
   closeAddOccupantModal(): void {
     this.showAddOccupantModal = false;
     this.newOccupant = {};
+    this.selectedRoomType = '';
   }
 
   saveOccupant(): void {
