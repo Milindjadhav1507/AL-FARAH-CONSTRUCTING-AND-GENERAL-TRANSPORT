@@ -122,12 +122,10 @@ export class FleetManageComponent implements OnInit {
 
   // Vehicle Status Data
   vehicleStatuses: VehicleStatus[] = [
-    { id: '1', name: 'Available', color: 'text-green-600', bgColor: 'bg-green-100' },
-    { id: '2', name: 'In Use', color: 'text-blue-600', bgColor: 'bg-blue-100' },
-    { id: '3', name: 'Breakdown', color: 'text-red-600', bgColor: 'bg-red-100' },
-    { id: '4', name: 'Maintenance', color: 'text-yellow-600', bgColor: 'bg-yellow-100' },
-    { id: '5', name: 'Service', color: 'text-purple-600', bgColor: 'bg-purple-100' },
-    { id: '6', name: 'Off Duty', color: 'text-gray-600', bgColor: 'bg-gray-100' }
+    { id: '1', name: 'Active', color: 'text-green-600', bgColor: 'bg-green-100' },
+    { id: '2', name: 'Idle', color: 'text-blue-600', bgColor: 'bg-blue-100' },
+    { id: '3', name: 'Maintenance', color: 'text-yellow-600', bgColor: 'bg-yellow-100' },
+    { id: '4', name: 'Breakdown', color: 'text-red-600', bgColor: 'bg-red-100' }
   ];
 
   // Drivers Data - Extended list for 600 vehicles
@@ -290,7 +288,7 @@ export class FleetManageComponent implements OnInit {
       const modelIndex = i % models.length;
       const locationIndex = i % locations.length;
       
-      // Determine if vehicle has driver (70% chance for In Use status)
+      // Determine if vehicle has driver (70% chance for Active status)
       const hasDriver = Math.random() > 0.3;
       const driverIndex = i % this.drivers.length;
       
@@ -326,7 +324,7 @@ export class FleetManageComponent implements OnInit {
         insuranceExpiry: insuranceExpiry,
         lastServiceDate: lastServiceDate,
         nextServiceDate: nextServiceDate,
-        assignedDriver: hasDriver && statuses[statusIndex].name === 'In Use' ? this.drivers[driverIndex] : undefined,
+        assignedDriver: hasDriver && statuses[statusIndex].name === 'Active' ? this.drivers[driverIndex] : undefined,
         currentStatus: statuses[statusIndex],
         location: locations[locationIndex],
         route: (Math.random() > 0.5) ? this.routes[i % this.routes.length] : undefined, // 50% chance of having a route
@@ -382,9 +380,9 @@ export class FleetManageComponent implements OnInit {
   // Calculate fleet statistics
   calculateStatistics(): void {
     this.totalVehicles = this.vehicles.length;
-    this.availableVehicles = this.vehicles.filter(v => v.currentStatus.name === 'Available').length;
-    this.inUseVehicles = this.vehicles.filter(v => v.currentStatus.name === 'In Use').length;
-    this.maintenanceVehicles = this.vehicles.filter(v => v.currentStatus.name === 'Maintenance' || v.currentStatus.name === 'Service').length;
+    this.availableVehicles = this.vehicles.filter(v => v.currentStatus.name === 'Active').length;
+    this.inUseVehicles = this.vehicles.filter(v => v.currentStatus.name === 'Idle').length;
+    this.maintenanceVehicles = this.vehicles.filter(v => v.currentStatus.name === 'Maintenance').length;
     this.breakdownVehicles = this.vehicles.filter(v => v.currentStatus.name === 'Breakdown').length;
   }
 
@@ -1005,7 +1003,7 @@ export class FleetManageComponent implements OnInit {
         vehicle.lastServiceDate = new Date();
         vehicle.nextServiceDate = this.newServiceRecord.nextServiceDate;
         vehicle.maintenanceStatus = 'Good';
-        vehicle.currentStatus = this.vehicleStatuses[0]; // Available
+        vehicle.currentStatus = this.vehicleStatuses[0]; // Active
         
         this.calculateStatistics();
         this.closeServiceModal();
@@ -1027,7 +1025,7 @@ export class FleetManageComponent implements OnInit {
 
       // Assign driver to new vehicle
       this.selectedVehicle.assignedDriver = this.selectedDriver;
-      this.selectedVehicle.currentStatus = this.vehicleStatuses[1]; // In Use
+      this.selectedVehicle.currentStatus = this.vehicleStatuses[0]; // Active
       
       // Update driver status
       this.selectedDriver.status = 'On Duty';
@@ -1062,7 +1060,7 @@ export class FleetManageComponent implements OnInit {
       vehicle.currentStatus = status;
       
       // Update driver status if vehicle becomes unavailable
-      if (newStatus === 'Breakdown' || newStatus === 'Maintenance' || newStatus === 'Service') {
+      if (newStatus === 'Breakdown' || newStatus === 'Maintenance') {
         if (vehicle.assignedDriver) {
           vehicle.assignedDriver.status = 'Available';
           vehicle.assignedDriver.assignedVehicle = undefined;
@@ -1080,7 +1078,7 @@ export class FleetManageComponent implements OnInit {
       vehicle.assignedDriver.status = 'Available';
       vehicle.assignedDriver.assignedVehicle = undefined;
       vehicle.assignedDriver = undefined;
-      vehicle.currentStatus = this.vehicleStatuses[0]; // Available
+      vehicle.currentStatus = this.vehicleStatuses[0]; // Active
       
       this.calculateStatistics();
       this.toastService.info(`Driver removed from ${vehicle.vehicleNumber}`);
@@ -1104,7 +1102,7 @@ export class FleetManageComponent implements OnInit {
 
   // Utility Methods
   getAvailableVehicles(): Vehicle[] {
-    return this.vehicles.filter(v => v.currentStatus.name === 'Available');
+    return this.vehicles.filter(v => v.currentStatus.name === 'Active');
   }
 
   getVehiclesByType(type: string): Vehicle[] {

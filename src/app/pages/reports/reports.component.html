@@ -163,7 +163,7 @@
             </div>
 
             <!-- Summary KPI Cards -->
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-3 mb-4">
+            <div class="grid grid-cols-1 md:grid-cols-5 gap-3 mb-4">
               <div class="bg-white border border-gray-200 rounded-lg p-4">
                 <div class="flex items-center justify-between">
                   <div>
@@ -177,7 +177,7 @@
                 <div class="flex items-center justify-between">
                   <div>
                     <p class="text-xs uppercase text-gray-500">Active</p>
-                    <h3 class="text-xl font-bold text-green-600 mt-1">512</h3>
+                    <h3 class="text-xl font-bold text-green-600 mt-1">420</h3>
                   </div>
                   <i class="fas fa-check-circle text-green-200 text-3xl"></i>
                 </div>
@@ -185,8 +185,17 @@
               <div class="bg-white border border-gray-200 rounded-lg p-4">
                 <div class="flex items-center justify-between">
                   <div>
+                    <p class="text-xs uppercase text-gray-500">Idle</p>
+                    <h3 class="text-xl font-bold text-blue-600 mt-1">120</h3>
+                  </div>
+                  <i class="fas fa-pause-circle text-blue-200 text-3xl"></i>
+                </div>
+              </div>
+              <div class="bg-white border border-gray-200 rounded-lg p-4">
+                <div class="flex items-center justify-between">
+                  <div>
                     <p class="text-xs uppercase text-gray-500">Maintenance</p>
-                    <h3 class="text-xl font-bold text-yellow-600 mt-1">48</h3>
+                    <h3 class="text-xl font-bold text-yellow-600 mt-1">45</h3>
                   </div>
                   <i class="fas fa-wrench text-yellow-200 text-3xl"></i>
                 </div>
@@ -194,10 +203,10 @@
               <div class="bg-white border border-gray-200 rounded-lg p-4">
                 <div class="flex items-center justify-between">
                   <div>
-                    <p class="text-xs uppercase text-gray-500">Idle</p>
-                    <h3 class="text-xl font-bold text-gray-700 mt-1">40</h3>
+                    <p class="text-xs uppercase text-gray-500">Breakdown</p>
+                    <h3 class="text-xl font-bold text-red-600 mt-1">15</h3>
                   </div>
-                  <i class="fas fa-pause-circle text-gray-300 text-3xl"></i>
+                  <i class="fas fa-exclamation-triangle text-red-200 text-3xl"></i>
                 </div>
               </div>
             </div>
@@ -350,14 +359,14 @@
                       <td class="px-4 py-3 text-sm text-gray-900">MAN TGX</td>
                       <td class="px-4 py-3 text-sm text-gray-900">2021</td>
                       <td class="px-4 py-3 text-sm text-gray-900">DXB-T-78901</td>
-                      <td class="px-4 py-3 text-sm text-gray-900">Salem Al-Mansouri</td>
-                      <td class="px-4 py-3 text-sm text-gray-900">Abu Dhabi City</td>
+                      <td class="px-4 py-3 text-sm text-gray-500 italic">Unassigned</td>
+                      <td class="px-4 py-3 text-sm text-gray-500">-</td>
                       <td class="px-4 py-3 text-sm font-semibold text-blue-600">89,560 km</td>
-                      <td class="px-4 py-3"><span class="px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">Active</span></td>
+                      <td class="px-4 py-3"><span class="px-2 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-800">Breakdown</span></td>
                       <td class="px-4 py-3 text-sm text-green-600">08-Jan-2026</td>
                       <td class="px-4 py-3 text-sm text-gray-900">02-Sep-2024</td>
                       <td class="px-4 py-3 text-sm">
-                        <button (click)="openDetailsModal({vehicleNo: 'AF-007', type: 'Low Bed Trailor', make: 'MAN TGX 2021', year: '2021', registrationNo: 'DXB-T-78901', driver: 'Salem Al-Mansouri', project: 'Abu Dhabi City', status: 'Active', lastService: '02-Sep-2024', nextService: '02-Dec-2024', insuranceExpiry: '08-Jan-2026', registrationExpiry: '23-Feb-2026', fuelType: 'Diesel', odometer: '89,560 km', capacity: '50 Ton', engineNo: 'MAN-67890', chassisNo: 'CH-MAN-2021-007', purchaseDate: '20-Apr-2021', purchaseCost: 'AED 650,000', monthlyFuel: '980 L', monthlyCost: 'AED 11,760', avgKmL: '2.8'}, 'vehicle-master')" class="text-indigo-600 hover:text-indigo-900 px-3 py-1 rounded-md bg-indigo-50 hover:bg-indigo-100">
+                        <button (click)="openDetailsModal({vehicleNo: 'AF-007', type: 'Low Bed Trailor', make: 'MAN TGX 2021', year: '2021', registrationNo: 'DXB-T-78901', driver: 'Unassigned', project: '-', status: 'Breakdown', lastService: '02-Sep-2024', nextService: '02-Dec-2024', insuranceExpiry: '08-Jan-2026', registrationExpiry: '23-Feb-2026', fuelType: 'Diesel', odometer: '89,560 km', capacity: '50 Ton', engineNo: 'MAN-67890', chassisNo: 'CH-MAN-2021-007', purchaseDate: '20-Apr-2021', purchaseCost: 'AED 650,000', monthlyFuel: '0 L', monthlyCost: 'AED 0', avgKmL: 'N/A', breakdownIssue: 'Engine failure - requires major repair', estimatedRepair: '30-Oct-2024'}, 'vehicle-master')" class="text-indigo-600 hover:text-indigo-900 px-3 py-1 rounded-md bg-indigo-50 hover:bg-indigo-100">
                           <i class="fas fa-eye mr-1"></i>View
                         </button>
                       </td>
@@ -371,11 +380,11 @@
                       <td class="px-4 py-3 text-sm text-gray-500 italic">Unassigned</td>
                       <td class="px-4 py-3 text-sm text-gray-500">-</td>
                       <td class="px-4 py-3 text-sm font-semibold text-blue-600">34,780 km</td>
-                      <td class="px-4 py-3"><span class="px-2 py-1 text-xs font-semibold rounded-full bg-gray-100 text-gray-800">Idle</span></td>
+                      <td class="px-4 py-3"><span class="px-2 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-800">Breakdown</span></td>
                       <td class="px-4 py-3 text-sm text-green-600">25-Feb-2026</td>
                       <td class="px-4 py-3 text-sm text-gray-900">18-Aug-2024</td>
                       <td class="px-4 py-3 text-sm">
-                        <button (click)="openDetailsModal({vehicleNo: 'AF-008', type: 'Station Wagon', make: 'Toyota Land Cruiser 2023', year: '2023', registrationNo: 'DXB-T-89012', driver: 'Unassigned', project: '-', status: 'Idle', lastService: '18-Aug-2024', nextService: '18-Nov-2024', insuranceExpiry: '25-Feb-2026', registrationExpiry: '12-Mar-2026', fuelType: 'Petrol', odometer: '34,780 km', capacity: '7 Seats', engineNo: 'LC-34567', chassisNo: 'CH-LC-2023-008', purchaseDate: '05-Feb-2023', purchaseCost: 'AED 280,000', monthlyFuel: '0 L', monthlyCost: 'AED 0', avgKmL: 'N/A', remarks: 'Available for assignment'}, 'vehicle-master')" class="text-indigo-600 hover:text-indigo-900 px-3 py-1 rounded-md bg-indigo-50 hover:bg-indigo-100">
+                        <button (click)="openDetailsModal({vehicleNo: 'AF-008', type: 'Station Wagon', make: 'Toyota Land Cruiser 2023', year: '2023', registrationNo: 'DXB-T-89012', driver: 'Unassigned', project: '-', status: 'Breakdown', lastService: '18-Aug-2024', nextService: '18-Nov-2024', insuranceExpiry: '25-Feb-2026', registrationExpiry: '12-Mar-2026', fuelType: 'Petrol', odometer: '34,780 km', capacity: '7 Seats', engineNo: 'LC-34567', chassisNo: 'CH-LC-2023-008', purchaseDate: '05-Feb-2023', purchaseCost: 'AED 280,000', monthlyFuel: '0 L', monthlyCost: 'AED 0', avgKmL: 'N/A', breakdownIssue: 'Transmission failure', estimatedRepair: '25-Oct-2024'}, 'vehicle-master')" class="text-indigo-600 hover:text-indigo-900 px-3 py-1 rounded-md bg-indigo-50 hover:bg-indigo-100">
                           <i class="fas fa-eye mr-1"></i>View
                         </button>
                       </td>
@@ -416,6 +425,24 @@
                         </button>
                       </td>
                     </tr>
+                    <tr *ngIf="currentPage === 1" class="hover:bg-gray-50">
+                      <td class="px-4 py-3 text-sm font-medium text-indigo-600">AF-010B</td>
+                      <td class="px-4 py-3 text-sm text-gray-900">Heavy Duty Truck</td>
+                      <td class="px-4 py-3 text-sm text-gray-900">Scania R500</td>
+                      <td class="px-4 py-3 text-sm text-gray-900">2021</td>
+                      <td class="px-4 py-3 text-sm text-gray-900">DXB-T-11234</td>
+                      <td class="px-4 py-3 text-sm text-gray-500 italic">Unassigned</td>
+                      <td class="px-4 py-3 text-sm text-gray-500">-</td>
+                      <td class="px-4 py-3 text-sm font-semibold text-blue-600">98,750 km</td>
+                      <td class="px-4 py-3"><span class="px-2 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-800">Breakdown</span></td>
+                      <td class="px-4 py-3 text-sm text-green-600">22-Dec-2025</td>
+                      <td class="px-4 py-3 text-sm text-gray-900">15-Aug-2024</td>
+                      <td class="px-4 py-3 text-sm">
+                        <button (click)="openDetailsModal({vehicleNo: 'AF-010B', type: 'Heavy Duty Truck', make: 'Scania R500 2021', year: '2021', registrationNo: 'DXB-T-11234', driver: 'Unassigned', project: '-', status: 'Breakdown', lastService: '15-Aug-2024', nextService: '15-Nov-2024', insuranceExpiry: '22-Dec-2025', registrationExpiry: '07-Feb-2026', fuelType: 'Diesel', odometer: '98,750 km', capacity: '25 Ton', engineNo: 'SC-56789', chassisNo: 'CH-SC-2021-010B', purchaseDate: '12-Mar-2021', purchaseCost: 'AED 950,000', monthlyFuel: '0 L', monthlyCost: 'AED 0', avgKmL: 'N/A', breakdownIssue: 'Hydraulic system failure', estimatedRepair: '05-Nov-2024'}, 'vehicle-master')" class="text-indigo-600 hover:text-indigo-900 px-3 py-1 rounded-md bg-indigo-50 hover:bg-indigo-100">
+                          <i class="fas fa-eye mr-1"></i>View
+                        </button>
+                      </td>
+                    </tr>
 
                     <!-- Page 2 Vehicles (11-20) -->
                     <tr *ngIf="currentPage === 2" class="hover:bg-gray-50">
@@ -432,6 +459,24 @@
                       <td class="px-4 py-3 text-sm text-gray-900">15-Sep-2024</td>
                       <td class="px-4 py-3 text-sm">
                         <button (click)="openDetailsModal({vehicleNo: 'AF-011', type: 'Desert Bus', make: 'Mercedes Tourismo 2023', year: '2023', registrationNo: 'DXB-T-12345', driver: 'Abdul Rahman', project: 'Shah Field', status: 'Active', lastService: '15-Sep-2024', nextService: '15-Dec-2024', insuranceExpiry: '15-Mar-2026', registrationExpiry: '10-Apr-2026', fuelType: 'Diesel', odometer: '81,502 km', capacity: '50 Seats', engineNo: 'MT-45789', chassisNo: 'CH-MT-2023-011', purchaseDate: '10-Jan-2023', purchaseCost: 'AED 450,000', monthlyFuel: '680 L', monthlyCost: 'AED 8,160', avgKmL: '5.45'}, 'vehicle-master')" class="text-indigo-600 hover:text-indigo-900 px-3 py-1 rounded-md bg-indigo-50 hover:bg-indigo-100">
+                          <i class="fas fa-eye mr-1"></i>View
+                        </button>
+                      </td>
+                    </tr>
+                    <tr *ngIf="currentPage === 2" class="hover:bg-gray-50">
+                      <td class="px-4 py-3 text-sm font-medium text-indigo-600">AF-011B</td>
+                      <td class="px-4 py-3 text-sm text-gray-900">Water Tanker</td>
+                      <td class="px-4 py-3 text-sm text-gray-900">Iveco Eurocargo</td>
+                      <td class="px-4 py-3 text-sm text-gray-900">2020</td>
+                      <td class="px-4 py-3 text-sm text-gray-900">DXB-T-22345</td>
+                      <td class="px-4 py-3 text-sm text-gray-500 italic">Unassigned</td>
+                      <td class="px-4 py-3 text-sm text-gray-500">-</td>
+                      <td class="px-4 py-3 text-sm font-semibold text-blue-600">67,890 km</td>
+                      <td class="px-4 py-3"><span class="px-2 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-800">Breakdown</span></td>
+                      <td class="px-4 py-3 text-sm text-green-600">18-Nov-2025</td>
+                      <td class="px-4 py-3 text-sm text-gray-900">22-Aug-2024</td>
+                      <td class="px-4 py-3 text-sm">
+                        <button (click)="openDetailsModal({vehicleNo: 'AF-011B', type: 'Water Tanker', make: 'Iveco Eurocargo 2020', year: '2020', registrationNo: 'DXB-T-22345', driver: 'Unassigned', project: '-', status: 'Breakdown', lastService: '22-Aug-2024', nextService: '22-Nov-2024', insuranceExpiry: '18-Nov-2025', registrationExpiry: '03-Jan-2026', fuelType: 'Diesel', odometer: '67,890 km', capacity: '10,000 L', engineNo: 'IV-89012', chassisNo: 'CH-IV-2020-011B', purchaseDate: '08-Sep-2020', purchaseCost: 'AED 320,000', monthlyFuel: '0 L', monthlyCost: 'AED 0', avgKmL: 'N/A', breakdownIssue: 'Water pump motor failure', estimatedRepair: '12-Nov-2024'}, 'vehicle-master')" class="text-indigo-600 hover:text-indigo-900 px-3 py-1 rounded-md bg-indigo-50 hover:bg-indigo-100">
                           <i class="fas fa-eye mr-1"></i>View
                         </button>
                       </td>
