@@ -7,6 +7,7 @@ interface Driver {
   id: string;
   name: string;
   licenseNumber: string;
+  licenseIssueDate: Date;
   licenseExpiry: Date;
   licenseType: string;
   phone: string;
@@ -23,6 +24,8 @@ interface Driver {
   violations: number;
   rating: number; // 1-5
   region: string; // Dubai, Abu Dhabi, Sharjah, etc.
+  campName?: string;
+  roomNumber?: string;
 }
 
 @Component({
@@ -41,6 +44,7 @@ export class DriverManageComponent implements OnInit {
   selectedStatusFilter: string = 'All';
   selectedLicenseTypeFilter: string = 'All';
   selectedNationalityFilter: string = 'All';
+  selectedLicenseStatusFilter: string = 'All';
   
   // Pagination
   currentPage: number = 1;
@@ -61,6 +65,8 @@ export class DriverManageComponent implements OnInit {
   statuses: Array<'Available' | 'On Duty' | 'Off Duty' | 'On Leave' | 'Suspended'> = ['Available', 'On Duty', 'Off Duty', 'On Leave', 'Suspended'];
   nationalities: string[] = ['UAE', 'India', 'Pakistan', 'Bangladesh', 'Philippines', 'Egypt', 'Jordan', 'Sri Lanka', 'Nepal', 'Other'];
   regions: string[] = ['Dubai', 'Abu Dhabi', 'Sharjah', 'Ajman', 'Ras Al Khaimah', 'Fujairah', 'Umm Al Quwain'];
+  camps: string[] = ['Asab Field Camp', 'Shah Field Camp', 'Beda Zayed Camp', 'Qusaweira Camp'];
+  licenseStatuses: string[] = ['All', 'Valid', 'Expiring Soon', 'Expired'];
 
   constructor(private toastService: ToastService) {}
 
@@ -71,10 +77,10 @@ export class DriverManageComponent implements OnInit {
 
   // Generate sample drivers
   generateDrivers(): void {
-    const firstNames = ['Ahmed', 'Mohammed', 'Ali', 'Hassan', 'Omar', 'Khalid', 'Rashid', 'Salem', 'Saeed', 'Abdullah', 
-                        'Rajesh', 'Kumar', 'Imran', 'Farooq', 'Wasim', 'Rizwan', 'Tariq', 'Yousef', 'Bilal', 'Hamza'];
-    const lastNames = ['Khan', 'Ahmed', 'Hassan', 'Ali', 'Rahman', 'Malik', 'Sheikh', 'Patel', 'Kumar', 'Singh',
-                       'Farooq', 'Iqbal', 'Hameed', 'Mustafa', 'Yousuf', 'Abdullah', 'Ibrahim', 'Mahmood', 'Rashid', 'Saeed'];
+    const firstNames = ['Salman', 'Shah Rukh', 'Aamir', 'Akshay', 'Hrithik', 'Ranbir', 'Ranveer', 'Ajay', 'Saif Ali', 'Varun', 
+                        'Tiger', 'Arjun', 'Shahid', 'Siddharth', 'Ayushmann', 'Rajkumar', 'Vicky', 'Kartik', 'John', 'Farhan'];
+    const lastNames = ['Khan', 'Kumar', 'Kapoor', 'Roshan', 'Singh', 'Devgan', 'Dhawan', 'Shroff', 'Malhotra', 'Rao',
+                       'Khurrana', 'Kaushal', 'Aaryan', 'Abraham', 'Akhtar', 'Prabhas', 'Allu', 'Vijay', 'Rajput', 'Deol'];
 
     for (let i = 1; i <= 80; i++) {
       const firstName = firstNames[i % firstNames.length];
@@ -86,15 +92,38 @@ export class DriverManageComponent implements OnInit {
       const dateOfBirth = new Date();
       dateOfBirth.setFullYear(dateOfBirth.getFullYear() - (25 + Math.floor(Math.random() * 20))); // 25-45 years
 
+      // License dates - issue date should be before expiry date
+      const licenseIssueDate = new Date();
+      licenseIssueDate.setDate(licenseIssueDate.getDate() - Math.floor(Math.random() * 1825)); // 0-5 years ago
+      
       const licenseExpiry = new Date();
-      licenseExpiry.setDate(licenseExpiry.getDate() + Math.floor(Math.random() * 730)); // 0-2 years
+      // Create some expired licenses for testing
+      if (i % 10 === 0) {
+        // Every 10th driver has expired license
+        licenseExpiry.setDate(licenseExpiry.getDate() - Math.floor(Math.random() * 365)); // 0-1 year ago
+      } else if (i % 7 === 0) {
+        // Every 7th driver has license expiring soon (within 30 days)
+        licenseExpiry.setDate(licenseExpiry.getDate() + Math.floor(Math.random() * 30));
+      } else if (i % 5 === 0) {
+        // Every 5th driver has license expiring within 90 days
+        licenseExpiry.setDate(licenseExpiry.getDate() + Math.floor(Math.random() * 90));
+      } else {
+        // Rest have valid licenses (more than 90 days)
+        licenseExpiry.setDate(licenseExpiry.getDate() + Math.floor(Math.random() * 730) + 90); // 90 days to 2 years
+      }
 
       const region = 'Dubai'; // All drivers are from Dubai region
+      
+      // Camp and room assignment
+      const campsList = ['Asab Field Camp', 'Shah Field Camp', 'Beda Zayed Camp', 'Qusaweira Camp'];
+      const campName = campsList[i % campsList.length];
+      const roomNumber = `${Math.floor(i / 4) + 1}-${String.fromCharCode(65 + (i % 4))}`; // e.g., "1-A", "1-B", "2-A"
       
       const driver: Driver = {
         id: `D-${String(i).padStart(3, '0')}`,
         name: `${firstName} ${lastName}`,
         licenseNumber: `UAE-${Math.floor(Math.random() * 900000) + 100000}`,
+        licenseIssueDate: licenseIssueDate,
         licenseExpiry: licenseExpiry,
         licenseType: this.licenseTypes[i % this.licenseTypes.length],
         phone: `+971 ${Math.floor(Math.random() * 9) + 50} ${Math.floor(Math.random() * 9000000) + 1000000}`,
@@ -104,13 +133,15 @@ export class DriverManageComponent implements OnInit {
         dateOfBirth: dateOfBirth,
         joiningDate: joiningDate,
         status: i % 5 === 0 ? 'On Leave' : i % 7 === 0 ? 'Off Duty' : i % 3 === 0 ? 'On Duty' : 'Available',
-        assignedVehicle: i % 3 === 0 ? `AF-${String(i).padStart(3, '0')}` : undefined,
+        assignedVehicle: i % 6 !== 0 ? `AF-${String(i).padStart(3, '0')}` : undefined, // 85% of drivers get vehicles (only every 6th driver doesn't)
         experience: Math.floor(Math.random() * 15) + 2, // 2-16 years
         address: `Building ${i}, Street ${Math.floor(i / 10) + 1}, ${region}, UAE`,
         emergencyContact: `+971 ${Math.floor(Math.random() * 9) + 50} ${Math.floor(Math.random() * 9000000) + 1000000}`,
         violations: Math.floor(Math.random() * 5), // 0-4 violations
         rating: Number((3.5 + Math.random() * 1.5).toFixed(1)), // 3.5-5.0
-        region: region
+        region: region,
+        campName: campName,
+        roomNumber: roomNumber
       };
 
       this.drivers.push(driver);
@@ -149,6 +180,21 @@ export class DriverManageComponent implements OnInit {
       result = result.filter(driver => driver.nationality === this.selectedNationalityFilter);
     }
 
+    // Apply license status filter
+    if (this.selectedLicenseStatusFilter !== 'All') {
+      result = result.filter(driver => {
+        const licenseStatus = this.getLicenseStatus(driver.licenseExpiry);
+        if (this.selectedLicenseStatusFilter === 'Valid') {
+          return licenseStatus === 'Valid';
+        } else if (this.selectedLicenseStatusFilter === 'Expiring Soon') {
+          return licenseStatus === 'Expiring Soon';
+        } else if (this.selectedLicenseStatusFilter === 'Expired') {
+          return licenseStatus === 'Expired';
+        }
+        return false;
+      });
+    }
+
     this.filteredDrivers = result;
     this.currentPage = 1;
   }
@@ -159,6 +205,7 @@ export class DriverManageComponent implements OnInit {
     this.selectedStatusFilter = 'All';
     this.selectedLicenseTypeFilter = 'All';
     this.selectedNationalityFilter = 'All';
+    this.selectedLicenseStatusFilter = 'All';
     this.searchDrivers();
   }
 
@@ -254,6 +301,7 @@ export class DriverManageComponent implements OnInit {
           id: `D-${String(this.drivers.length + 1).padStart(3, '0')}`,
           name: this.newDriver.name!,
           licenseNumber: this.newDriver.licenseNumber!,
+          licenseIssueDate: this.newDriver.licenseIssueDate || new Date(),
           licenseExpiry: this.newDriver.licenseExpiry || new Date(),
           licenseType: this.newDriver.licenseType!,
           phone: this.newDriver.phone!,
@@ -341,17 +389,30 @@ export class DriverManageComponent implements OnInit {
     
     if (daysUntilExpiry < 0) return 'Expired';
     if (daysUntilExpiry <= 30) return 'Expiring Soon';
+    if (daysUntilExpiry <= 90) return 'Valid (Expires in ' + daysUntilExpiry + ' days)';
     return 'Valid';
   }
 
   getLicenseStatusColor(expiryDate: Date): string {
-    const status = this.getLicenseStatus(expiryDate);
-    switch (status) {
-      case 'Expired': return 'text-red-600 font-bold';
-      case 'Expiring Soon': return 'text-yellow-600 font-bold';
-      case 'Valid': return 'text-green-600';
-      default: return 'text-gray-600';
-    }
+    const today = new Date();
+    const expiry = new Date(expiryDate);
+    const daysUntilExpiry = Math.floor((expiry.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+    
+    if (daysUntilExpiry < 0) return 'text-red-600 font-bold';
+    if (daysUntilExpiry <= 30) return 'text-yellow-600 font-bold';
+    if (daysUntilExpiry <= 90) return 'text-orange-600 font-medium';
+    return 'text-green-600';
+  }
+
+  getLicenseStatusBadge(expiryDate: Date): string {
+    const today = new Date();
+    const expiry = new Date(expiryDate);
+    const daysUntilExpiry = Math.floor((expiry.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+    
+    if (daysUntilExpiry < 0) return 'bg-red-100 text-red-800 border-red-200';
+    if (daysUntilExpiry <= 30) return 'bg-yellow-100 text-yellow-800 border-yellow-200';
+    if (daysUntilExpiry <= 90) return 'bg-orange-100 text-orange-800 border-orange-200';
+    return 'bg-green-100 text-green-800 border-green-200';
   }
 
   formatDate(date: Date): string {
@@ -385,4 +446,39 @@ export class DriverManageComponent implements OnInit {
   getSuspendedCount(): number {
     return this.drivers.filter(d => d.status === 'Suspended').length;
   }
+
+  checkLicenseExpiry(): void {
+    // This method is called when license expiry date changes in the form
+    // The status will be automatically updated via the template binding
+  }
+
+  // License management actions
+  renewLicense(driver: Driver): void {
+    this.toastService.success(`License renewal initiated for ${driver.name}. New expiry date will be set.`);
+    // In a real application, this would:
+    // 1. Open a license renewal form
+    // 2. Connect to license authority API
+    // 3. Update the driver's license expiry date
+    // 4. Send notifications
+    console.log('License renewal for:', driver.name);
+  }
+
+  remindDriver(driver: Driver): void {
+    const licenseStatus = this.getLicenseStatus(driver.licenseExpiry);
+    let message = '';
+    
+    if (licenseStatus === 'Expired') {
+      message = `Urgent reminder sent to ${driver.name} about expired license.`;
+    } else if (licenseStatus === 'Expiring Soon') {
+      message = `Reminder sent to ${driver.name} about upcoming license expiry.`;
+    }
+    
+    this.toastService.info(message);
+    // In a real application, this would:
+    // 1. Send SMS/Email to driver
+    // 2. Log the reminder in the system
+    // 3. Notify HR/Admin
+    console.log('Reminder sent to:', driver.name, 'Status:', licenseStatus);
+  }
+
 }
