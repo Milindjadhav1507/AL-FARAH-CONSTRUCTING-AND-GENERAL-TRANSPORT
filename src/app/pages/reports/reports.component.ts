@@ -5,6 +5,7 @@ import { NgxEchartsModule } from 'ngx-echarts';
 import { EChartsOption } from 'echarts';
 import { ToastService } from '../../services/toast.service';
 import { ToastComponent } from '../../components/toast/toast.component';
+import { VehicleDataService, Vehicle, VehicleType, VehicleStatus, Driver, Route } from '../../services/vehicle-data.service';
 
 interface ReportCategory {
   id: string;
@@ -40,6 +41,26 @@ export class ReportsComponent implements OnInit {
   selectedCategory: string = 'vehicle-master';
   selectedReport: Report | null = null;
   showSidebar: boolean = true;
+
+  // Vehicle data from service
+  vehicles: Vehicle[] = [];
+  vehicleTypes: VehicleType[] = [];
+  vehicleStatuses: VehicleStatus[] = [];
+  drivers: Driver[] = [];
+  routes: Route[] = [];
+  
+  // KPI Statistics - Same as fleet management
+  totalVehicles: number = 0;
+  availableVehicles: number = 0;
+  inUseVehicles: number = 0;
+  maintenanceVehicles: number = 0;
+  breakdownVehicles: number = 0;
+
+  // Pagination properties
+  currentPage: number = 1;
+  itemsPerPage: number = 10;
+  totalPages: number = 0;
+  totalItems: number = 0;
 
   // Filters
   filters: ReportFilter = {
@@ -110,11 +131,10 @@ export class ReportsComponent implements OnInit {
   ];
 
   // Dropdown options
-  vehicleTypes: string[] = ['All', 'Double Cabin Pickup', 'Dumper', '3 Ton Pickup', 'Low Bed Trailor', 'Station Wagon', 'Flat Bed Trailor', 'Mini Bus', 'Excavator', 'Desert Bus', 'Shovel', '30 Seater Bus', 'Wheel Dozer', '60 Seater Bus', 'Bull Dozer', 'Diesel Tanker', 'Water Tanker', 'Bob Cat', 'Hiab Crane', 'Tipper', 'Mobile Crane', 'Trailor', 'Grader'];
   projects: string[] = ['All', 'Shah Field', 'Asab Field', 'Beda Zayed', 'Qusaweira', 'Abu Dhabi City', 'Dubai Project', 'Sharjah Site'];
   statuses: string[] = ['All', 'Active', 'Maintenance', 'Idle', 'Breakdown'];
 
-  constructor(private toastService: ToastService) { }
+  constructor(private toastService: ToastService, private vehicleDataService: VehicleDataService) { }
 
   ngOnInit(): void {
     // Set default date range (last 30 days)
@@ -138,6 +158,75 @@ export class ReportsComponent implements OnInit {
         this.selectReport(category.reports[0]);
       }
     }
+
+    // Load vehicle data from service
+    this.loadVehicleData();
+  }
+
+  loadVehicleData(): void {
+    this.vehicles = this.vehicleDataService.getAllVehicles();
+    this.vehicleTypes = this.vehicleDataService.getVehicleTypes();
+    this.vehicleStatuses = this.vehicleDataService.getVehicleStatuses();
+    this.drivers = this.vehicleDataService.getDrivers();
+    this.routes = this.vehicleDataService.getRoutes();
+    
+    // Calculate statistics - Same logic as fleet management
+    this.calculateStatistics();
+    
+    // Update pagination
+    this.totalItems = this.vehicles.length;
+    this.totalPages = Math.ceil(this.totalItems / this.itemsPerPage);
+  }
+
+  calculateStatistics(): void {
+    this.totalVehicles = this.vehicles.length;
+    this.availableVehicles = this.vehicles.filter(v => v.currentStatus.name === 'Active').length;
+    this.inUseVehicles = this.vehicles.filter(v => v.currentStatus.name === 'Idle').length;
+    this.maintenanceVehicles = this.vehicles.filter(v => v.currentStatus.name === 'Maintenance').length;
+    this.breakdownVehicles = this.vehicles.filter(v => v.currentStatus.name === 'Breakdown').length;
+  }
+
+  // Helper methods for template
+  formatDate(date: Date): string {
+    return this.vehicleDataService.formatDate(date);
+  }
+
+  formatOdometer(km: number, vehicleType: VehicleType): string {
+    return this.vehicleDataService.formatOdometer(km, vehicleType);
+  }
+
+  getStatusClass(status: string): string {
+    const statusObj = this.vehicleStatuses.find(s => s.name === status);
+    return statusObj ? `${statusObj.bgColor} ${statusObj.color}` : 'bg-gray-100 text-gray-800';
+  }
+
+  getPaginatedVehicles(): Vehicle[] {
+    const startIndex = (this.currentPage - 1) * this.itemsPerPage;
+    const endIndex = startIndex + this.itemsPerPage;
+    return this.vehicles.slice(startIndex, endIndex);
+  }
+
+  onPageChange(page: number): void {
+    this.currentPage = page;
+  }
+
+  onItemsPerPageChange(itemsPerPage: number): void {
+    this.itemsPerPage = itemsPerPage;
+    this.currentPage = 1;
+    this.totalPages = Math.ceil(this.totalItems / this.itemsPerPage);
+  }
+
+  getVisiblePages(): number[] {
+    const pages: number[] = [];
+    const maxVisible = 5;
+    const start = Math.max(1, this.currentPage - Math.floor(maxVisible / 2));
+    const end = Math.min(this.totalPages, start + maxVisible - 1);
+    
+    for (let i = start; i <= end; i++) {
+      pages.push(i);
+    }
+    
+    return pages;
   }
 
   selectCategory(categoryId: string): void {
@@ -1125,41 +1214,8 @@ export class ReportsComponent implements OnInit {
     return parseFloat(value);
   }
 
-  // Pagination properties
-  currentPage: number = 1;
-  itemsPerPage: number = 10;
-  totalVehicles: number = 600;
-  
-  get totalPages(): number {
-    return Math.ceil(this.totalVehicles / this.itemsPerPage);
-  }
+  // Pagination properties (duplicates removed - already declared above)
 
-  getVisiblePages(): number[] {
-    const pages: number[] = [];
-    const maxVisiblePages = 7; // Show maximum 7 page numbers
-    
-    if (this.totalPages <= maxVisiblePages) {
-      // Show all pages if total pages is less than max visible
-      for (let i = 1; i <= this.totalPages; i++) {
-        pages.push(i);
-      }
-    } else {
-      // Show pages around current page
-      let startPage = Math.max(1, this.currentPage - 3);
-      let endPage = Math.min(this.totalPages, startPage + maxVisiblePages - 1);
-      
-      // Adjust start page if we're near the end
-      if (endPage - startPage < maxVisiblePages - 1) {
-        startPage = Math.max(1, endPage - maxVisiblePages + 1);
-      }
-      
-      for (let i = startPage; i <= endPage; i++) {
-        pages.push(i);
-      }
-    }
-    
-    return pages;
-  }
 
   goToPage(page: number): void {
     if (page >= 1 && page <= this.totalPages) {
@@ -1182,11 +1238,6 @@ export class ReportsComponent implements OnInit {
     }
   }
 
-  onItemsPerPageChange(): void {
-    // Reset to first page when changing items per page
-    this.currentPage = 1;
-    console.log(`Items per page changed to ${this.itemsPerPage}`);
-  }
 
   // Helper method to access Math in template
   get Math() {
