@@ -147,7 +147,7 @@ export class ReportsComponent implements OnInit {
   projects: string[] = ['All', 'Shah Field', 'Asab Field', 'Beda Zayed', 'Qusaweira', 'Abu Dhabi City', 'Dubai Project', 'Sharjah Site'];
   statuses: string[] = ['All', 'Active', 'Maintenance', 'Idle', 'Breakdown'];
 
-  // Fuel Records Data - Same as fleet-manage
+  // Fuel Records Data - Same as fleet-manage (Extended with more records)
   fuelRecords: FuelRecord[] = [
     {
       id: '1',
@@ -157,7 +157,7 @@ export class ReportsComponent implements OnInit {
       fuelAmount: 50,
       kmReading: 45000,
       cost: 150,
-      location: 'Site 1 Fuel Station',
+      location: 'Shah Field Fuel Station',
       driverId: '2'
     },
     {
@@ -256,6 +256,226 @@ export class ReportsComponent implements OnInit {
       fuelAmount: 48,
       kmReading: 45520,
       cost: 144,
+      location: 'Shah Field Fuel Station',
+      driverId: '2'
+    },
+    {
+      id: '11',
+      vehicleId: '3',
+      date: new Date('2024-10-11'),
+      time: '06:00',
+      fuelAmount: 65,
+      kmReading: 13100,
+      cost: 195,
+      location: 'Beda Zayed Fuel Station',
+      driverId: '5'
+    },
+    {
+      id: '12',
+      vehicleId: '2',
+      date: new Date('2024-10-12'),
+      time: '15:45',
+      fuelAmount: 110,
+      kmReading: 126200,
+      cost: 330,
+      location: 'Asab Field Fuel Station',
+      driverId: '4'
+    },
+    {
+      id: '13',
+      vehicleId: '4',
+      date: new Date('2024-10-13'),
+      time: '08:00',
+      fuelAmount: 195,
+      kmReading: 25900,
+      cost: 585,
+      location: 'Main Fuel Depot',
+      driverId: '1'
+    },
+    {
+      id: '14',
+      vehicleId: '5',
+      date: new Date('2024-10-14'),
+      time: '12:30',
+      fuelAmount: 82,
+      kmReading: 93200,
+      cost: 246,
+      location: 'Camp Fuel Station',
+      driverId: '3'
+    },
+    {
+      id: '15',
+      vehicleId: '1',
+      date: new Date('2024-10-15'),
+      time: '07:45',
+      fuelAmount: 52,
+      kmReading: 45800,
+      cost: 156,
+      location: 'Shah Field Fuel Station',
+      driverId: '2'
+    },
+    {
+      id: '16',
+      vehicleId: '3',
+      date: new Date('2024-09-28'),
+      time: '09:30',
+      fuelAmount: 58,
+      kmReading: 12700,
+      cost: 174,
+      location: 'Equipment Depot Fuel Station',
+      driverId: '5'
+    },
+    {
+      id: '17',
+      vehicleId: '2',
+      date: new Date('2024-09-29'),
+      time: '14:15',
+      fuelAmount: 118,
+      kmReading: 124500,
+      cost: 354,
+      location: 'Camp B Fuel Station',
+      driverId: '4'
+    },
+    {
+      id: '18',
+      vehicleId: '4',
+      date: new Date('2024-09-30'),
+      time: '11:00',
+      fuelAmount: 205,
+      kmReading: 24200,
+      cost: 615,
+      location: 'Main Fuel Depot',
+      driverId: '1'
+    },
+    {
+      id: '19',
+      vehicleId: '5',
+      date: new Date('2024-09-27'),
+      time: '16:20',
+      fuelAmount: 77,
+      kmReading: 91900,
+      cost: 231,
+      location: 'Camp Fuel Station',
+      driverId: '3'
+    },
+    {
+      id: '20',
+      vehicleId: '1',
+      date: new Date('2024-09-26'),
+      time: '10:10',
+      fuelAmount: 49,
+      kmReading: 44750,
+      cost: 147,
+      location: 'Shah Field Fuel Station',
+      driverId: '2'
+    },
+    {
+      id: '21',
+      vehicleId: '3',
+      date: new Date('2024-09-25'),
+      time: '13:45',
+      fuelAmount: 62,
+      kmReading: 12400,
+      cost: 186,
+      location: 'Beda Zayed Fuel Station',
+      driverId: '5'
+    },
+    {
+      id: '22',
+      vehicleId: '2',
+      date: new Date('2024-09-24'),
+      time: '08:20',
+      fuelAmount: 122,
+      kmReading: 123800,
+      cost: 366,
+      location: 'Asab Field Fuel Station',
+      driverId: '4'
+    },
+    {
+      id: '23',
+      vehicleId: '4',
+      date: new Date('2024-09-23'),
+      time: '15:00',
+      fuelAmount: 198,
+      kmReading: 23500,
+      cost: 594,
+      location: 'Main Fuel Depot',
+      driverId: '1'
+    },
+    {
+      id: '24',
+      vehicleId: '5',
+      date: new Date('2024-09-22'),
+      time: '09:40',
+      fuelAmount: 79,
+      kmReading: 91200,
+      cost: 237,
+      location: 'Camp Fuel Station',
+      driverId: '3'
+    },
+    {
+      id: '25',
+      vehicleId: '1',
+      date: new Date('2024-09-21'),
+      time: '12:15',
+      fuelAmount: 47,
+      kmReading: 44450,
+      cost: 141,
+      location: 'Shah Field Fuel Station',
+      driverId: '2'
+    },
+    {
+      id: '26',
+      vehicleId: '3',
+      date: new Date('2024-09-20'),
+      time: '07:00',
+      fuelAmount: 64,
+      kmReading: 12150,
+      cost: 192,
+      location: 'Equipment Depot Fuel Station',
+      driverId: '5'
+    },
+    {
+      id: '27',
+      vehicleId: '2',
+      date: new Date('2024-09-19'),
+      time: '14:50',
+      fuelAmount: 125,
+      kmReading: 123000,
+      cost: 375,
+      location: 'Asab Field Fuel Station',
+      driverId: '4'
+    },
+    {
+      id: '28',
+      vehicleId: '4',
+      date: new Date('2024-09-18'),
+      time: '10:30',
+      fuelAmount: 202,
+      kmReading: 22800,
+      cost: 606,
+      location: 'Main Fuel Depot',
+      driverId: '1'
+    },
+    {
+      id: '29',
+      vehicleId: '5',
+      date: new Date('2024-09-17'),
+      time: '16:05',
+      fuelAmount: 81,
+      kmReading: 90500,
+      cost: 243,
+      location: 'Camp Fuel Station',
+      driverId: '3'
+    },
+    {
+      id: '30',
+      vehicleId: '1',
+      date: new Date('2024-09-16'),
+      time: '08:50',
+      fuelAmount: 51,
+      kmReading: 44150,
+      cost: 153,
       location: 'Shah Field Fuel Station',
       driverId: '2'
     }
@@ -1440,6 +1660,10 @@ export class ReportsComponent implements OnInit {
   fuelCurrentPage: number = 1;
   fuelItemsPerPage: number = 10;
 
+  // Fuel Record Modal Properties
+  showFuelRecordModal: boolean = false;
+  selectedFuelRecord: FuelRecord | null = null;
+
   get paginatedFuelRecords(): FuelRecord[] {
     const sortedRecords = this.fuelRecords
       .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
@@ -1481,5 +1705,17 @@ export class ReportsComponent implements OnInit {
     }
     
     return pages;
+  }
+
+  // Fuel Record Details Modal Methods
+  openFuelRecordDetailsModal(record: FuelRecord): void {
+    this.selectedFuelRecord = record;
+    this.showFuelRecordModal = true;
+    console.log('Opening fuel record details:', record);
+  }
+
+  closeFuelRecordDetailsModal(): void {
+    this.showFuelRecordModal = false;
+    this.selectedFuelRecord = null;
   }
 }
