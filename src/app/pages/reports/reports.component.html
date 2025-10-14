@@ -334,13 +334,13 @@
               </div>
             </div>
 
-            <!-- Enhanced Summary Cards - 6 Cards -->
-            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-6">
+            <!-- Enhanced Summary Cards - 6 Cards (Using Real Data from Fleet Management) -->
+            <!-- <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-6">
               <div class="bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg p-4 text-white shadow-md">
                 <div class="flex items-center justify-between">
                   <div>
                     <p class="text-blue-100 text-xs font-medium uppercase">Total Fuel</p>
-                    <h3 class="text-2xl font-bold mt-1">12,400 L</h3>
+                    <h3 class="text-2xl font-bold mt-1">{{ getTotalFuelThisMonth() }} L</h3>
                     <p class="text-xs text-blue-100 mt-1">This Month</p>
                   </div>
                   <i class="fas fa-gas-pump text-3xl opacity-20"></i>
@@ -350,8 +350,8 @@
                 <div class="flex items-center justify-between">
                   <div>
                     <p class="text-green-100 text-xs font-medium uppercase">Total Cost</p>
-                    <h3 class="text-2xl font-bold mt-1">AED 148k</h3>
-                    <p class="text-xs text-green-100 mt-1">+12% vs Last Month</p>
+                    <h3 class="text-2xl font-bold mt-1">AED {{ getTotalCostThisMonth().toLocaleString() }}</h3>
+                    <p class="text-xs text-green-100 mt-1">Based on Records</p>
                   </div>
                   <i class="fas fa-dollar-sign text-3xl opacity-20"></i>
                 </div>
@@ -360,7 +360,7 @@
                 <div class="flex items-center justify-between">
                   <div>
                     <p class="text-purple-100 text-xs font-medium uppercase">Avg Km/L</p>
-                    <h3 class="text-2xl font-bold mt-1">3.8</h3>
+                    <h3 class="text-2xl font-bold mt-1">{{ fuelSummary.avgEfficiency }}</h3>
                     <p class="text-xs text-purple-100 mt-1">Fleet Average</p>
                   </div>
                   <i class="fas fa-tachometer-alt text-3xl opacity-20"></i>
@@ -370,7 +370,7 @@
                 <div class="flex items-center justify-between">
                   <div>
                     <p class="text-orange-100 text-xs font-medium uppercase">Active Vehicles</p>
-                    <h3 class="text-2xl font-bold mt-1">540</h3>
+                    <h3 class="text-2xl font-bold mt-1">{{ fuelSummary.activeVehicles }}</h3>
                     <p class="text-xs text-orange-100 mt-1">Consuming Fuel</p>
                   </div>
                   <i class="fas fa-truck text-3xl opacity-20"></i>
@@ -380,7 +380,7 @@
                 <div class="flex items-center justify-between">
                   <div>
                     <p class="text-red-100 text-xs font-medium uppercase">Cost per Km</p>
-                    <h3 class="text-2xl font-bold mt-1">AED 3.2</h3>
+                    <h3 class="text-2xl font-bold mt-1">AED {{ fuelSummary.costPerKm }}</h3>
                     <p class="text-xs text-red-100 mt-1">Average Rate</p>
                   </div>
                   <i class="fas fa-road text-3xl opacity-20"></i>
@@ -390,16 +390,16 @@
                 <div class="flex items-center justify-between">
                   <div>
                     <p class="text-indigo-100 text-xs font-medium uppercase">Total Distance</p>
-                    <h3 class="text-2xl font-bold mt-1">47,250 km</h3>
+                    <h3 class="text-2xl font-bold mt-1">{{ fuelSummary.totalDistanceThisMonth.toLocaleString() }} km</h3>
                     <p class="text-xs text-indigo-100 mt-1">This Month</p>
                   </div>
                   <i class="fas fa-route text-3xl opacity-20"></i>
                 </div>
               </div>
-            </div>
+            </div> -->
 
             <!-- Project-wise Fuel Distribution -->
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+            <!-- <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
               <div class="bg-white border-2 border-blue-200 rounded-lg p-4 shadow-sm">
                 <div class="flex items-center justify-between mb-2">
                   <div class="flex items-center">
@@ -460,10 +460,10 @@
                 </div>
                 <div class="text-xs text-gray-600">AED 16,800 • 85 Vehicles</div>
               </div>
-            </div>
+            </div> -->
 
             <!-- Enhanced Detailed Table -->
-            <div class="bg-white rounded-lg border border-gray-200 shadow-sm">
+            <!-- <div class="bg-white rounded-lg border border-gray-200 shadow-sm">
               <div class="px-4 py-3 border-b border-gray-200 bg-gray-50">
                 <div class="flex items-center justify-between">
                   <h4 class="text-sm font-semibold text-gray-900">Vehicle-wise Fuel Consumption Details</h4>
@@ -699,6 +699,105 @@
               </div>
               <div class="px-4 py-3 bg-gray-50 border-t border-gray-200">
                 <p class="text-sm text-gray-600">Showing 5 of 540 active vehicles. Use filters to refine results.</p>
+              </div>
+            </div> -->
+
+            <!-- Recent Fuel Entries Table - Same as Fleet Management -->
+            <div class="mt-6">
+              <div class="bg-white rounded-lg border border-gray-200 shadow-sm">
+                <!-- <div class="px-4 py-3 border-b border-gray-200 bg-gray-50"> -->
+                  <!-- <div class="flex items-center justify-between">
+                    <div>
+                     <h4 class="text-sm font-semibold text-gray-900">Recent Fuel Entries</h4>
+                      <p class="text-xs text-gray-600 mt-1">Individual fuel transaction records from fleet management</p> 
+                    </div>
+                    <div class="text-sm text-gray-700">
+                      Showing <span class="font-medium">{{ ((fuelCurrentPage - 1) * fuelItemsPerPage) + 1 }}</span> to 
+                      <span class="font-medium">{{ Math.min(fuelCurrentPage * fuelItemsPerPage, fuelRecords.length) }}</span> of 
+                      <span class="font-medium">{{ fuelRecords.length }}</span> records
+                    </div>
+                  </div>  -->
+                <!-- </div> -->
+
+                <div class="overflow-x-auto">
+                  <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                      <tr>
+                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Vehicle</th>
+                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date & Time</th>
+                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Fuel Quantity</th>
+                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">KM Reading</th>
+                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Cost</th>
+                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Location</th>
+                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Driver</th>
+                      </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200">
+                      <tr *ngFor="let record of paginatedFuelRecords" class="hover:bg-gray-50">
+                        <td class="px-4 py-3 whitespace-nowrap">
+                          <div class="flex items-center">
+                            <i class="fas fa-truck text-lg mr-2 text-blue-600"></i>
+                            <span class="text-sm font-medium text-gray-900">AF-{{ record.vehicleId.padStart(3, '0') }}</span>
+                          </div>
+                        </td>
+                        <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900">
+                          {{ formatDate(record.date) }}<br>
+                          <span class="text-gray-500">{{ record.time }}</span>
+                        </td>
+                        <td class="px-4 py-3 whitespace-nowrap text-sm font-medium text-orange-600">
+                          {{ record.fuelAmount }}L
+                        </td>
+                        <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900">
+                          {{ record.kmReading.toLocaleString() }} km
+                        </td>
+                        <td class="px-4 py-3 whitespace-nowrap text-sm font-medium text-green-600">
+                          AED {{ record.cost }}
+                        </td>
+                        <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900">
+                          {{ record.location }}
+                        </td>
+                        <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900">
+                          <ng-container *ngIf="getDriverForFuelRecord(record.driverId) as driver">
+                            {{ driver.name }}
+                          </ng-container>
+                          <ng-container *ngIf="!getDriverForFuelRecord(record.driverId)">
+                            Unassigned
+                          </ng-container>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+
+                <!-- Pagination -->
+                <div class="px-4 py-3 bg-gray-50 border-t border-gray-200 flex justify-between items-center">
+                  <div class="text-sm text-gray-700">
+                    Page <span class="font-medium">{{ fuelCurrentPage }}</span> of <span class="font-medium">{{ totalFuelPages }}</span>
+                  </div>
+                  <div class="flex items-center space-x-2">
+                    <button 
+                      (click)="previousFuelPage()" 
+                      [disabled]="fuelCurrentPage === 1"
+                      [class]="fuelCurrentPage === 1 ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-200'"
+                      class="px-3 py-1 text-sm bg-white border border-gray-300 rounded-md">
+                      <i class="fas fa-chevron-left"></i> Previous
+                    </button>
+                    <button 
+                      *ngFor="let page of getFuelPageNumbers()"
+                      (click)="goToFuelPage(page)"
+                      [class]="page === fuelCurrentPage ? 'bg-blue-600 text-white' : 'bg-white text-gray-700 hover:bg-gray-100'"
+                      class="px-3 py-1 text-sm border border-gray-300 rounded-md">
+                      {{ page }}
+                    </button>
+                    <button 
+                      (click)="nextFuelPage()" 
+                      [disabled]="fuelCurrentPage === totalFuelPages"
+                      [class]="fuelCurrentPage === totalFuelPages ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-200'"
+                      class="px-3 py-1 text-sm bg-white border border-gray-300 rounded-md">
+                      Next <i class="fas fa-chevron-right"></i>
+                    </button>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -3882,7 +3981,7 @@
       <!-- Fuel Consumption Summary Modal - Detailed View -->
       <div *ngIf="selectedRecordDetails.reportType === 'fuel-consumption'">
         <!-- KPI Cards -->
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+        <!-- <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
           <div class="bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg p-4 text-white shadow-lg">
             <div class="flex items-center justify-between">
               <div>
@@ -3923,7 +4022,7 @@
               <i class="fas fa-fill-drip text-3xl opacity-20"></i>
             </div>
           </div>
-        </div>
+        </div> -->
 
         <!-- Vehicle & Driver Info Card -->
         <div class="bg-gradient-to-br from-indigo-50 to-blue-50 border-2 border-indigo-200 rounded-lg p-5 mb-6">

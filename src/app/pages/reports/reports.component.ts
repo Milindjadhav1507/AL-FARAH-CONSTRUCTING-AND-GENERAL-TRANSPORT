@@ -31,6 +31,19 @@ interface ReportFilter {
   status: string;
 }
 
+// Fuel Record Interface - Same as fleet-manage
+interface FuelRecord {
+  id: string;
+  vehicleId: string;
+  date: Date;
+  time: string;
+  fuelAmount: number;
+  kmReading: number;
+  cost: number;
+  location: string;
+  driverId: string;
+}
+
 @Component({
   selector: 'app-reports',
   imports: [CommonModule, FormsModule, NgxEchartsModule, ToastComponent],
@@ -133,6 +146,130 @@ export class ReportsComponent implements OnInit {
   // Dropdown options
   projects: string[] = ['All', 'Shah Field', 'Asab Field', 'Beda Zayed', 'Qusaweira', 'Abu Dhabi City', 'Dubai Project', 'Sharjah Site'];
   statuses: string[] = ['All', 'Active', 'Maintenance', 'Idle', 'Breakdown'];
+
+  // Fuel Records Data - Same as fleet-manage
+  fuelRecords: FuelRecord[] = [
+    {
+      id: '1',
+      vehicleId: '1',
+      date: new Date('2024-10-01'),
+      time: '08:30',
+      fuelAmount: 50,
+      kmReading: 45000,
+      cost: 150,
+      location: 'Site 1 Fuel Station',
+      driverId: '2'
+    },
+    {
+      id: '2',
+      vehicleId: '2',
+      date: new Date('2024-10-02'),
+      time: '07:15',
+      fuelAmount: 120,
+      kmReading: 125000,
+      cost: 360,
+      location: 'Camp B Fuel Station',
+      driverId: '4'
+    },
+    {
+      id: '3',
+      vehicleId: '4',
+      date: new Date('2024-10-03'),
+      time: '14:20',
+      fuelAmount: 200,
+      kmReading: 25000,
+      cost: 600,
+      location: 'Main Fuel Depot',
+      driverId: '1'
+    },
+    {
+      id: '4',
+      vehicleId: '1',
+      date: new Date('2024-10-04'),
+      time: '09:15',
+      fuelAmount: 45,
+      kmReading: 45230,
+      cost: 135,
+      location: 'Shah Field Fuel Station',
+      driverId: '2'
+    },
+    {
+      id: '5',
+      vehicleId: '5',
+      date: new Date('2024-10-05'),
+      time: '10:00',
+      fuelAmount: 80,
+      kmReading: 92340,
+      cost: 240,
+      location: 'Camp Fuel Station',
+      driverId: '3'
+    },
+    {
+      id: '6',
+      vehicleId: '2',
+      date: new Date('2024-10-06'),
+      time: '08:45',
+      fuelAmount: 115,
+      kmReading: 125780,
+      cost: 345,
+      location: 'Asab Field Fuel Station',
+      driverId: '4'
+    },
+    {
+      id: '7',
+      vehicleId: '3',
+      date: new Date('2024-10-07'),
+      time: '11:30',
+      fuelAmount: 60,
+      kmReading: 12950,
+      cost: 180,
+      location: 'Equipment Depot Fuel Station',
+      driverId: '5'
+    },
+    {
+      id: '8',
+      vehicleId: '4',
+      date: new Date('2024-10-08'),
+      time: '14:00',
+      fuelAmount: 190,
+      kmReading: 25500,
+      cost: 570,
+      location: 'Main Fuel Depot',
+      driverId: '1'
+    },
+    {
+      id: '9',
+      vehicleId: '5',
+      date: new Date('2024-10-09'),
+      time: '07:30',
+      fuelAmount: 75,
+      kmReading: 92850,
+      cost: 225,
+      location: 'Camp Fuel Station',
+      driverId: '3'
+    },
+    {
+      id: '10',
+      vehicleId: '1',
+      date: new Date('2024-10-10'),
+      time: '13:20',
+      fuelAmount: 48,
+      kmReading: 45520,
+      cost: 144,
+      location: 'Shah Field Fuel Station',
+      driverId: '2'
+    }
+  ];
+
+  // Fuel Summary Statistics
+  fuelSummary = {
+    totalFuelThisMonth: 983,
+    totalCostThisMonth: 2949,
+    avgEfficiency: 9.2,
+    activeVehicles: 540,
+    costPerKm: 3.2,
+    totalDistanceThisMonth: 47250
+  };
 
   constructor(private toastService: ToastService, private vehicleDataService: VehicleDataService) { }
 
@@ -418,15 +555,32 @@ export class ReportsComponent implements OnInit {
   }
 
   private generateFuelConsumptionExcelContent(): string {
-    const headers = 'Month,Total Fuel (L),Total Cost (AED),Average Cost per Liter,Vehicles Active,Average Efficiency (km/L),Top Consumer Vehicle,Top Consumer Project';
-    const data = [
-      'October 2024,11,100,33,300,3.00,45,9.2,AF-002 (Dumper),Asab Field',
-      'September 2024,10,800,32,400,3.00,42,8.9,AF-002 (Dumper),Asab Field',
-      'August 2024,10,500,31,500,3.00,40,8.7,AF-002 (Dumper),Asab Field',
-      'July 2024,10,200,30,600,3.00,38,8.5,AF-002 (Dumper),Asab Field',
-      'June 2024,9,900,29,700,3.00,35,8.3,AF-002 (Dumper),Asab Field'
+    // Header for summary section
+    const summaryHeaders = 'Summary Report - Fuel Consumption';
+    const summaryData = [
+      '',
+      `Total Fuel This Month,${this.getTotalFuelThisMonth()} L`,
+      `Total Cost This Month,AED ${this.getTotalCostThisMonth()}`,
+      `Average Efficiency,${this.fuelSummary.avgEfficiency} km/L`,
+      `Active Vehicles,${this.fuelSummary.activeVehicles}`,
+      `Cost per Km,AED ${this.fuelSummary.costPerKm}`,
+      `Total Distance This Month,${this.fuelSummary.totalDistanceThisMonth} km`,
+      ''
     ];
-    return [headers, ...data].join('\n');
+
+    // Header for detailed fuel records
+    const detailHeaders = 'Vehicle,Date,Time,Fuel Amount (L),KM Reading,Cost (AED),Location,Driver';
+    
+    // Generate rows from actual fuel records
+    const detailData = this.fuelRecords
+      .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+      .map(record => {
+        const vehicle = this.getVehicleForFuelRecord(record.vehicleId);
+        const driver = this.getDriverForFuelRecord(record.driverId);
+        return `AF-${record.vehicleId.padStart(3, '0')},${this.formatDate(record.date)},${record.time},${record.fuelAmount},${record.kmReading},${record.cost},${record.location},${driver?.name || 'Unassigned'}`;
+      });
+
+    return [summaryHeaders, ...summaryData, detailHeaders, ...detailData].join('\n');
   }
 
   private generateDefaultExcelContent(): string {
@@ -1027,71 +1181,74 @@ export class ReportsComponent implements OnInit {
   }
 
   private generateFuelConsumptionPrintContent(): string {
+    // Generate summary section
+    const summarySection = `
+      <div style="margin-bottom: 30px;">
+        <h3 style="font-size: 16px; font-weight: bold; margin-bottom: 15px;">Summary Statistics</h3>
+        <table style="width: 100%; margin-bottom: 20px;">
+          <tbody>
+            <tr>
+              <td style="padding: 8px; border: 1px solid #ddd;"><strong>Total Fuel This Month</strong></td>
+              <td style="padding: 8px; border: 1px solid #ddd;">${this.getTotalFuelThisMonth()} L</td>
+              <td style="padding: 8px; border: 1px solid #ddd;"><strong>Total Cost</strong></td>
+              <td style="padding: 8px; border: 1px solid #ddd;">AED ${this.getTotalCostThisMonth()}</td>
+            </tr>
+            <tr>
+              <td style="padding: 8px; border: 1px solid #ddd;"><strong>Average Efficiency</strong></td>
+              <td style="padding: 8px; border: 1px solid #ddd;">${this.fuelSummary.avgEfficiency} km/L</td>
+              <td style="padding: 8px; border: 1px solid #ddd;"><strong>Active Vehicles</strong></td>
+              <td style="padding: 8px; border: 1px solid #ddd;">${this.fuelSummary.activeVehicles}</td>
+            </tr>
+            <tr>
+              <td style="padding: 8px; border: 1px solid #ddd;"><strong>Cost per Km</strong></td>
+              <td style="padding: 8px; border: 1px solid #ddd;">AED ${this.fuelSummary.costPerKm}</td>
+              <td style="padding: 8px; border: 1px solid #ddd;"><strong>Total Distance</strong></td>
+              <td style="padding: 8px; border: 1px solid #ddd;">${this.fuelSummary.totalDistanceThisMonth.toLocaleString()} km</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    `;
+
+    // Generate fuel records table rows
+    const recordsRows = this.fuelRecords
+      .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+      .map(record => {
+        const vehicle = this.getVehicleForFuelRecord(record.vehicleId);
+        const driver = this.getDriverForFuelRecord(record.driverId);
+        return `
+          <tr>
+            <td>AF-${record.vehicleId.padStart(3, '0')}</td>
+            <td>${this.formatDate(record.date)}</td>
+            <td>${record.time}</td>
+            <td>${record.fuelAmount}</td>
+            <td>${record.kmReading.toLocaleString()}</td>
+            <td>${record.cost}</td>
+            <td>${record.location}</td>
+            <td>${driver?.name || 'Unassigned'}</td>
+          </tr>
+        `;
+      })
+      .join('');
+
     return `
+      ${summarySection}
+      <h3 style="font-size: 16px; font-weight: bold; margin-bottom: 15px;">Detailed Fuel Records</h3>
       <table>
         <thead>
           <tr>
-            <th>Month</th>
-            <th>Total Fuel (L)</th>
-            <th>Total Cost (AED)</th>
-            <th>Average Cost per Liter</th>
-            <th>Vehicles Active</th>
-            <th>Average Efficiency (km/L)</th>
-            <th>Top Consumer Vehicle</th>
-            <th>Top Consumer Project</th>
+            <th>Vehicle</th>
+            <th>Date</th>
+            <th>Time</th>
+            <th>Fuel (L)</th>
+            <th>KM Reading</th>
+            <th>Cost (AED)</th>
+            <th>Location</th>
+            <th>Driver</th>
           </tr>
         </thead>
         <tbody>
-          <tr>
-            <td>October 2024</td>
-            <td>11,100</td>
-            <td>33,300</td>
-            <td>3.00</td>
-            <td>45</td>
-            <td>9.2</td>
-            <td>AF-002 (Dumper)</td>
-            <td>Asab Field</td>
-          </tr>
-          <tr>
-            <td>September 2024</td>
-            <td>10,800</td>
-            <td>32,400</td>
-            <td>3.00</td>
-            <td>42</td>
-            <td>8.9</td>
-            <td>AF-002 (Dumper)</td>
-            <td>Asab Field</td>
-          </tr>
-          <tr>
-            <td>August 2024</td>
-            <td>10,500</td>
-            <td>31,500</td>
-            <td>3.00</td>
-            <td>40</td>
-            <td>8.7</td>
-            <td>AF-002 (Dumper)</td>
-            <td>Asab Field</td>
-          </tr>
-          <tr>
-            <td>July 2024</td>
-            <td>10,200</td>
-            <td>30,600</td>
-            <td>3.00</td>
-            <td>38</td>
-            <td>8.5</td>
-            <td>AF-002 (Dumper)</td>
-            <td>Asab Field</td>
-          </tr>
-          <tr>
-            <td>June 2024</td>
-            <td>9,900</td>
-            <td>29,700</td>
-            <td>3.00</td>
-            <td>35</td>
-            <td>8.3</td>
-            <td>AF-002 (Dumper)</td>
-            <td>Asab Field</td>
-          </tr>
+          ${recordsRows}
         </tbody>
       </table>
     `;
@@ -1242,5 +1399,87 @@ export class ReportsComponent implements OnInit {
   // Helper method to access Math in template
   get Math() {
     return Math;
+  }
+
+  // Fuel-related methods
+  getTotalFuelThisMonth(): number {
+    const now = new Date();
+    const thisMonthRecords = this.fuelRecords.filter(record => {
+      const recordDate = new Date(record.date);
+      return recordDate.getMonth() === now.getMonth() && 
+             recordDate.getFullYear() === now.getFullYear();
+    });
+    return thisMonthRecords.reduce((sum, record) => sum + record.fuelAmount, 0);
+  }
+
+  getTotalCostThisMonth(): number {
+    const now = new Date();
+    const thisMonthRecords = this.fuelRecords.filter(record => {
+      const recordDate = new Date(record.date);
+      return recordDate.getMonth() === now.getMonth() && 
+             recordDate.getFullYear() === now.getFullYear();
+    });
+    return thisMonthRecords.reduce((sum, record) => sum + record.cost, 0);
+  }
+
+  getRecentFuelRecords(limit: number = 10): FuelRecord[] {
+    return this.fuelRecords
+      .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+      .slice(0, limit);
+  }
+
+  getVehicleForFuelRecord(vehicleId: string): Vehicle | undefined {
+    return this.vehicles.find(v => v.id === vehicleId);
+  }
+
+  getDriverForFuelRecord(driverId: string): Driver | undefined {
+    return this.drivers.find(d => d.id === driverId);
+  }
+
+  // Fuel pagination properties
+  fuelCurrentPage: number = 1;
+  fuelItemsPerPage: number = 10;
+
+  get paginatedFuelRecords(): FuelRecord[] {
+    const sortedRecords = this.fuelRecords
+      .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+    const startIndex = (this.fuelCurrentPage - 1) * this.fuelItemsPerPage;
+    const endIndex = startIndex + this.fuelItemsPerPage;
+    return sortedRecords.slice(startIndex, endIndex);
+  }
+
+  get totalFuelPages(): number {
+    return Math.ceil(this.fuelRecords.length / this.fuelItemsPerPage);
+  }
+
+  goToFuelPage(page: number): void {
+    if (page >= 1 && page <= this.totalFuelPages) {
+      this.fuelCurrentPage = page;
+    }
+  }
+
+  previousFuelPage(): void {
+    if (this.fuelCurrentPage > 1) {
+      this.fuelCurrentPage--;
+    }
+  }
+
+  nextFuelPage(): void {
+    if (this.fuelCurrentPage < this.totalFuelPages) {
+      this.fuelCurrentPage++;
+    }
+  }
+
+  getFuelPageNumbers(): number[] {
+    const pages: number[] = [];
+    const maxVisible = 5;
+    const start = Math.max(1, this.fuelCurrentPage - Math.floor(maxVisible / 2));
+    const end = Math.min(this.totalFuelPages, start + maxVisible - 1);
+    
+    for (let i = start; i <= end; i++) {
+      pages.push(i);
+    }
+    
+    return pages;
   }
 }
