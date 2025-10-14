@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { ActivatedRoute } from '@angular/router';
 import { ToastService } from '../../services/toast.service';
 
 interface Camp {
@@ -63,7 +64,7 @@ export class CampManageComponent implements OnInit {
   selectedOccupant: Occupant | null = null;
   
   // View state
-  selectedView: 'overview' | 'camps' | 'rooms' | 'occupants' = 'overview';
+  selectedView: 'overview' | 'camps' | 'rooms' | 'occupants' = 'camps';
   selectedCampId: string = '';
   
   // Modal states
@@ -102,12 +103,29 @@ export class CampManageComponent implements OnInit {
   // Expose Math to template
   Math = Math;
 
-  constructor(private toastService: ToastService) {}
+  constructor(
+    private toastService: ToastService,
+    private route: ActivatedRoute
+  ) {}
 
   ngOnInit(): void {
     this.generateCamps();
     this.generateRooms();
     this.generateOccupants();
+    
+    // Handle query parameters from dashboard navigation
+    this.route.queryParams.subscribe(params => {
+      if (params['view']) {
+        this.selectedView = params['view'] as 'overview' | 'camps' | 'rooms' | 'occupants';
+      }
+      if (params['campId']) {
+        this.selectedCampId = params['campId'];
+        // If navigating to rooms view, switch to rooms
+        if (params['view'] === 'rooms') {
+          this.selectedView = 'rooms';
+        }
+      }
+    });
   }
 
   generateCamps(): void {

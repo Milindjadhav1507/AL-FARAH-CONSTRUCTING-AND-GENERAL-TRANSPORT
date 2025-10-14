@@ -1,14 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-
-interface KPIData {
-  title: string;
-  icon: string;
-  primaryValue: string;
-  secondaryValue: string;
-  color: string;
-  bgColor: string;
-}
+import { Router } from '@angular/router';
 
 interface VehicleData {
   vehicleNo: string;
@@ -41,6 +33,36 @@ interface CampData {
   checkInDate: string;
 }
 
+interface Camp {
+  id: string;
+  name: string;
+  location: string;
+  totalCapacity: number;
+  occupiedRooms: number;
+  availableRooms: number;
+  totalRooms: number;
+  occupancyRate: number;
+  facilities: string[];
+  status: 'Operational' | 'Full';
+}
+
+interface Occupant {
+  id: string;
+  campId: string;
+  roomId: string;
+  name: string;
+  employeeID: string;
+  type: 'Company Employee' | 'Contractor' | 'External Worker' | 'Visitor';
+  department?: string;
+  company?: string;
+  nationality: string;
+  emiratesID: string;
+  phone: string;
+  checkInDate: Date;
+  bedNumber: number;
+  status: 'Active' | 'Checked Out' | 'On Leave';
+}
+
 @Component({
   selector: 'app-dashboard',
   imports: [CommonModule],
@@ -49,56 +71,27 @@ interface CampData {
 })
 export class DashboardComponent implements OnInit {
   
-  // KPI Data
-  kpiData: KPIData[] = [
-    {
-      title: 'Vehicles',
-      icon: 'truck',
-      primaryValue: '600',
-      secondaryValue: 'Active 540 • In Garage 35 • Idle 25',
-      color: 'text-blue-600',
-      bgColor: 'bg-blue-50'
-    },
-    {
-      title: 'Fuel',
-      icon: 'fuel-pump',
-      primaryValue: '12,400 L',
-      secondaryValue: 'Fuel Cost: AED 148,000',
-      color: 'text-orange-600',
-      bgColor: 'bg-orange-50'
-    },
-    {
-      title: 'Maintenance',
-      icon: 'wrench-screwdriver',
-      primaryValue: '22',
-      secondaryValue: 'Open Job Cards • Avg Downtime 2.4 days',
-      color: 'text-red-600',
-      bgColor: 'bg-red-50'
-    },
-    {
-      title: 'Manpower / Camp',
-      icon: 'users',
-      primaryValue: '92%',
-      secondaryValue: 'Camp Occupancy (184/200 rooms)',
-      color: 'text-teal-600',
-      bgColor: 'bg-teal-50'
-    },
-    {
-      title: 'Timesheets',
-      icon: 'clock',
-      primaryValue: '118',
-      secondaryValue: 'Time Sheets Updated Today',
-      color: 'text-yellow-600',
-      bgColor: 'bg-yellow-50'
-    }
-  ];
+  // Camp Management Data
+  camps: Camp[] = [];
+  occupants: Occupant[] = [];
+  
+  // Modal states
+  showCampDetailsModal: boolean = false;
+  selectedCamp: Camp | null = null;
+  
+  // Fleet Statistics (Hard-coded - Updated Values)
+  totalVehicles: number = 600;
+  availableVehicles: number = 150;  // Active
+  inUseVehicles: number = 151;      // Idle
+  maintenanceVehicles: number = 145;  // Maintenance
+  breakdownVehicles: number = 154;    // Breakdown
 
-  // Fleet Utilization Data
-  fleetUtilization = {
-    active: { count: 540, percentage: 90, color: 'bg-green-500' },
-    maintenance: { count: 35, percentage: 6, color: 'bg-red-500' },
-    idle: { count: 25, percentage: 4, color: 'bg-yellow-500' }
-  };
+  // Fuel Statistics (Exactly from Fleet-Manage)
+  todayFuelConsumption: number = 370;     // Today's consumption (L)
+  todayFuelCost: number = 1110;           // Today's cost (AED)
+  monthlyFuelConsumption: number = 11100; // Monthly consumption (L)
+  averageEfficiency: number = 9.2;        // Average km/L
+  fuelCostPerLiter: number = 3;           // AED per liter
 
   // Vehicle Data
   vehicleData: VehicleData[] = [
@@ -156,14 +149,98 @@ export class DashboardComponent implements OnInit {
   showFuelChart = true; // Toggle between liters and cost
   chartsLoaded = false;
 
-  constructor() { }
+  constructor(private router: Router) { }
 
   ngOnInit(): void {
     console.log('Dashboard component initialized');
+    this.generateCamps();
+    this.generateOccupants();
     // Simulate chart loading
     setTimeout(() => {
       this.chartsLoaded = true;
     }, 1000);
+  }
+
+  generateCamps(): void {
+    this.camps = [
+      {
+        id: 'CAMP-001',
+        name: 'Shah Field Camp',
+        location: 'Shah Field, Abu Dhabi',
+        totalCapacity: 200,
+        occupiedRooms: 46,
+        availableRooms: 4,
+        totalRooms: 50,
+        occupancyRate: 92,
+        facilities: ['Dining Hall', 'Recreation Room', 'Laundry', 'Medical Room', 'Prayer Room', 'Gym'],
+        status: 'Operational'
+      },
+      {
+        id: 'CAMP-002',
+        name: 'Asab Field Camp',
+        location: 'Asab Field, Abu Dhabi',
+        totalCapacity: 1341,
+        occupiedRooms: 262,
+        availableRooms: 74,
+        totalRooms: 336,
+        occupancyRate: 78,
+        facilities: ['Dining Hall', 'Recreation Room', 'Laundry', 'Medical Room', 'Prayer Room', 'Gym', 'Library', 'Sports Ground'],
+        status: 'Operational'
+      },
+      {
+        id: 'CAMP-003',
+        name: 'Beda Zayed Camp',
+        location: 'Beda Zayed, Abu Dhabi',
+        totalCapacity: 780,
+        occupiedRooms: 127,
+        availableRooms: 68,
+        totalRooms: 195,
+        occupancyRate: 65,
+        facilities: ['Dining Hall', 'Recreation Room', 'Laundry', 'Medical Room', 'Prayer Room', 'Gym', 'Canteen'],
+        status: 'Operational'
+      },
+      {
+        id: 'CAMP-004',
+        name: 'Qusaweira Camp',
+        location: 'Qusaweira, Abu Dhabi',
+        totalCapacity: 329,
+        occupiedRooms: 71,
+        availableRooms: 12,
+        totalRooms: 83,
+        occupancyRate: 86,
+        facilities: ['Dining Hall', 'Recreation Room', 'Laundry', 'Medical Room', 'Prayer Room'],
+        status: 'Operational'
+      }
+    ];
+  }
+
+  generateOccupants(): void {
+    const types: Array<'Company Employee' | 'Contractor' | 'External Worker' | 'Visitor'> = 
+      ['Company Employee', 'Contractor', 'External Worker', 'Visitor'];
+    
+    // Generate realistic occupant data for each camp
+    this.camps.forEach(camp => {
+      const occupantCount = Math.round(camp.totalCapacity * (camp.occupancyRate / 100));
+      for (let i = 0; i < occupantCount; i++) {
+        const type = types[i % 4];
+        this.occupants.push({
+          id: `OCC-${camp.id}-${i}`,
+          campId: camp.id,
+          roomId: `${camp.id}-R${i}`,
+          name: `Occupant ${i}`,
+          employeeID: type === 'Company Employee' ? `EMP-${i}` : `EXT-${i}`,
+          type: type,
+          department: type === 'Company Employee' ? 'Operations' : undefined,
+          company: type !== 'Company Employee' ? 'External Company' : undefined,
+          nationality: 'UAE',
+          emiratesID: `784-1234-567890-${i}`,
+          phone: `+971 50 ${1000000 + i}`,
+          checkInDate: new Date(),
+          bedNumber: (i % 4) + 1,
+          status: 'Active'
+        });
+      }
+    });
   }
 
   toggleFuelChart(): void {
@@ -194,6 +271,132 @@ export class DashboardComponent implements OnInit {
 
   isChartReady(): boolean {
     return this.chartsLoaded;
+  }
+
+  // Camp Management Helper Methods
+  getTotalCapacity(): number {
+    return this.camps.reduce((sum, c) => sum + c.totalCapacity, 0);
+  }
+
+  getTotalActiveOccupants(): number {
+    return this.occupants.filter(o => o.status === 'Active').length;
+  }
+
+  getAverageOccupancy(): number {
+    if (this.camps.length === 0) return 0;
+    return Math.round(this.camps.reduce((sum, c) => sum + c.occupancyRate, 0) / this.camps.length);
+  }
+
+  getActiveOccupantsByCamp(campId: string): number {
+    return this.occupants.filter(o => o.campId === campId && o.status === 'Active').length;
+  }
+
+  getCompanyEmployeeCount(campId: string): number {
+    return this.occupants.filter(o => o.campId === campId && o.type === 'Company Employee').length;
+  }
+
+  getExternalWorkerCount(campId: string): number {
+    return this.occupants.filter(o => o.campId === campId && o.type === 'External Worker').length;
+  }
+
+  getContractorCount(campId: string): number {
+    return this.occupants.filter(o => o.campId === campId && o.type === 'Contractor').length;
+  }
+
+  getVisitorCount(campId: string): number {
+    return this.occupants.filter(o => o.campId === campId && o.type === 'Visitor').length;
+  }
+
+  getOccupancyColor(rate: number): string {
+    if (rate >= 90) return 'text-red-600';
+    if (rate >= 70) return 'text-orange-600';
+    if (rate >= 50) return 'text-yellow-600';
+    return 'text-green-600';
+  }
+
+  // Fuel Calculation Methods (Exactly from Fleet-Manage)
+  getTodayFuelConsumption(): number {
+    return this.todayFuelConsumption;
+  }
+
+  getTodayFuelCost(): number {
+    return this.todayFuelCost;
+  }
+
+  getMonthlyFuelConsumption(): number {
+    return this.monthlyFuelConsumption;
+  }
+
+  getAverageEfficiency(): number {
+    return this.averageEfficiency;
+  }
+
+  // Calculate distribution based on actual fleet data
+  getFuelForActiveVehicles(): number {
+    // Active vehicles (150) - avg 44.4 L/month each
+    return Math.round((this.monthlyFuelConsumption * this.availableVehicles) / this.totalVehicles);
+  }
+
+  getFuelForIdleVehicles(): number {
+    // Idle vehicles (151) - avg 27.9 L/month each  
+    return Math.round((this.monthlyFuelConsumption * this.inUseVehicles) / this.totalVehicles * 0.63);
+  }
+
+  getFuelForNonOperational(): number {
+    // Maintenance & Breakdown (299) - minimal consumption
+    const activeAndIdleFuel = this.getFuelForActiveVehicles() + this.getFuelForIdleVehicles();
+    return this.monthlyFuelConsumption - activeAndIdleFuel;
+  }
+
+  getActiveFuelPercentage(): number {
+    return Math.round((this.getFuelForActiveVehicles() / this.monthlyFuelConsumption) * 100);
+  }
+
+  getIdleFuelPercentage(): number {
+    return Math.round((this.getFuelForIdleVehicles() / this.monthlyFuelConsumption) * 100);
+  }
+
+  getNonOperationalFuelPercentage(): number {
+    return Math.round((this.getFuelForNonOperational() / this.monthlyFuelConsumption) * 100);
+  }
+
+  getMonthlyTotalFuel(): string {
+    return this.monthlyFuelConsumption.toLocaleString();
+  }
+
+  getMonthlyFuelCost(): number {
+    // Cost = Monthly Fuel * Cost per liter / 1000 (to show in thousands)
+    return Math.round((this.monthlyFuelConsumption * this.fuelCostPerLiter) / 1000);
+  }
+
+  // Navigation
+  navigateToCampManagement(): void {
+    this.router.navigate(['/camps-management']);
+  }
+
+  navigateToFleetManagement(status: string): void {
+    // Navigate to fleet management with filter
+    this.router.navigate(['/fleet-management'], { 
+      queryParams: { status: status } 
+    });
+  }
+
+  viewCampDetails(camp: Camp): void {
+    // Open camp details modal
+    this.selectedCamp = camp;
+    this.showCampDetailsModal = true;
+  }
+
+  closeCampDetailsModal(): void {
+    this.showCampDetailsModal = false;
+    this.selectedCamp = null;
+  }
+
+  viewCampRooms(camp: Camp): void {
+    // Navigate to camp management and show rooms for this camp
+    this.router.navigate(['/camps-management'], { 
+      queryParams: { campId: camp.id, view: 'rooms' } 
+    });
   }
 
 }

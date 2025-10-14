@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { ActivatedRoute } from '@angular/router';
 import { ToastService } from '../../services/toast.service';
 
 // Vehicle Types Interface
@@ -262,15 +263,26 @@ export class FleetManageComponent implements OnInit {
   maintenanceVehicles: number = 0;
   breakdownVehicles: number = 0;
 
-  constructor(private toastService: ToastService) { }
+  constructor(
+    private toastService: ToastService,
+    private route: ActivatedRoute
+  ) { }
 
   ngOnInit(): void {
     this.generateVehicles();
     this.generateFuelRecords();
     this.calculateStatistics();
+    
+    // Handle query parameters from dashboard navigation
+    this.route.queryParams.subscribe(params => {
+      if (params['status']) {
+        this.selectedStatus = params['status'];
+        this.currentPage = 1; // Reset to first page when filter is applied
+      }
+    });
   }
 
-  // Generate 600 vehicles
+  // Generate 600 vehicles with FIXED values (No random)
   generateVehicles(): void {
     const makes = ['Toyota', 'Mercedes', 'Volvo', 'Scania', 'Caterpillar', 'Komatsu', 'Hitachi', 'JCB', 'MAN', 'DAF', 'Isuzu', 'Mitsubishi'];
     const models = ['Hilux', 'Tourismo', 'FMX', 'P-Series', '320D', 'PC200', 'ZX200', '3CX', 'TGS', 'XF', 'Forward', 'Fuso'];
@@ -279,21 +291,29 @@ export class FleetManageComponent implements OnInit {
       'Service Center', 'Fuel Station', 'Material Yard', 'Equipment Depot', 'Maintenance Bay'
     ];
     const statuses = this.vehicleStatuses;
+    
+    // Fixed status distribution: Active=150, Idle=151, Maintenance=145, Breakdown=154
+    const statusDistribution = [
+      ...Array(150).fill(0), // Active (indices 0-149)
+      ...Array(151).fill(1), // Idle (indices 150-300)
+      ...Array(145).fill(2), // Maintenance (indices 301-445)
+      ...Array(154).fill(3)  // Breakdown (indices 446-599)
+    ];
 
     for (let i = 1; i <= 600; i++) {
       const vehicleTypeIndex = i % this.vehicleTypes.length;
       const vehicleType = this.vehicleTypes[vehicleTypeIndex];
-      const statusIndex = Math.floor(Math.random() * statuses.length);
+      const statusIndex = statusDistribution[i - 1]; // Fixed status based on distribution
       const makeIndex = i % makes.length;
       const modelIndex = i % models.length;
       const locationIndex = i % locations.length;
       
-      // Determine if vehicle has driver (70% chance for Active status)
-      const hasDriver = Math.random() > 0.3;
+      // Fixed driver assignment (Active vehicles get drivers)
+      const hasDriver = statuses[statusIndex].name === 'Active' && i % 3 !== 0; // 2/3 of Active vehicles have drivers
       const driverIndex = i % this.drivers.length;
       
-      // Random dates
-      const daysUntilService = Math.floor(Math.random() * 90) - 30; // -30 to 60 days
+      // Fixed dates (predictable pattern)
+      const daysUntilService = ((i * 7) % 90) - 30; // Cycles from -30 to 59
       const nextServiceDate = new Date();
       nextServiceDate.setDate(nextServiceDate.getDate() + daysUntilService);
       
@@ -301,7 +321,7 @@ export class FleetManageComponent implements OnInit {
       lastServiceDate.setDate(lastServiceDate.getDate() - (90 - daysUntilService));
       
       const insuranceExpiry = new Date();
-      insuranceExpiry.setDate(insuranceExpiry.getDate() + Math.floor(Math.random() * 365));
+      insuranceExpiry.setDate(insuranceExpiry.getDate() + ((i * 13) % 365)); // Fixed pattern
       
       // Maintenance status based on service due
       let maintenanceStatus: 'Good' | 'Warning' | 'Critical' = 'Good';
@@ -324,13 +344,13 @@ export class FleetManageComponent implements OnInit {
         insuranceExpiry: insuranceExpiry,
         lastServiceDate: lastServiceDate,
         nextServiceDate: nextServiceDate,
-        assignedDriver: hasDriver && statuses[statusIndex].name === 'Active' ? this.drivers[driverIndex] : undefined,
+        assignedDriver: hasDriver ? this.drivers[driverIndex] : undefined,
         currentStatus: statuses[statusIndex],
         location: locations[locationIndex],
-        route: (Math.random() > 0.5) ? this.routes[i % this.routes.length] : undefined, // 50% chance of having a route
-        fuelEfficiency: 3 + Math.random() * 10, // 3 to 13 km/L
-        totalKm: Math.floor(10000 + Math.random() * 200000), // 10k to 210k km
-        lastFuelDate: new Date(Date.now() - Math.floor(Math.random() * 7 * 24 * 60 * 60 * 1000)), // Within last 7 days
+        route: (i % 2 === 0) ? this.routes[i % this.routes.length] : undefined, // Fixed: even vehicles get routes
+        fuelEfficiency: 3 + ((i * 3) % 10), // Fixed: 3 to 13 km/L in pattern
+        totalKm: 10000 + ((i * 317) % 200000), // Fixed: 10k to 210k km in pattern
+        lastFuelDate: new Date(Date.now() - ((i % 7) * 24 * 60 * 60 * 1000)), // Fixed: 0-6 days ago in pattern
         maintenanceStatus: maintenanceStatus
       };
 
@@ -338,34 +358,37 @@ export class FleetManageComponent implements OnInit {
     }
   }
 
-  // Generate fuel records for all vehicles (last 30 days)
+  // Generate fuel records with FIXED values (No random)
   generateFuelRecords(): void {
     this.fuelRecords = []; // Clear existing records
     const fuelLocations = ['Main Fuel Depot', 'Camp A Fuel Station', 'Camp B Fuel Station', 'Site Fuel Station', 'City Petrol Station'];
     
     this.vehicles.forEach((vehicle, index) => {
-      // Generate 3-5 fuel records per vehicle (last 30 days)
-      const recordCount = Math.floor(Math.random() * 3) + 3; // 3 to 5 records
+      // Fixed: 3-5 fuel records per vehicle based on pattern
+      const recordCount = 3 + (index % 3); // Fixed: 3, 4, or 5 records in pattern
       let currentKm = vehicle.totalKm;
       
       for (let i = 0; i < recordCount; i++) {
-        const daysAgo = Math.floor(Math.random() * 30); // Random day in last 30 days
+        const daysAgo = ((index + i) * 7) % 30; // Fixed: 0-29 days in pattern
         const fuelDate = new Date();
         fuelDate.setDate(fuelDate.getDate() - daysAgo);
         
-        const fuelAmount = Math.floor(Math.random() * 150) + 50; // 50-200 liters
+        const fuelAmount = 50 + ((index + i) * 17) % 150; // Fixed: 50-200 liters in pattern
         const kmBetweenFills = Math.floor(fuelAmount * vehicle.fuelEfficiency); // Based on efficiency
         currentKm -= kmBetweenFills;
+        
+        const hourPattern = 6 + ((index + i) % 16); // Fixed: 6 AM to 10 PM in pattern
+        const minutePattern = (index * 13 + i * 7) % 60; // Fixed: 0-59 minutes in pattern
         
         const fuelRecord: FuelRecord = {
           id: `F-${vehicle.id}-${i}`,
           vehicleId: vehicle.id,
           date: fuelDate,
-          time: `${String(Math.floor(Math.random() * 16) + 6).padStart(2, '0')}:${String(Math.floor(Math.random() * 60)).padStart(2, '0')}`, // 6 AM to 10 PM
+          time: `${String(hourPattern).padStart(2, '0')}:${String(minutePattern).padStart(2, '0')}`, // Fixed time pattern
           fuelAmount: fuelAmount,
           kmReading: Math.max(currentKm, 10000),
           cost: fuelAmount * 3, // AED 3 per liter
-          location: fuelLocations[Math.floor(Math.random() * fuelLocations.length)],
+          location: fuelLocations[(index + i) % fuelLocations.length], // Fixed: rotate through locations
           driverId: vehicle.assignedDriver?.id || this.drivers[index % this.drivers.length].id
         };
         
